@@ -32,11 +32,10 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  private TalonFX leader = new TalonFX(10);
-  private TalonFX follower = new TalonFX(11);
+  private TalonFX leftMotor = new TalonFX(10);
+  private TalonFX rightMotor = new TalonFX(11);
   private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
-  private DigitalInput peakSensor = new DigitalInput(2);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
   private TorqueCurrentFOC torqueCurrentControl = new TorqueCurrentFOC(0);
   private DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
@@ -66,8 +65,10 @@ public class Elevator extends SubsystemBase {
     talonFXConfiguration.Voltage.PeakForwardVoltage = 8;
     talonFXConfiguration.Voltage.PeakReverseVoltage = -4;
 
-    leader.getConfigurator().apply(talonFXConfiguration);
-    follower.getConfigurator().apply(talonFXConfiguration);
+    // TODO: Current configuration assumes one side follows the other, that needs to
+    // be added
+    leftMotor.getConfigurator().apply(talonFXConfiguration);
+    rightMotor.getConfigurator().apply(talonFXConfiguration);
   }
 
   public Command cmdSetTorque() {
