@@ -7,74 +7,146 @@ package frc.robot.subsystem;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class EndEffector extends SubsystemBase {
 
-  private TalonFX end1 = new TalonFX(21);
-  private TalonFX end2 = new TalonFX(20);
-  private DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
+  public enum AlgaeServoPosition {
+    DEPLOYED(0.0);
+
+    public final double value;
+
+    AlgaeServoPosition(double value) {
+      this.value = value;
+    }
+  }
+
+  public enum HeadRotationPosition {
+    CENTER(0.5);
+
+    public final double value;
+
+    HeadRotationPosition(double value) {
+      this.value = value;
+    }
+  }
+
+  private TalonFX algaeMotor = new TalonFX(21);
+  private DutyCycleOut algaeDutyCycleOut = new DutyCycleOut(0);
+  private DigitalInput algaeSensor = new DigitalInput(4);
+  private Servo algaeIntakeDeploy = new Servo(1);
+
+  private TalonFX coralMotor = new TalonFX(20);
+  private DutyCycleOut coralDutyCycleOut = new DutyCycleOut(0);
+  private PositionVoltage coralPositionControl = new PositionVoltage(0);
+  private DigitalInput coralSensor = new DigitalInput(3);
+  private Servo headRotate = new Servo(0);
+
   /** Creates a new EndEffector. */
   public EndEffector() {
-    Slot0Configs endConfigs = new Slot0Configs()
-    .withKG(0)
-    .withKS(0)
-    .withKP(0)
-    .withKI(0)
-    .withKD(0)
-    .withKV(0);
+    Slot0Configs positionPIDConfigs = new Slot0Configs()
+        .withKG(0)
+        .withKS(0)
+        .withKP(0)
+        .withKI(0)
+        .withKD(0)
+        .withKV(0);
 
-    TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-    talonFXConfiguration.Slot0 = endConfigs;
-    talonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
-    talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    talonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    talonFXConfiguration.Voltage.PeakForwardVoltage = 8;
-    talonFXConfiguration.Voltage.PeakReverseVoltage = -4;
+    TalonFXConfiguration coralTalonConfiguration = new TalonFXConfiguration();
+    coralTalonConfiguration.Slot0 = positionPIDConfigs;
+    coralTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
+    coralTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+    coralTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    coralMotor.getConfigurator().apply(coralTalonConfiguration);
 
-    end1.getConfigurator().apply(talonFXConfiguration);
-    end2.getConfigurator().apply(talonFXConfiguration);
-
+    TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();
+    algaeTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
+    algaeTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+    algaeTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    algaeTalonConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    algaeMotor.getConfigurator().apply(algaeTalonConfiguration);
   }
- 
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
 
-  public Command cmdSetDutyCycleOut() {
+  public Command cmdStopCoralMotor() {
     return Commands.none();
   }
 
-  public double getSetDutyCycleOut() {
-    return 0;
-  }
-
-  public Command cmdSetPostion() {
+  public Command cmdSetCoralPosition() {
     return Commands.none();
   }
 
-  public boolean cmdIsNearForwardLimit() {
-    return false;
-  }
-  
-  public boolean cmdIsNearReverseLimit() {
-    return false;
+  public Command cmdSetCoralDutyCycleOut() {
+    return Commands.none();
   }
 
-  public double cmdGetPositon() {
+  public Command cmdStopAlgaeMotor() {
+    return Commands.none();
+  }
+
+  public Command cmdSetAlgaeDutyCycleOut() {
+    return Commands.none();
+  }
+
+  public Command cmdSetAlgaeIntakePostion() {
+    return Commands.none();
+  }
+
+  public Command cmdSetHeadRotation() {
+    return Commands.none();
+  }
+
+  private void stopCoralMotor() {
+
+  }
+
+  private void setCoralPosition() {
+
+  }
+
+  private double getCoralPosition() {
     return 0;
   }
 
+  private void setCoralDutyCycleOut() {
+    // Using DutyCycleOut
+  }
 
+  private boolean getCoralSensor() {
+    return true;
+  }
+
+  private void stopAlgaeMotor() {
+
+  }
+
+  private void setAlgaeDutyCycleOut() {
+    // Using DutyCycleOut
+  }
+
+  private boolean getAlgaeSensor() {
+    return true;
+  }
+
+  private void setAlgaeIntakePostion() {
+
+  }
+
+  private void setHeadRotation() {
+
+  }
 }
