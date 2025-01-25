@@ -31,7 +31,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public enum HeadRotationPosition {
-    CENTER(0.5);
+    CENTER(0.5),LEFT(0),LEFT_CENTER(0.25),RIGHT(1),RIGHT_CENTER(.75);
 
     public final double value;
 
@@ -75,6 +75,8 @@ public class EndEffector extends SubsystemBase {
     algaeTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     algaeTalonConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     algaeMotor.getConfigurator().apply(algaeTalonConfiguration);
+
+    headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
   }
 
   @Override
@@ -106,8 +108,10 @@ public class EndEffector extends SubsystemBase {
     return Commands.none();
   }
 
-  public Command cmdSetHeadRotation() {
-    return Commands.none();
+  public Command cmdSetHeadRotation(double value) {
+    return Commands.runOnce(() -> {
+      headRotate.setPosition(value);
+    }, this);
   }
 
   private void stopCoralMotor() {
@@ -146,7 +150,4 @@ public class EndEffector extends SubsystemBase {
 
   }
 
-  private void setHeadRotation() {
-
-  }
 }
