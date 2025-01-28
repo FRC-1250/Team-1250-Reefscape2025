@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
+import frc.robot.subsystem.Elevator;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -47,7 +48,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
+public final Elevator elevator = new Elevator();
     public RobotContainer() {
         configureBindings();
         configureAutoCommands();
@@ -81,7 +82,10 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
+        joystick.a().whileTrue(elevator.cmdSetDutyCycleOut(0.5));
+        joystick.x().whileTrue(elevator.cmdSetDutyCycleOut(-0.5));
+        joystick.b().whileTrue(elevator.cmdStop());
+        joystick.y().whileTrue(elevator.cmdSetPosition(10));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

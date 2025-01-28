@@ -9,7 +9,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -37,7 +36,6 @@ public class Elevator extends SubsystemBase {
   private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
-  private TorqueCurrentFOC torqueCurrentControl = new TorqueCurrentFOC(0);
   private DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
 
   public Elevator() {
@@ -71,20 +69,27 @@ public class Elevator extends SubsystemBase {
     rightMotor.getConfigurator().apply(talonFXConfiguration);
   }
 
-  public Command cmdSetTorque() {
-    return Commands.none();
+  public Command cmdSetPosition(double position) {
+  return Commands.run(() -> {
+    motionMagicPostionControl.Position = position;
+    leftMotor.setControl(motionMagicPostionControl);
+    rightMotor.setControl(motionMagicPostionControl);
+  }, this);
   }
 
-  public Command cmdSetPosition() {
-    return Commands.none();
-  }
-
-  public Command cmdSetDutyCycleOut() {
-    return Commands.none();
+  public Command cmdSetDutyCycleOut(double output) {
+    return Commands.run(() -> {
+      dutyCycleOut.Output = output;
+      leftMotor.setControl(dutyCycleOut);
+      rightMotor.setControl(dutyCycleOut);
+    }, this);
   }
 
   public Command cmdStop() {
-    return Commands.none();
+    return Commands.run(() -> {
+      leftMotor.stopMotor();
+      rightMotor.stopMotor();
+    }, this);
   }
 
   @Override
