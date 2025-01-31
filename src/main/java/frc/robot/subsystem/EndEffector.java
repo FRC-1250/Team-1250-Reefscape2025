@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(1),HOME(0);
+    DEPLOYED(1), HOME(0);
 
     public final double value;
 
@@ -31,7 +31,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public enum HeadRotationPosition {
-    CENTER(0.5),LEFT(0),LEFT_CENTER(0.25),RIGHT(1),RIGHT_CENTER(.75);
+    CENTER(0.5), LEFT(0), LEFT_CENTER(0.25), RIGHT(1), RIGHT_CENTER(.75);
 
     public final double value;
 
@@ -86,27 +86,42 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command cmdStopCoralMotor() {
-    return Commands.none();
+    return Commands.run(() -> {
+      coralMotor.stopMotor();
+    }, this);
   }
 
-  public Command cmdSetCoralPosition() {
-    return Commands.none();
+  public Command cmdSetCoralPosition(double position) {
+    return Commands.run(() -> {
+      coralPositionControl.Position = position;
+      coralMotor.setControl(coralPositionControl);
+    }, this);
   }
 
-  public Command cmdSetCoralDutyCycleOut() {
-    return Commands.none();
+  public Command cmdSetCoralDutyCycleOut(double output) {
+    return Commands.run(() -> {
+      coralDutyCycleOut.Output = output;
+      coralMotor.setControl(coralDutyCycleOut);
+    }, this);
   }
 
   public Command cmdStopAlgaeMotor() {
-    return Commands.none();
+    return Commands.run(() -> {
+      algaeMotor.stopMotor();
+    }, this);
   }
 
-  public Command cmdSetAlgaeDutyCycleOut() {
-    return Commands.none();
+  public Command cmdSetAlgaeDutyCycleOut(double output) {
+    return Commands.run(() -> {
+      algaeDutyCycleOut.Output = output;
+      algaeMotor.setControl(algaeDutyCycleOut);
+    }, this);
   }
 
   public Command cmdSetAlgaeIntakePostion(double value) {
-    return Commands.runOnce(()-> {algaeIntakePosition.setPosition(value);}, this);
+    return Commands.runOnce(() -> {
+      algaeIntakePosition.setPosition(value);
+    }, this);
   }
 
   public Command cmdSetHeadRotation(double value) {
