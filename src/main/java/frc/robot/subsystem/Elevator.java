@@ -43,15 +43,15 @@ public class Elevator extends SubsystemBase {
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withKG(0)
         .withKS(0)
-        .withKV(0)
-        .withKP(0)
+        .withKV(0.01)
+        .withKP(1.3)
         .withKI(0)
-        .withKD(0);
+        .withKD(0.013);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(0)
-        .withMotionMagicAcceleration(0)
-        .withMotionMagicJerk(0);
+        .withMotionMagicCruiseVelocity(80)
+        .withMotionMagicAcceleration(160)
+        .withMotionMagicJerk(1600);
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
     talonFXConfiguration.Slot0 = positionPIDConfigs;
@@ -63,18 +63,16 @@ public class Elevator extends SubsystemBase {
     talonFXConfiguration.Voltage.PeakForwardVoltage = 8;
     talonFXConfiguration.Voltage.PeakReverseVoltage = -4;
 
-    // TODO: Current configuration assumes one side follows the other, that needs to
-    // be added
     leftMotor.getConfigurator().apply(talonFXConfiguration);
     rightMotor.getConfigurator().apply(talonFXConfiguration);
   }
 
   public Command cmdSetPosition(double position) {
-  return Commands.run(() -> {
-    motionMagicPostionControl.Position = position;
-    leftMotor.setControl(motionMagicPostionControl);
-    rightMotor.setControl(motionMagicPostionControl);
-  }, this);
+    return Commands.run(() -> {
+      motionMagicPostionControl.Position = position;
+      leftMotor.setControl(motionMagicPostionControl);
+      rightMotor.setControl(motionMagicPostionControl);
+    }, this);
   }
 
   public Command cmdSetDutyCycleOut(double output) {
