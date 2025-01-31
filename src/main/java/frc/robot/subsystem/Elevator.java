@@ -4,9 +4,13 @@
 
 package frc.robot.subsystem;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -14,15 +18,17 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
   public enum Position {
-    L1(0.0);
+    HOME(0),
+    L1(0.0),
+    PEAK(0);
 
     public final double rotations;
 
@@ -53,15 +59,31 @@ public class Elevator extends SubsystemBase {
         .withMotionMagicAcceleration(160)
         .withMotionMagicJerk(1600);
 
+    SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
+    softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
+    softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = Position.PEAK.rotations;
+    softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
+    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.HOME.rotations;
+
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.SupplyCurrentLimit = 25;
+
+    MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
+    motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
+    motorOutputConfigs.Inverted = InvertedValue.Clockwise_Positive;
+
+    VoltageConfigs voltageConfigs = new VoltageConfigs();
+    voltageConfigs.PeakForwardVoltage = 8;
+    voltageConfigs.PeakReverseVoltage = -4;
+
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
+    talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
     talonFXConfiguration.Slot0 = positionPIDConfigs;
     talonFXConfiguration.MotionMagic = motionMagicConfigs;
-    talonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
-    talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    talonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    talonFXConfiguration.Voltage.PeakForwardVoltage = 8;
-    talonFXConfiguration.Voltage.PeakReverseVoltage = -4;
+    talonFXConfiguration.CurrentLimits = currentLimitsConfigs;
+    talonFXConfiguration.MotorOutput = motorOutputConfigs;
+    talonFXConfiguration.Voltage = voltageConfigs;
 
     leftMotor.getConfigurator().apply(talonFXConfiguration);
     rightMotor.getConfigurator().apply(talonFXConfiguration);
@@ -72,7 +94,9 @@ public class Elevator extends SubsystemBase {
       motionMagicPostionControl.Position = position;
       leftMotor.setControl(motionMagicPostionControl);
       rightMotor.setControl(motionMagicPostionControl);
-    }, this);
+    }, this)
+        .until(() -> isNearPosition(position))
+        .andThen(cmdStop());
   }
 
   public Command cmdSetDutyCycleOut(double output) {
@@ -92,50 +116,33 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Digital Input", getDigitalInput());
+
   }
 
-  private boolean getDigitalInput() {
+  private boolean getCoralSensor() {
     return !coralSensor.get();
   }
 
-  private void stop() {
-
+  private void resetMotorPositionToHome() {
+    leftMotor.setPosition(0);
+    rightMotor.setPosition(0);
   }
 
-  private void setPosition() {
-    // Using MotionMagic control
+  private double getRightMotorPosition() {
+    return rightMotor.getPosition().getValueAsDouble();
   }
 
-  private double getPosition() {
-    return 0;
+  private double getLeftMotorPosition() {
+    return leftMotor.getPosition().getValueAsDouble();
   }
 
-  private void setTorqueCurrent() {
-    // Using Current control
-  }
-
-  private double getTorqueCurrent() {
-    return 0;
-  }
-
-  private void setDutyCycleOut() {
-    // Using DutyCycleOut
-  }
-
-  private double getDutyCycleOut() {
-    return 0;
-  }
-
-  private boolean isNearForwardLimit() {
-    return false;
-  }
-
-  private boolean isNearReverseLimit() {
-    return false;
+  private boolean isNearPosition(double position) {
+    // TODO: Tune tolerance value to something representative of real life
+    return MathUtil.isNear(position, getLeftMotorPosition(), 10)
+        || MathUtil.isNear(position, getRightMotorPosition(), 10);
   }
 
   private boolean isAtHome() {
-    return false;
+    return !homeSensor.get();
   }
 }
