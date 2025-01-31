@@ -77,6 +77,7 @@ public class EndEffector extends SubsystemBase {
     algaeMotor.getConfigurator().apply(algaeTalonConfiguration);
 
     headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
+    algaeIntakePosition.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
   }
 
   @Override
