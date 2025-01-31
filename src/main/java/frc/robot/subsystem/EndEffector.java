@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(0.0);
+    DEPLOYED(1),HOME(0);
 
     public final double value;
 
@@ -31,7 +31,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public enum HeadRotationPosition {
-    CENTER(0.5);
+    CENTER(0.5),LEFT(0),LEFT_CENTER(0.25),RIGHT(1),RIGHT_CENTER(.75);
 
     public final double value;
 
@@ -43,7 +43,7 @@ public class EndEffector extends SubsystemBase {
   private TalonFX algaeMotor = new TalonFX(21);
   private DutyCycleOut algaeDutyCycleOut = new DutyCycleOut(0);
   private DigitalInput algaeSensor = new DigitalInput(4);
-  private Servo algaeIntakeDeploy = new Servo(1);
+  private Servo algaeIntakePosition = new Servo(1);
 
   private TalonFX coralMotor = new TalonFX(20);
   private DutyCycleOut coralDutyCycleOut = new DutyCycleOut(0);
@@ -75,6 +75,9 @@ public class EndEffector extends SubsystemBase {
     algaeTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     algaeTalonConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     algaeMotor.getConfigurator().apply(algaeTalonConfiguration);
+
+    headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
+    algaeIntakePosition.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
   }
 
   @Override
@@ -102,12 +105,14 @@ public class EndEffector extends SubsystemBase {
     return Commands.none();
   }
 
-  public Command cmdSetAlgaeIntakePostion() {
-    return Commands.none();
+  public Command cmdSetAlgaeIntakePostion(double value) {
+    return Commands.runOnce(()-> {algaeIntakePosition.setPosition(value);}, this);
   }
 
-  public Command cmdSetHeadRotation() {
-    return Commands.none();
+  public Command cmdSetHeadRotation(double value) {
+    return Commands.runOnce(() -> {
+      headRotate.setPosition(value);
+    }, this);
   }
 
   private void stopCoralMotor() {
@@ -146,7 +151,4 @@ public class EndEffector extends SubsystemBase {
 
   }
 
-  private void setHeadRotation() {
-
-  }
 }
