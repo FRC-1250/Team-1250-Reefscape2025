@@ -28,6 +28,9 @@ public class Elevator extends SubsystemBase {
   public enum Position {
     HOME(0),
     L1(0.0),
+    L2(0),
+    L3(0),
+    L4(0),
     PEAK(0);
 
     public final double rotations;
