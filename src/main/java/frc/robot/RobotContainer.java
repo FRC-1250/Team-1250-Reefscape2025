@@ -87,6 +87,8 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         joystick.x().onTrue(endEffector.cmdSetHeadRotation(1));
         joystick.y().onTrue(endEffector.cmdSetHeadRotation(0));
+        joystick.b().onTrue(endEffector.cmdSetAlgaeIntakePostion(1));
+        joystick.a().onTrue(endEffector.cmdSetAlgaeIntakePostion(0));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

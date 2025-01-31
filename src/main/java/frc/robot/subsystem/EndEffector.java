@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(0.0);
+    DEPLOYED(1),HOME(0);
 
     public final double value;
 
@@ -43,7 +43,7 @@ public class EndEffector extends SubsystemBase {
   private TalonFX algaeMotor = new TalonFX(21);
   private DutyCycleOut algaeDutyCycleOut = new DutyCycleOut(0);
   private DigitalInput algaeSensor = new DigitalInput(4);
-  private Servo algaeIntakeDeploy = new Servo(1);
+  private Servo algaeIntakePosition = new Servo(1);
 
   private TalonFX coralMotor = new TalonFX(20);
   private DutyCycleOut coralDutyCycleOut = new DutyCycleOut(0);
@@ -104,8 +104,8 @@ public class EndEffector extends SubsystemBase {
     return Commands.none();
   }
 
-  public Command cmdSetAlgaeIntakePostion() {
-    return Commands.none();
+  public Command cmdSetAlgaeIntakePostion(double value) {
+    return Commands.runOnce(()-> {algaeIntakePosition.setPosition(value);}, this);
   }
 
   public Command cmdSetHeadRotation(double value) {
