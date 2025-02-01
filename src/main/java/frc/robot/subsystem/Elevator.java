@@ -107,7 +107,8 @@ public class Elevator extends SubsystemBase {
       dutyCycleOut.Output = output;
       leftMotor.setControl(dutyCycleOut);
       rightMotor.setControl(dutyCycleOut);
-    }, this);
+    }, this)
+        .andThen(cmdStop());
   }
 
   public Command cmdStop() {
