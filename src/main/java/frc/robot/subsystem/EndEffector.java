@@ -21,21 +21,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(1), HOME(0);
+    DEPLOYED(1), 
+    HOME(0);
 
     public final double value;
 
     AlgaeServoPosition(double value) {
-      this.value = value;
-    }
-  }
-
-  public enum HeadRotationPosition {
-    CENTER(0.5), LEFT(0), LEFT_CENTER(0.25), RIGHT(1), RIGHT_CENTER(.75);
-
-    public final double value;
-
-    HeadRotationPosition(double value) {
       this.value = value;
     }
   }
