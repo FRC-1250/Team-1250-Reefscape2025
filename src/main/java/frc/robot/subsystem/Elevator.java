@@ -27,9 +27,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
   public enum Position {
     HOME(0),
+    CONTAIN_ALGAE(0),
     L1(0.0),
     L2(0),
+    L2_5(0),
     L3(0),
+    L3_5(0),
     L4(0),
     PEAK(0);
 
@@ -45,7 +48,8 @@ public class Elevator extends SubsystemBase {
   private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
-  private DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
+  private DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(false);
+  private boolean homeFound = false;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -92,44 +96,91 @@ public class Elevator extends SubsystemBase {
     rightMotor.getConfigurator().apply(talonFXConfiguration);
   }
 
+  public Command cmdHome() {
+    if (homeFound) {
+      return cmdSetPosition(Position.HOME);
+    } else {
+      return cmdSetDutyCycleOut(-0.05).until(() -> homeFound);
+    }
+  }
+
+  public Command cmdSetPosition(Position position) {
+    return Commands.runEnd(
+        () -> {
+          setPosition(position.rotations);
+        },
+        () -> {
+          if (position == Position.HOME || position == Position.CONTAIN_ALGAE) {
+            stop();
+          }
+        },
+        this)
+        .until(() -> isNearPosition(position.rotations))
+        .unless(() -> !(isAtHome() && hasCoralInChute()));
+  }
+
   public Command cmdSetPosition(double position) {
-    return Commands.run(() -> {
-      motionMagicPostionControl.Position = position;
-      leftMotor.setControl(motionMagicPostionControl);
-      rightMotor.setControl(motionMagicPostionControl);
-    }, this)
-        .until(() -> isNearPosition(position))
-        .andThen(cmdStop());
+    return Commands.run(
+        () -> {
+          setPosition(position);
+        },
+        this)
+        .until(() -> isNearPosition(position));
   }
 
   public Command cmdSetDutyCycleOut(double output) {
-    return Commands.run(() -> {
-      dutyCycleOut.Output = output;
-      leftMotor.setControl(dutyCycleOut);
-      rightMotor.setControl(dutyCycleOut);
-    }, this)
-        .andThen(cmdStop());
+    return Commands.runEnd(
+        () -> {
+          setDutyCycleOut(output);
+        },
+        () -> {
+          stop();
+        },
+        this);
   }
 
   public Command cmdStop() {
-    return Commands.run(() -> {
-      leftMotor.stopMotor();
-      rightMotor.stopMotor();
+    return Commands.runOnce(() -> {
+      stop();
     }, this);
   }
 
   @Override
   public void periodic() {
-
+    if (!homeFound && isAtHome()) {
+      homeFound = isAtHome();
+      resetMotorPositionToHome();
+    }
   }
 
-  private boolean getCoralSensor() {
+  public boolean getHomeFound() {
+    return homeFound;
+  }
+
+  private void setPosition(double position) {
+    motionMagicPostionControl.Position = position;
+    leftMotor.setControl(motionMagicPostionControl);
+    rightMotor.setControl(motionMagicPostionControl);
+  }
+
+  private void setDutyCycleOut(double output) {
+    dutyCycleOut.Output = output;
+    leftMotor.setControl(dutyCycleOut);
+    rightMotor.setControl(dutyCycleOut);
+  }
+
+  private void stop() {
+    leftMotor.stopMotor();
+    rightMotor.stopMotor();
+  }
+
+  private boolean hasCoralInChute() {
     return !coralSensor.get();
   }
 
   private void resetMotorPositionToHome() {
-    leftMotor.setPosition(0);
-    rightMotor.setPosition(0);
+    leftMotor.setPosition(Position.HOME.rotations);
+    rightMotor.setPosition(Position.HOME.rotations);
   }
 
   private double getRightMotorPosition() {
