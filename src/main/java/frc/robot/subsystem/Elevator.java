@@ -22,6 +22,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
@@ -105,44 +106,38 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command cmdSetPosition(Position position) {
-    return Commands.runEnd(
+    return new FunctionalCommand(
         () -> {
-          setPosition(position.rotations);
         },
-        () -> {
+        () -> setPosition(position.rotations),
+        interrupted -> {
           if (position == Position.HOME || position == Position.CONTAIN_ALGAE) {
-            stop();
+            stopMotors();
           }
         },
-        this)
-        .until(() -> isNearPosition(position.rotations))
-        .unless(() -> !(isAtHome() && hasCoralInChute()));
+        () -> isNearPosition(position.rotations),
+        this);
   }
 
   public Command cmdSetPosition(double position) {
-    return Commands.run(
+    return new FunctionalCommand(
         () -> {
-          setPosition(position);
         },
-        this)
-        .until(() -> isNearPosition(position));
+        () -> setPosition(position),
+        interrupted -> stopMotors(),
+        () -> isNearPosition(position),
+        this);
   }
 
   public Command cmdSetDutyCycleOut(double output) {
     return Commands.runEnd(
-        () -> {
-          setDutyCycleOut(output);
-        },
-        () -> {
-          stop();
-        },
+        () -> setDutyCycleOut(output),
+        () -> stopMotors(),
         this);
   }
 
   public Command cmdStop() {
-    return Commands.runOnce(() -> {
-      stop();
-    }, this);
+    return Commands.runOnce(() -> stopMotors(), this);
   }
 
   @Override
@@ -169,12 +164,14 @@ public class Elevator extends SubsystemBase {
     rightMotor.setControl(dutyCycleOut);
   }
 
-  private void stop() {
+  private void stopMotors() {
     leftMotor.stopMotor();
     rightMotor.stopMotor();
   }
 
   private boolean hasCoralInChute() {
+    // TODO: Implement in position commands when we have more understanding of the
+    // bots scoring workflow
     return !coralSensor.get();
   }
 
