@@ -12,16 +12,18 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(1), 
+    DEPLOYED(1),
     HOME(0);
 
     public final double value;
@@ -29,6 +31,18 @@ public class EndEffector extends SubsystemBase {
     AlgaeServoPosition(double value) {
       this.value = value;
     }
+  }
+
+  public static class HeadPosition {
+    private final static double TURE_CENTER = 0.5;
+    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.15;
+    private final static double NINTY_DEGREE_OFFSET = 0.3;
+
+    public final static double CENTER = TURE_CENTER;
+    public final static double CENTER_LEFT = TURE_CENTER - CORAL_BRANCH_SERVO_OFFSET;
+    public final static double LEFT = TURE_CENTER - NINTY_DEGREE_OFFSET;
+    public final static double CENTER_RIGHT = TURE_CENTER + CORAL_BRANCH_SERVO_OFFSET;
+    public final static double RIGHT = TURE_CENTER + NINTY_DEGREE_OFFSET;
   }
 
   private TalonFX algaeMotor = new TalonFX(21);
@@ -41,13 +55,14 @@ public class EndEffector extends SubsystemBase {
   private PositionVoltage coralPositionControl = new PositionVoltage(0);
   private DigitalInput coralSensor = new DigitalInput(3);
   private Servo headRotate = new Servo(0);
+  private double currentPosition = 0;
 
   /** Creates a new EndEffector. */
   public EndEffector() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(0)
+        .withKP(1)
         .withKI(0)
         .withKD(0)
         .withKV(0);
@@ -77,84 +92,100 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command cmdStopCoralMotor() {
-    return Commands.run(() -> {
-      coralMotor.stopMotor();
-    }, this);
+    return Commands.runOnce(() -> stopCoralMotor(), this);
   }
 
   public Command cmdSetCoralPosition(double position) {
-    return Commands.run(() -> {
-      coralPositionControl.Position = position;
-      coralMotor.setControl(coralPositionControl);
-    }, this);
+    return new FunctionalCommand(
+        () -> {
+        },
+        () -> setCoralPosition(position),
+        interrupted -> stopCoralMotor(),
+        () -> isCoralNearPosition(position),
+        this);
+  }
+
+  public Command cmdAddCoralRotations(double rotations) {
+    return new FunctionalCommand(
+        () -> currentPosition = getCoralPosition(),
+        () -> setCoralPosition(currentPosition + rotations),
+        interrupted -> stopCoralMotor(),
+        () -> isCoralNearPosition(currentPosition + rotations),
+        this);
   }
 
   public Command cmdSetCoralDutyCycleOut(double output) {
-    return Commands.run(() -> {
-      coralDutyCycleOut.Output = output;
-      coralMotor.setControl(coralDutyCycleOut);
-    }, this);
-  }
-
-  public Command cmdStopAlgaeMotor() {
-    return Commands.run(() -> {
-      algaeMotor.stopMotor();
-    }, this);
-  }
-
-  public Command cmdSetAlgaeDutyCycleOut(double output) {
-    return Commands.run(() -> {
-      algaeDutyCycleOut.Output = output;
-      algaeMotor.setControl(algaeDutyCycleOut);
-    }, this);
-  }
-
-  public Command cmdSetAlgaeIntakePostion(double value) {
-    return Commands.runOnce(() -> {
-      algaeIntakePosition.setPosition(value);
-    }, this);
+    return Commands.runEnd(
+        () -> setCoralDutyCycleOut(output),
+        () -> stopCoralMotor(),
+        this);
   }
 
   public Command cmdSetHeadRotation(double value) {
-    return Commands.runOnce(() -> {
-      headRotate.setPosition(value);
-    }, this);
+    return Commands.runOnce(() -> setHeadPosition(value), this);
+  }
+
+  public Command cmdStopAlgaeMotor() {
+    return Commands.runOnce(() -> algaeMotor.stopMotor(), this);
+  }
+
+  public Command cmdSetAlgaeDutyCycleOut(double output) {
+    return Commands.runEnd(
+        () -> setAlgaeDutyCycleOut(output),
+        () -> stopAlgaeMotor(),
+        this);
+  }
+
+  public Command cmdSetAlgaeIntakePostion(AlgaeServoPosition value) {
+    return Commands.runOnce(() -> setAlgaeIntakePostion(value), this);
+  }
+
+  public boolean getCoralSensor() {
+    return !coralSensor.get();
   }
 
   private void stopCoralMotor() {
-
+    coralMotor.stopMotor();
   }
 
-  private void setCoralPosition() {
+  private void setCoralDutyCycleOut(double output) {
+    coralMotor.setControl(coralDutyCycleOut.withOutput(output));
+  }
 
+  private void setCoralPosition(double position) {
+    coralMotor.setControl(coralPositionControl.withPosition(position));
   }
 
   private double getCoralPosition() {
-    return 0;
+    return coralMotor.getPosition().getValueAsDouble();
   }
 
-  private void setCoralDutyCycleOut() {
-    // Using DutyCycleOut
+  private boolean isCoralNearPosition(double position) {
+    return MathUtil.isNear(position, getCoralPosition(), 1);
   }
 
-  private boolean getCoralSensor() {
-    return true;
+  private void setHeadPosition(double position) {
+    headRotate.setPosition(position);
+  }
+
+  public boolean getAlgaeSensor() {
+    return !algaeSensor.get();
   }
 
   private void stopAlgaeMotor() {
-
+    algaeMotor.stopMotor();
   }
 
-  private void setAlgaeDutyCycleOut() {
-    // Using DutyCycleOut
+  private void setAlgaeDutyCycleOut(double output) {
+    algaeMotor.setControl(algaeDutyCycleOut.withOutput(output));
   }
 
-  private boolean getAlgaeSensor() {
-    return true;
+  private void setAlgaeIntakePostion(double position) {
+    algaeIntakePosition.setPosition(position);
   }
 
-  private void setAlgaeIntakePostion() {
-
+  private void setAlgaeIntakePostion(AlgaeServoPosition position) {
+    setAlgaeIntakePostion(position.value);
   }
 
 }
