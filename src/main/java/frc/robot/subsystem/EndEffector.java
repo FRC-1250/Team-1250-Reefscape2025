@@ -12,14 +12,17 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+@Logged
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
@@ -37,7 +40,9 @@ public class EndEffector extends SubsystemBase {
     private final static double TURE_CENTER = 0.5;
     private final static double CORAL_BRANCH_SERVO_OFFSET = 0.15;
     private final static double NINTY_DEGREE_OFFSET = 0.3;
+    private final static double BUMP = 0.01;
 
+    public final static double LOGICAL_CENTER = 0.5;
     public final static double CENTER = TURE_CENTER;
     public final static double CENTER_LEFT = TURE_CENTER - CORAL_BRANCH_SERVO_OFFSET;
     public final static double LEFT = TURE_CENTER - NINTY_DEGREE_OFFSET;
@@ -88,7 +93,7 @@ public class EndEffector extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+   SmartDashboard.putNumber("Head postion", headRotate.getPosition());
   }
 
   public Command cmdStopCoralMotor() {
@@ -123,6 +128,14 @@ public class EndEffector extends SubsystemBase {
 
   public Command cmdSetHeadRotation(double value) {
     return Commands.runOnce(() -> setHeadPosition(value), this);
+  }
+
+  public Command cmdBumpHead(boolean moveRight) {
+    if(moveRight) {
+      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() + HeadPosition.BUMP), this);
+    } else {
+      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() - HeadPosition.BUMP), this);
+    }
   }
 
   public Command cmdStopAlgaeMotor() {

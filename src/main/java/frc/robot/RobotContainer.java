@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.EndEffector;
+import frc.robot.subsystem.EndEffector.HeadPosition;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -86,6 +87,10 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        SmartDashboard.putData(endEffector.cmdBumpHead(true).withName("Turn head right"));
+        SmartDashboard.putData(endEffector.cmdBumpHead(false).withName("Turn head right"));
+        SmartDashboard.putData(endEffector.cmdSetHeadRotation(HeadPosition.LOGICAL_CENTER).withName("Center head"));
     }
 
     private void addPathAuto(String name, String pathName) {
