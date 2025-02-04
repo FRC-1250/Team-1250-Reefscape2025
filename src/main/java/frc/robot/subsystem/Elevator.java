@@ -68,9 +68,9 @@ public class Elevator extends SubsystemBase {
         .withMotionMagicJerk(1600);
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
-    softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
+    softwareLimitSwitchConfigs.ForwardSoftLimitEnable = false;
     softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = Position.PEAK.rotations;
-    softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
+    softwareLimitSwitchConfigs.ReverseSoftLimitEnable = false;
     softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.HOME.rotations;
 
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
