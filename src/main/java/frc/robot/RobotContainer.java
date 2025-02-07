@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
+import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 
 public class RobotContainer {
@@ -51,7 +52,7 @@ public class RobotContainer {
     public final EndEffector endEffector= new EndEffector();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
+public final Elevator elevator = new Elevator();
     public RobotContainer() {
         configureBindings();
         configureAutoCommands();
