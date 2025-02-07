@@ -153,7 +153,7 @@ public class EndEffector extends SubsystemBase {
     return Commands.runOnce(() -> setAlgaeIntakePostion(value), this);
   }
 
-  public boolean getCoralSensor() {
+  public boolean hasCoral() {
     return !coralSensor.get();
   }
 
@@ -181,7 +181,7 @@ public class EndEffector extends SubsystemBase {
     headRotate.setPosition(position);
   }
 
-  public boolean getAlgaeSensor() {
+  public boolean hasAlgae() {
     return !algaeSensor.get();
   }
 

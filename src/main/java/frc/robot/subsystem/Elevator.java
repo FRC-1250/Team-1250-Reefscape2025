@@ -194,7 +194,23 @@ public class Elevator extends SubsystemBase {
         || MathUtil.isNear(position, getRightMotorPosition(), 10);
   }
 
-  private boolean isAtHome() {
+  private boolean isNearPosition(Position position) {
+    return isNearPosition(position.rotations);
+  }
+
+  public boolean isNearCoralPosition() {
+    return (isNearPosition(Elevator.Position.L1)
+        || isNearPosition(Elevator.Position.L2)
+        || isNearPosition(Elevator.Position.L3)
+        || isNearPosition(Elevator.Position.L4));
+  }
+
+  public boolean isNearAlgaePosition() {
+    return (isNearPosition(Elevator.Position.L2_5)
+        || isNearPosition(Elevator.Position.L3_5));
+  }
+
+  public boolean isAtHome() {
     return !homeSensor.get();
   }
 }

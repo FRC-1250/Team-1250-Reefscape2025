@@ -23,6 +23,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
+import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.EndEffector.HeadPosition;
 
 public class RobotContainer {
@@ -47,6 +48,8 @@ public class RobotContainer {
     public final EndEffector endEffector = new EndEffector();
     public final Elevator elevator = new Elevator();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final SystemLights systemLights = new SystemLights();
+    private final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, systemLights);
 
     public RobotContainer() {
         configureBindings();
@@ -70,9 +73,26 @@ public class RobotContainer {
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
+        endEffector.setDefaultCommand(controlFactory.headIdle());
+
+        joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
+        joystick.rightTrigger().whileTrue(controlFactory.handleGameObject());
+        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
+        joystick.leftTrigger().onTrue(controlFactory.dealgaeReefPosition());
+
+        joystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
+        joystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
+        joystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
+        joystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
+
+        joystick.b().onTrue(controlFactory.home());
 
         joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
+        joystick.back().toggleOnTrue(drivetrain.applyRequest(
+                () -> driveFacingAngle
+                        .withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                        .withTargetDirection(controlFactory.determineHeadingToReef())));
     }
 
     private void configureSmartDashboardBindings() {
