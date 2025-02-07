@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import javax.xml.stream.events.EndDocument;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -18,11 +20,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
+import frc.robot.subsystem.EndEffector;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -45,7 +49,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
-
+    public final EndEffector endEffector= new EndEffector();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 public final Elevator elevator = new Elevator();
@@ -82,10 +86,10 @@ public final Elevator elevator = new Elevator();
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        joystick.a().whileTrue(elevator.cmdSetDutyCycleOut(0.5));
-        joystick.x().whileTrue(elevator.cmdSetDutyCycleOut(-0.5));
-        joystick.b().onTrue(elevator.cmdSetPosition(50));
-        joystick.y().onTrue(elevator.cmdSetPosition(10));
+        joystick.x().onTrue(endEffector.cmdSetHeadRotation(1));
+        joystick.y().onTrue(endEffector.cmdSetHeadRotation(0));
+        joystick.b().onTrue(endEffector.cmdSetAlgaeIntakePostion(1));
+        joystick.a().onTrue(endEffector.cmdSetAlgaeIntakePostion(0));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
