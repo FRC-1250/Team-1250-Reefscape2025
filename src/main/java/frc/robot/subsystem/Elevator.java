@@ -25,6 +25,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -40,7 +41,7 @@ public class Elevator extends SubsystemBase {
     L3(0),
     L3_5(0),
     L4(0),
-    PEAK(0);
+    PEAK(68);
 
     public final double rotations;
 
@@ -49,8 +50,8 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  private TalonFX leftMotor = new TalonFX(10);
-  private TalonFX rightMotor = new TalonFX(11);
+  private TalonFX leftMotor = new TalonFX(30);
+  private TalonFX rightMotor = new TalonFX(31);
   private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
@@ -74,9 +75,9 @@ public class Elevator extends SubsystemBase {
         .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(100));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
-    softwareLimitSwitchConfigs.ForwardSoftLimitEnable = false;
+    softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
     softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = Position.PEAK.rotations;
-    softwareLimitSwitchConfigs.ReverseSoftLimitEnable = false;
+    softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
     softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.HOME.rotations;
 
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
@@ -85,7 +86,7 @@ public class Elevator extends SubsystemBase {
 
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
     motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
-    motorOutputConfigs.Inverted = InvertedValue.Clockwise_Positive;
+    motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
     voltageConfigs.PeakForwardVoltage = 8;
@@ -148,6 +149,8 @@ public class Elevator extends SubsystemBase {
       homeFound = isAtHome();
       resetMotorPositionToHome();
     }
+    SmartDashboard.putNumber("LeftRotation", getLeftMotorPosition());
+    SmartDashboard.putNumber("RightRotation", getRightMotorPosition());
   }
 
   public boolean getHomeFound() {
