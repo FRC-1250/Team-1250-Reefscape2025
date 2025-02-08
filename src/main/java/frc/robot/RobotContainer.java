@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
@@ -52,6 +53,14 @@ public class RobotContainer {
     public final SystemLights systemLights = new SystemLights();
     private final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, systemLights);
 
+    private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
+    private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
+    private final Trigger reefHasHighAlgae = new Trigger(() -> controlFactory.hasHighAlgae());
+    private final Trigger reefHasLowAlgae = new Trigger(() -> controlFactory.hasLowAlgae());
+    private final Trigger isNearCoralPosition = new Trigger(() -> elevator.isNearCoralScoringPosition());
+    private final Trigger isNearAlgaePosition = new Trigger(() -> elevator.isNearReefAlgaePosition());
+    private final Trigger isNearAlgaeContainmentPositon = new Trigger(() -> elevator.isNearAlgaeContainmentPosition());
+
     public RobotContainer() {
         configureBindings();
         configureSmartDashboardBindings();
@@ -74,19 +83,24 @@ public class RobotContainer {
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
-        endEffector.setDefaultCommand(controlFactory.headIdle());
 
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-        joystick.rightTrigger().whileTrue(controlFactory.handleGameObject());
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-        joystick.leftTrigger().onTrue(controlFactory.dealgaeReefPosition());
+
+        joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(12));
+        joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
+        joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
+
+        joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
+        joystick.leftTrigger().and(reefHasLowAlgae).onTrue(controlFactory.delagaeReefLowPosition());
 
         joystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
         joystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
         joystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
         joystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
 
-        joystick.b().onTrue(controlFactory.home());
+        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.startingConfiguration());
+        joystick.b().and(hasAlgae).onTrue(controlFactory.algaeContainment());
 
         joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         joystick.back().toggleOnTrue(drivetrain.applyRequest(
@@ -94,6 +108,9 @@ public class RobotContainer {
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withTargetDirection(controlFactory.determineHeadingToReef())));
+
+        hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+        hasCoral.onTrue(endEffector.cmdAddCoralRotations(6).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
     }
 
     private void configureSmartDashboardBindings() {

@@ -198,16 +198,20 @@ public class Elevator extends SubsystemBase {
     return isNearPosition(position.rotations);
   }
 
-  public boolean isNearCoralPosition() {
+  public boolean isNearCoralScoringPosition() {
     return (isNearPosition(Elevator.Position.L1)
         || isNearPosition(Elevator.Position.L2)
         || isNearPosition(Elevator.Position.L3)
         || isNearPosition(Elevator.Position.L4));
   }
 
-  public boolean isNearAlgaePosition() {
+  public boolean isNearReefAlgaePosition() {
     return (isNearPosition(Elevator.Position.L2_5)
         || isNearPosition(Elevator.Position.L3_5));
+  }
+
+  public boolean isNearAlgaeContainmentPosition() {
+    return isNearPosition(Elevator.Position.CONTAIN_ALGAE);
   }
 
   public boolean isAtHome() {
