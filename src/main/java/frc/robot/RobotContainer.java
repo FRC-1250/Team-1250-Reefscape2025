@@ -24,6 +24,7 @@ import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.SystemLights;
+import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.EndEffector.HeadPosition;
 
 public class RobotContainer {
@@ -103,9 +104,17 @@ public class RobotContainer {
         SmartDashboard.putData(drivetrain.sysIdQuasistatic(Direction.kReverse).withName("Quasistatic reverse"));
 
         // Servo replacement commands
-        SmartDashboard.putData(endEffector.cmdBumpHead(true).withName("Turn head right"));
-        SmartDashboard.putData(endEffector.cmdBumpHead(false).withName("Turn head right"));
-        SmartDashboard.putData(endEffector.cmdSetHeadRotation(HeadPosition.LOGICAL_CENTER).withName("Center head"));
+        SmartDashboard.putData(endEffector.cmdBumpHead(true).withName("Head, bump right"));
+        SmartDashboard.putData(endEffector.cmdBumpHead(false).withName("Head, bump left"));
+        SmartDashboard.putData(endEffector.cmdJumpHead(true).withName("Head, jump right"));
+        SmartDashboard.putData(endEffector.cmdJumpHead(false).withName("Head, jump left"));
+        SmartDashboard.putData(endEffector.cmdSetHeadRotation(HeadPosition.LOGICAL_CENTER).withName("Head, center"));
+
+        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(true).withName("Algae intake, bump out"));
+        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(false).withName("Algae intake, bump in"));
+        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(true).withName("Algae intake, jump out"));
+        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false).withName("Algae intake, jump in"));
+        SmartDashboard.putData(endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName("Algae intake, middle"));
     }
 
     private void addPathAuto(String name, String pathName) {

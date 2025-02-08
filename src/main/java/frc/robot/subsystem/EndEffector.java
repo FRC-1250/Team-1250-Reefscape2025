@@ -27,6 +27,7 @@ public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
     DEPLOYED(1),
+    MIDDLE(0.5),
     HOME(0);
 
     public final double value;
@@ -36,11 +37,21 @@ public class EndEffector extends SubsystemBase {
     }
   }
 
+  public enum ServoOffset {
+    BUMP(0.01),
+    JUMP(0.1);
+
+    public final double value;
+
+    ServoOffset(double value) {
+      this.value = value;
+    }
+  }
+
   public static class HeadPosition {
-    private final static double TURE_CENTER = 0.5;
+    private final static double TURE_CENTER = 0.4575;
     private final static double CORAL_BRANCH_SERVO_OFFSET = 0.15;
-    private final static double NINTY_DEGREE_OFFSET = 0.3;
-    private final static double BUMP = 0.01;
+    private final static double NINTY_DEGREE_OFFSET = 0.35;
 
     public final static double LOGICAL_CENTER = 0.5;
     public final static double CENTER = TURE_CENTER;
@@ -93,7 +104,8 @@ public class EndEffector extends SubsystemBase {
 
   @Override
   public void periodic() {
-   SmartDashboard.putNumber("Head postion", headRotate.getPosition());
+   SmartDashboard.putNumber("Head, position", headRotate.getPosition());
+   SmartDashboard.putNumber("Algae intake, position", headRotate.getPosition());
   }
 
   public Command cmdStopCoralMotor() {
@@ -132,9 +144,17 @@ public class EndEffector extends SubsystemBase {
 
   public Command cmdBumpHead(boolean moveRight) {
     if(moveRight) {
-      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() + HeadPosition.BUMP), this);
+      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() + ServoOffset.BUMP.value), this);
     } else {
-      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() - HeadPosition.BUMP), this);
+      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() - ServoOffset.BUMP.value), this);
+    }
+  }
+
+  public Command cmdJumpHead(boolean moveRight) {
+    if(moveRight) {
+      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() + ServoOffset.JUMP.value), this);
+    } else {
+      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() - ServoOffset.JUMP.value), this);
     }
   }
 
@@ -151,6 +171,22 @@ public class EndEffector extends SubsystemBase {
 
   public Command cmdSetAlgaeIntakePostion(AlgaeServoPosition value) {
     return Commands.runOnce(() -> setAlgaeIntakePostion(value), this);
+  }
+
+  public Command cmdBumpAlgaeIntake(boolean moveRight) {
+    if(moveRight) {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() + ServoOffset.BUMP.value), this);
+    } else {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() - ServoOffset.BUMP.value), this);
+    }
+  }
+
+  public Command cmdJumpAlgaeIntake(boolean moveRight) {
+    if(moveRight) {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() + ServoOffset.JUMP.value), this);
+    } else {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() - ServoOffset.JUMP.value), this);
+    }
   }
 
   public boolean hasCoral() {
