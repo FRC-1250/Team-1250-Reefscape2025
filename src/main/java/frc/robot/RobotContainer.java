@@ -73,12 +73,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+           /* 
         drivetrain.setDefaultCommand(
-                /*
-                 * Drive forward with negative Y (forward)
-                 * Drive left with negative X (left)
-                 * Drive counterclockwise with negative X (left)
-                 */
                 drivetrain.applyRequest(() -> drive
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
@@ -88,9 +84,10 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
 
         joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(12));
-        joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
-        joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
+        joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
+        joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
 
+     
         joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
         joystick.leftTrigger().and(reefHasLowAlgae).onTrue(controlFactory.delagaeReefLowPosition());
 
@@ -109,8 +106,13 @@ public class RobotContainer {
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withTargetDirection(controlFactory.determineHeadingToReef())));
 
-        hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-        hasCoral.onTrue(endEffector.cmdAddCoralRotations(6).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
+ */
+        //joystick.rightTrigger().onTrue(endEffector.cmdAddCoralRotations(30));
+        joystick.rightTrigger().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.2));
+        //hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+        hasCoral.onTrue(endEffector.cmdAddCoralRotations(5).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
+        joystick.x().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
+        joystick.y().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
     }
 
     private void configureSmartDashboardBindings() {
