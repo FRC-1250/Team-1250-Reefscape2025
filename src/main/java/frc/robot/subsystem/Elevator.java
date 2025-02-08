@@ -4,6 +4,10 @@
 
 package frc.robot.subsystem;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -17,6 +21,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -56,6 +61,7 @@ public class Elevator extends SubsystemBase {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withKG(0)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
         .withKS(0)
         .withKV(0.01)
         .withKP(1.3)
@@ -63,9 +69,9 @@ public class Elevator extends SubsystemBase {
         .withKD(0.013);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(80)
-        .withMotionMagicAcceleration(160)
-        .withMotionMagicJerk(1600);
+        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(20))
+        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(40))
+        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(100));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
     softwareLimitSwitchConfigs.ForwardSoftLimitEnable = false;
@@ -97,12 +103,8 @@ public class Elevator extends SubsystemBase {
     rightMotor.getConfigurator().apply(talonFXConfiguration);
   }
 
-  public Command cmdHome() {
-    if (homeFound) {
-      return cmdSetPosition(Position.HOME);
-    } else {
+  public Command cmdManualHome() {
       return cmdSetDutyCycleOut(-0.05).until(() -> homeFound);
-    }
   }
 
   public Command cmdSetPosition(Position position) {
