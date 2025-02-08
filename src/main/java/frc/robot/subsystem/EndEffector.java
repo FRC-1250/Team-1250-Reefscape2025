@@ -78,7 +78,7 @@ public class EndEffector extends SubsystemBase {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(1)
+        .withKP(0.5)
         .withKI(0)
         .withKD(0)
         .withKV(0);
@@ -88,7 +88,7 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     coralTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
 
     TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();
@@ -105,7 +105,8 @@ public class EndEffector extends SubsystemBase {
   @Override
   public void periodic() {
    SmartDashboard.putNumber("Head, position", headRotate.getPosition());
-   SmartDashboard.putNumber("Algae intake, position", headRotate.getPosition());
+   SmartDashboard.putNumber("Algae intake, position", algaeIntakePosition.getPosition());
+   SmartDashboard.putBoolean("hasCoral", hasCoral());
   }
 
   public Command cmdStopCoralMotor() {
@@ -175,17 +176,17 @@ public class EndEffector extends SubsystemBase {
 
   public Command cmdBumpAlgaeIntake(boolean moveRight) {
     if(moveRight) {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() + ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(algaeIntakePosition.getPosition() + ServoOffset.BUMP.value), this);
     } else {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() - ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(algaeIntakePosition.getPosition() - ServoOffset.BUMP.value), this);
     }
   }
 
   public Command cmdJumpAlgaeIntake(boolean moveRight) {
     if(moveRight) {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() + ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(algaeIntakePosition.getPosition() + ServoOffset.JUMP.value), this);
     } else {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(headRotate.getPosition() - ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(algaeIntakePosition.getPosition() - ServoOffset.JUMP.value), this);
     }
   }
 
