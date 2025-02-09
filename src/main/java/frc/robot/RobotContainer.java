@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -44,8 +45,11 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
-    private final CommandXboxController joystick = new CommandXboxController(0);
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+    private final CommandXboxController joystick = new CommandXboxController(0);
+    private CommandPS4Controller devJoystick;
+    private final boolean devController = true;
 
     public final EndEffector endEffector = new EndEffector();
     public final Elevator elevator = new Elevator();
@@ -73,7 +77,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-           /* 
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed)
@@ -81,13 +84,12 @@ public class RobotContainer {
                         .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
 
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
+        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
 
-        joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(12));
+        joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(15));
         joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
         joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
 
-     
         joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
         joystick.leftTrigger().and(reefHasLowAlgae).onTrue(controlFactory.delagaeReefLowPosition());
 
@@ -106,13 +108,41 @@ public class RobotContainer {
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                         .withTargetDirection(controlFactory.determineHeadingToReef())));
 
- */
-        //joystick.rightTrigger().onTrue(endEffector.cmdAddCoralRotations(30));
-        joystick.rightTrigger().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.2));
-        //hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-        hasCoral.onTrue(endEffector.cmdAddCoralRotations(5).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
-        joystick.x().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
-        joystick.y().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
+        hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+        hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
+                .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
+
+        if (devController) {
+            devJoystick = new CommandPS4Controller(1);
+
+            // End effector head, left and right
+            devJoystick.axisGreaterThan(0, 0.75).whileTrue(endEffector.cmdBumpHead(true));
+            devJoystick.axisLessThan(0, -0.75).whileTrue(endEffector.cmdBumpHead(false));
+            devJoystick.L3().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+
+            // End effector algae intake, in and out
+            devJoystick.axisGreaterThan(5, 0.75).whileTrue(endEffector.cmdBumpAlgaeIntake(true));
+            devJoystick.axisLessThan(5, -0.75).whileTrue(endEffector.cmdBumpAlgaeIntake(false));
+            devJoystick.R3().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.MIDDLE));
+
+            // Scoring options
+            devJoystick.R1().onTrue(endEffector.cmdAddCoralRotations(15));
+            devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
+            // Placeholder for climber -> devJoystick.L1().onTrue();
+            devJoystick.L2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
+
+            // Elevator duty cycle out, up and down
+            devJoystick.cross().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
+            devJoystick.triangle().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
+
+            // Elevator positions
+            devJoystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
+            devJoystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
+            devJoystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
+            devJoystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
+            devJoystick.circle().onTrue(controlFactory.delagaeReefLowPosition());
+            devJoystick.square().onTrue(controlFactory.dealgaeReefHighPosition());
+        }
     }
 
     private void configureSmartDashboardBindings() {
@@ -129,11 +159,12 @@ public class RobotContainer {
         SmartDashboard.putData(endEffector.cmdJumpHead(false).withName("Head, jump left"));
         SmartDashboard.putData(endEffector.cmdSetHeadRotation(HeadPosition.LOGICAL_CENTER).withName("Head, center"));
 
-        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(true).withName("Algae intake, bump out"));
-        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(false).withName("Algae intake, bump in"));
-        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(true).withName("Algae intake, jump out"));
-        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false).withName("Algae intake, jump in"));
-        SmartDashboard.putData(endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName("Algae intake, middle"));
+        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(true).withName("Algae intake, bump in"));
+        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(false).withName("Algae intake, bump out"));
+        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(true).withName("Algae intake, jump in"));
+        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false).withName("Algae intake, jump out"));
+        SmartDashboard.putData(
+                endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName("Algae intake, middle"));
     }
 
     private void addPathAuto(String name, String pathName) {
