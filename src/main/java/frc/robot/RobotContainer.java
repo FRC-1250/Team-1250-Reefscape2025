@@ -178,6 +178,8 @@ public class RobotContainer {
         try {
             autoChooser.addOption(name, new PathPlannerAuto(pathName));
         } catch (Exception e) {
+            // Exceptions are now caught in the PathPlannerAuto constructor and this should
+            // never run. Leaving it in place to catch any edge cases.
             DataLogManager.log(String.format("GatorBot: Not able to build auto routines! %s", e.getMessage()));
         }
     }
