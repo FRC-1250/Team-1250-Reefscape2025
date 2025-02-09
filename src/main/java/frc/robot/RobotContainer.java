@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,17 +45,23 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final Telemetry logger = new Telemetry();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     private final CommandXboxController joystick = new CommandXboxController(0);
     private CommandPS4Controller devJoystick;
     private final boolean devController = true;
 
+    @Logged(name = "End effector")
     public final EndEffector endEffector = new EndEffector();
+
+    @Logged(name = "Elevator")
     public final Elevator elevator = new Elevator();
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+    @Logged(name = "System lights")
     public final SystemLights systemLights = new SystemLights();
+
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, systemLights);
 
     private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
