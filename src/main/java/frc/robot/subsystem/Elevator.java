@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
   public enum Position {
     HOME(0),
+    SENSOR(0.5),
     CONTAIN_ALGAE(0),
     L1(0.0),
     L2(0),
@@ -57,6 +58,7 @@ public class Elevator extends SubsystemBase {
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
   private DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(false);
   private boolean homeFound = false;
+  private boolean previousHomeSensor = isAtHome();
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -145,10 +147,11 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (!homeFound && isAtHome()) {
-      homeFound = isAtHome();
-      resetMotorPositionToHome();
+    if (!homeFound && previousHomeSensor != isAtHome()) {
+      homeFound = true;
+      resetMotorPositionToSensor();
     }
+    previousHomeSensor = isAtHome();
     SmartDashboard.putNumber("LeftRotation", getLeftMotorPosition());
     SmartDashboard.putNumber("RightRotation", getRightMotorPosition());
   }
@@ -180,9 +183,9 @@ public class Elevator extends SubsystemBase {
     return !coralSensor.get();
   }
 
-  private void resetMotorPositionToHome() {
-    leftMotor.setPosition(Position.HOME.rotations);
-    rightMotor.setPosition(Position.HOME.rotations);
+  private void resetMotorPositionToSensor() {
+    leftMotor.setPosition(Position.SENSOR.rotations);
+    rightMotor.setPosition(Position.SENSOR.rotations);
   }
 
   private double getRightMotorPosition() {
