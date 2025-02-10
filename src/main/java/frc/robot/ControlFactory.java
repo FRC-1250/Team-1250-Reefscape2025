@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
@@ -29,6 +30,14 @@ public class ControlFactory {
         this.swerveDrivetrain = swerveDrivetrain;
         this.elevator = elevator;
         this.endEffector = endEffector;
+    }
+
+    public Command lockElevator() {
+        return Commands.idle(
+                elevator)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                .until(() -> endEffector.hasCoral())
+                .withTimeout(1);
     }
 
     public Command algaeContainment() {

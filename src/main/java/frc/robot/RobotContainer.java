@@ -71,6 +71,8 @@ public class RobotContainer {
     private final Trigger isNearCoralPosition = new Trigger(() -> elevator.isNearCoralScoringPosition());
     private final Trigger isNearAlgaePosition = new Trigger(() -> elevator.isNearReefAlgaePosition());
     private final Trigger isNearAlgaeContainmentPositon = new Trigger(() -> elevator.isNearAlgaeContainmentPosition());
+    private final Trigger isAtHome = new Trigger(() -> elevator.isAtHome());
+    private final Trigger hasCoralInShute = new Trigger(() -> elevator.hasCoralInChute());
 
     public RobotContainer() {
         configureBindings();
@@ -118,6 +120,7 @@ public class RobotContainer {
         hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
         hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                 .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
+        hasCoralInShute.and(isAtHome).onTrue(controlFactory.lockElevator());
 
         if (devController) {
             devJoystick = new CommandPS4Controller(1);
