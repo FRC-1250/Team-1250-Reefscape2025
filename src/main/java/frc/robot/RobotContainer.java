@@ -27,6 +27,7 @@ import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.SystemLights;
+import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.EndEffector.HeadPosition;
 
@@ -83,6 +84,16 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    public void determineMaxSpeed() {
+        if(elevator.isAbovePosition(Position.L3)) {
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 2;
+        } else if (elevator.isAbovePosition(Position.L1)) {
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 1.5;
+        } else {
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        }
     }
 
     private void configureBindings() {

@@ -176,6 +176,10 @@ public class Elevator extends SubsystemBase {
     return leftMotor.getPosition().getValueAsDouble();
   }
 
+  public boolean isAbovePosition(Position position) {
+    return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();
+  }
+
   public boolean isNearCoralScoringPosition() {
     return (isNearPosition(Elevator.Position.L1)
         || isNearPosition(Elevator.Position.L2)

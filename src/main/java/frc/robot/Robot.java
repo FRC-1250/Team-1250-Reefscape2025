@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.determineMaxSpeed();
 
     var driveState = m_robotContainer.drivetrain.getState();
     double headingDeg = driveState.Pose.getRotation().getDegrees();
