@@ -19,13 +19,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SystemLights extends SubsystemBase {
 
   private final CANdle candle = new CANdle(15, "rio");
-  private final LarsonAnimation larsonAnimation = new LarsonAnimation(1, 48, 12);
+  private final LarsonAnimation larsonAnimation;
 
   public enum PresetColor {
+    BLACK(0, 0, 0),
+    WHITE(255, 255, 255),
     RED(255, 0, 0),
     GREEN(0, 255, 0),
     BLUE(0, 0, 255),
-    KELLY_GREEN(4, 106, 56);
+    PURPLE(157, 0, 255),
+    PINK(255, 141, 161),
+    KELLY_GREEN(76, 187, 23);
 
     private final int red;
     private final int green;
@@ -50,6 +54,7 @@ public class SystemLights extends SubsystemBase {
     configAll.v5Enabled = false;
     configAll.vBatOutputMode = VBatOutputMode.Off;
     candle.configAllSettings(configAll);
+    larsonAnimation = new LarsonAnimation(PresetColor.KELLY_GREEN.red, PresetColor.KELLY_GREEN.green, PresetColor.KELLY_GREEN.blue);
     candle.animate(larsonAnimation);
   }
 
@@ -58,11 +63,22 @@ public class SystemLights extends SubsystemBase {
   }
 
   public Command setLEDs(PresetColor color) {
-    return Commands.runOnce(() -> candle.setLEDs(color.red, color.green, color.blue), this);
+    return Commands.runOnce(() -> {
+      candle.clearAnimation(0);
+      candle.setLEDs(color.red, color.green, color.blue);
+    }, this);
   }
 
   public Command setLEDs(int r, int g, int b) {
-    return Commands.runOnce(() -> candle.setLEDs(r, g, b), this);
+    return Commands.runOnce(() -> {
+      candle.clearAnimation(0);
+      candle.setLEDs(r, g, b);
+    }, this);
+  }
+
+  public Command clear() {
+    return Commands
+        .runOnce(() -> candle.setLEDs(PresetColor.BLACK.red, PresetColor.BLACK.green, PresetColor.BLACK.blue), this);
   }
 
   @Override

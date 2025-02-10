@@ -23,9 +23,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -152,12 +152,49 @@ public class Elevator extends SubsystemBase {
       resetMotorPositionToSensor();
     }
     previousHomeSensor = isAtHome();
-    SmartDashboard.putNumber("LeftRotation", getLeftMotorPosition());
-    SmartDashboard.putNumber("RightRotation", getRightMotorPosition());
   }
 
+  @Logged(name = "Home found")
   public boolean getHomeFound() {
     return homeFound;
+  }
+
+  @Logged(name = "Has coral")
+  public boolean hasCoralInChute() {
+    // TODO: Implement in position commands when we have more understanding of the
+    // bots scoring workflow
+    return !coralSensor.get();
+  }
+
+  @Logged(name = "Right rotations")
+  public double getRightMotorPosition() {
+    return rightMotor.getPosition().getValueAsDouble();
+  }
+
+  @Logged(name = "Left rotations")
+  public double getLeftMotorPosition() {
+    return leftMotor.getPosition().getValueAsDouble();
+  }
+
+  public boolean isNearCoralScoringPosition() {
+    return (isNearPosition(Elevator.Position.L1)
+        || isNearPosition(Elevator.Position.L2)
+        || isNearPosition(Elevator.Position.L3)
+        || isNearPosition(Elevator.Position.L4));
+  }
+
+  public boolean isNearReefAlgaePosition() {
+    return (isNearPosition(Elevator.Position.L2_5)
+        || isNearPosition(Elevator.Position.L3_5));
+  }
+
+  public boolean isNearAlgaeContainmentPosition() {
+    return isNearPosition(Elevator.Position.CONTAIN_ALGAE);
+  }
+
+  @Logged(name = "Home")
+  public boolean isAtHome() {
+    return !homeSensor.get();
   }
 
   private void setPosition(double position) {
@@ -177,23 +214,9 @@ public class Elevator extends SubsystemBase {
     rightMotor.stopMotor();
   }
 
-  private boolean hasCoralInChute() {
-    // TODO: Implement in position commands when we have more understanding of the
-    // bots scoring workflow
-    return !coralSensor.get();
-  }
-
   private void resetMotorPositionToSensor() {
     leftMotor.setPosition(Position.SENSOR.rotations);
     rightMotor.setPosition(Position.SENSOR.rotations);
-  }
-
-  private double getRightMotorPosition() {
-    return rightMotor.getPosition().getValueAsDouble();
-  }
-
-  private double getLeftMotorPosition() {
-    return leftMotor.getPosition().getValueAsDouble();
   }
 
   private boolean isNearPosition(double position) {
@@ -204,25 +227,5 @@ public class Elevator extends SubsystemBase {
 
   private boolean isNearPosition(Position position) {
     return isNearPosition(position.rotations);
-  }
-
-  public boolean isNearCoralScoringPosition() {
-    return (isNearPosition(Elevator.Position.L1)
-        || isNearPosition(Elevator.Position.L2)
-        || isNearPosition(Elevator.Position.L3)
-        || isNearPosition(Elevator.Position.L4));
-  }
-
-  public boolean isNearReefAlgaePosition() {
-    return (isNearPosition(Elevator.Position.L2_5)
-        || isNearPosition(Elevator.Position.L3_5));
-  }
-
-  public boolean isNearAlgaeContainmentPosition() {
-    return isNearPosition(Elevator.Position.CONTAIN_ALGAE);
-  }
-
-  public boolean isAtHome() {
-    return !homeSensor.get();
   }
 }
