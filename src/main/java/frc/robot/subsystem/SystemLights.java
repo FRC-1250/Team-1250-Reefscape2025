@@ -9,7 +9,6 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
-import com.ctre.phoenix.led.LarsonAnimation;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,8 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SystemLights extends SubsystemBase {
 
-  private final CANdle candle = new CANdle(15, "rio");
-  private final LarsonAnimation larsonAnimation;
+  private final CANdle candle = new CANdle(30, "rio");
 
   public enum PresetColor {
     BLACK(0, 0, 0),
@@ -51,11 +49,10 @@ public class SystemLights extends SubsystemBase {
     configAll.enableOptimizations = true;
     configAll.statusLedOffWhenActive = true;
     configAll.stripType = LEDStripType.RGB;
-    configAll.v5Enabled = false;
+    configAll.v5Enabled = true;
     configAll.vBatOutputMode = VBatOutputMode.Off;
     candle.configAllSettings(configAll);
-    larsonAnimation = new LarsonAnimation(PresetColor.KELLY_GREEN.red, PresetColor.KELLY_GREEN.green, PresetColor.KELLY_GREEN.blue);
-    candle.animate(larsonAnimation);
+    setDefaultCommand(setLEDs(PresetColor.KELLY_GREEN));
   }
 
   public Command setAnimation(Animation animation) {
