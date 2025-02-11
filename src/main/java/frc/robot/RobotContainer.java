@@ -72,7 +72,6 @@ public class RobotContainer {
     private final Trigger isNearCoralPosition = new Trigger(() -> elevator.isNearCoralScoringPosition());
     private final Trigger isNearAlgaePosition = new Trigger(() -> elevator.isNearReefAlgaePosition());
     private final Trigger isNearAlgaeContainmentPositon = new Trigger(() -> elevator.isNearAlgaeContainmentPosition());
-    private final Trigger isAtHome = new Trigger(() -> elevator.isAtHome());
     private final Trigger hasCoralInShute = new Trigger(() -> elevator.hasCoralInChute());
 
     private final boolean devController = true;
@@ -141,8 +140,8 @@ public class RobotContainer {
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
-            // TODO: Revist logic here as the head is not at home when we intake a coral
-            hasCoralInShute.and(isAtHome).onTrue(controlFactory.lockElevator());
+            // TODO: Revist logic after testing, lock the elevator for 2 seconds when tripped instead
+            hasCoralInShute.onTrue(controlFactory.lockElevator(2));
         }
 
         if (devController) {

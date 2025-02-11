@@ -32,12 +32,12 @@ public class ControlFactory {
         this.endEffector = endEffector;
     }
 
-    public Command lockElevator() {
+    public Command lockElevator(double lockDurationInSeconds) {
         return Commands.idle(
                 elevator)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
                 .until(() -> endEffector.hasCoral())
-                .withTimeout(1);
+                .withTimeout(lockDurationInSeconds);
     }
 
     public Command algaeContainment() {
