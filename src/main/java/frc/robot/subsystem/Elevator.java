@@ -26,6 +26,8 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -33,16 +35,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
   public enum Position {
-    HOME(0),
+    STARTING_CONFIGURATION(0),
     SENSOR(0.5),
     CONTAIN_ALGAE(0),
-    L1(0.0),
-    L2(0),
-    L2_5(0),
-    L3(0),
-    L3_5(0),
-    L4(0),
-    PEAK(68);
+    CORAL_STATION(0),
+    L1(5),
+    L2(10),
+    L2_5(12),
+    L3(15),
+    L3_5(18),
+    L4(20),
+    PEAK(25);
 
     public final double rotations;
 
@@ -59,28 +62,41 @@ public class Elevator extends SubsystemBase {
   private DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(false);
   private boolean homeFound = false;
   private boolean previousHomeSensor = isAtHome();
+  private final Timer timer = new Timer();
+  private final double timerDuration = 2;
+  private final boolean tuningMode = true;
 
   public Elevator() {
+
+    if (tuningMode) {
+      timer.start();
+      SmartDashboard.putNumber("G", 0);
+      SmartDashboard.putNumber("S", 0);
+      SmartDashboard.putNumber("V", 0);
+      SmartDashboard.putNumber("P", 0);
+      SmartDashboard.putNumber("D", 0);
+    }
+
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Elevator_Static)
-        .withKG(0)
+        .withKG(0.3)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
-        .withKS(0)
-        .withKV(0.01)
-        .withKP(1.3)
+        .withKS(0.2)
+        .withKV(0.25)
+        .withKP(10)
         .withKI(0)
-        .withKD(0.013);
+        .withKD(0);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(20))
-        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(40))
-        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(100));
+        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
+        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(300))
+        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(0));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
     softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
     softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = Position.PEAK.rotations;
     softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.HOME.rotations;
+    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.STARTING_CONFIGURATION.rotations;
 
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
@@ -91,8 +107,8 @@ public class Elevator extends SubsystemBase {
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
-    voltageConfigs.PeakForwardVoltage = 8;
-    voltageConfigs.PeakReverseVoltage = -4;
+    voltageConfigs.PeakForwardVoltage = 12;
+    voltageConfigs.PeakReverseVoltage = -6;
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
     talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
@@ -107,7 +123,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command cmdManualHome() {
-      return cmdSetDutyCycleOut(-0.05).until(() -> homeFound);
+    return cmdSetDutyCycleOut(-0.05).until(() -> homeFound);
   }
 
   public Command cmdSetPosition(Position position) {
@@ -116,9 +132,6 @@ public class Elevator extends SubsystemBase {
         },
         () -> setPosition(position.rotations),
         interrupted -> {
-          if (position == Position.HOME || position == Position.CONTAIN_ALGAE) {
-            stopMotors();
-          }
         },
         () -> isNearPosition(position.rotations),
         this);
@@ -149,9 +162,27 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     if (!homeFound && previousHomeSensor != isAtHome()) {
       homeFound = true;
-      resetMotorPositionToSensor();
+      resetMotorPositionToPosition(Position.SENSOR.rotations);
     }
     previousHomeSensor = isAtHome();
+
+    if (timer.hasElapsed(timerDuration)) {
+      if (tuningMode) {
+        Slot0Configs positionPIDConfigs = new Slot0Configs()
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(SmartDashboard.getNumber("G", 0))
+            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
+            .withKS(SmartDashboard.getNumber("S", 0))
+            .withKV(SmartDashboard.getNumber("V", 0))
+            .withKP(SmartDashboard.getNumber("P", 0))
+            .withKI(0)
+            .withKD(SmartDashboard.getNumber("D", 0));
+
+        leftMotor.getConfigurator().apply(positionPIDConfigs);
+        rightMotor.getConfigurator().apply(positionPIDConfigs);
+      }
+      timer.reset();
+    }
   }
 
   @Logged(name = "Home found")
@@ -161,8 +192,6 @@ public class Elevator extends SubsystemBase {
 
   @Logged(name = "Has coral")
   public boolean hasCoralInChute() {
-    // TODO: Implement in position commands when we have more understanding of the
-    // bots scoring workflow
     return !coralSensor.get();
   }
 
@@ -218,15 +247,14 @@ public class Elevator extends SubsystemBase {
     rightMotor.stopMotor();
   }
 
-  private void resetMotorPositionToSensor() {
-    leftMotor.setPosition(Position.SENSOR.rotations);
-    rightMotor.setPosition(Position.SENSOR.rotations);
+  private void resetMotorPositionToPosition(double rotations) {
+    leftMotor.setPosition(rotations);
+    rightMotor.setPosition(rotations);
   }
 
   private boolean isNearPosition(double position) {
-    // TODO: Tune tolerance value to something representative of real life
-    return MathUtil.isNear(position, getLeftMotorPosition(), 10)
-        || MathUtil.isNear(position, getRightMotorPosition(), 10);
+    return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
+        || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
   }
 
   private boolean isNearPosition(Position position) {

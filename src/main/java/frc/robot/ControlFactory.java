@@ -49,12 +49,12 @@ public class ControlFactory {
         );
     }
 
-    public Command startingConfiguration() {
+    public Command coralStation() {
         return Commands.sequence(
             endEffector.cmdStopAlgaeMotor(),
             endEffector.cmdStopCoralMotor(),
             endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-            elevator.cmdSetPosition(Elevator.Position.HOME)
+            elevator.cmdSetPosition(Elevator.Position.CORAL_STATION)
         );
     }
 

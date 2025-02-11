@@ -12,10 +12,12 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -51,7 +53,6 @@ public class RobotContainer {
 
     private final CommandXboxController joystick = new CommandXboxController(0);
     private CommandPS4Controller devJoystick;
-    private final boolean devController = true;
 
     @Logged(name = "End effector")
     public final EndEffector endEffector = new EndEffector();
@@ -75,6 +76,12 @@ public class RobotContainer {
     private final Trigger isAtHome = new Trigger(() -> elevator.isAtHome());
     private final Trigger hasCoralInShute = new Trigger(() -> elevator.hasCoralInChute());
 
+    private final boolean devController = true;
+    private final boolean driveEnabled = false;
+    private final boolean automationEnabled = false;
+    private final SlewRateLimiter xDriveLimiter = new SlewRateLimiter(0.75);
+    private final SlewRateLimiter yDriveLimiter = new SlewRateLimiter(0.75);
+
     public RobotContainer() {
         configureBindings();
         configureSmartDashboardBindings();
@@ -87,7 +94,7 @@ public class RobotContainer {
     }
 
     public void determineMaxSpeed() {
-        if(elevator.isAbovePosition(Position.L3)) {
+        if (elevator.isAbovePosition(Position.L3)) {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 2;
         } else if (elevator.isAbovePosition(Position.L1)) {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 1.5;
@@ -97,12 +104,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        drivetrain.setDefaultCommand(
-                drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                        .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
-
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
 
@@ -118,20 +119,32 @@ public class RobotContainer {
         joystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
         joystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
 
-        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.startingConfiguration());
+        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.coralStation());
         joystick.b().and(hasAlgae).onTrue(controlFactory.algaeContainment());
 
         joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        joystick.back().toggleOnTrue(drivetrain.applyRequest(
-                () -> driveFacingAngle
-                        .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                        .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                        .withTargetDirection(controlFactory.determineHeadingToReef())));
 
-        hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-        hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
-                .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
-        hasCoralInShute.and(isAtHome).onTrue(controlFactory.lockElevator());
+        if (driveEnabled) {
+            drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> drive
+                            .withVelocityX(yDriveLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
+                            .withVelocityY(xDriveLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
+                            .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
+
+            joystick.back().toggleOnTrue(drivetrain.applyRequest(
+                    () -> driveFacingAngle
+                            .withVelocityX(yDriveLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
+                            .withVelocityY(xDriveLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
+                            .withTargetDirection(controlFactory.determineHeadingToReef())));
+        }
+
+        if (automationEnabled) {
+            hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+            hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
+                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
+            // TODO: Revist logic here as the head is not at home when we intake a coral
+            hasCoralInShute.and(isAtHome).onTrue(controlFactory.lockElevator());
+        }
 
         if (devController) {
             devJoystick = new CommandPS4Controller(1);
@@ -161,8 +174,7 @@ public class RobotContainer {
             devJoystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
             devJoystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
             devJoystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
-            devJoystick.circle().onTrue(controlFactory.delagaeReefLowPosition());
-            devJoystick.square().onTrue(controlFactory.dealgaeReefHighPosition());
+            devJoystick.circle().onTrue(elevator.cmdSetPosition(Elevator.Position.CORAL_STATION));
         }
     }
 
