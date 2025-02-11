@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
@@ -26,12 +27,13 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.TalonHealthChecker;
+import frc.robot.util.TunableTalonFX;
 
 public class Elevator extends SubsystemBase {
   public enum Position {
@@ -62,21 +64,14 @@ public class Elevator extends SubsystemBase {
   private DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(false);
   private boolean homeFound = false;
   private boolean previousHomeSensor = isAtHome();
-  private final Timer timer = new Timer();
-  private final double timerDuration = 2;
-  private final boolean tuningMode = true;
+
+  private final boolean tuningModeEnabled = true;
+  private final boolean healthCheckEnabled = true;
+  private TunableTalonFX tunableTalonFX;
+  private TalonHealthChecker leftMotorCheck;
+  private TalonHealthChecker rightMotorCheck;
 
   public Elevator() {
-
-    if (tuningMode) {
-      timer.start();
-      SmartDashboard.putNumber("G", 0);
-      SmartDashboard.putNumber("S", 0);
-      SmartDashboard.putNumber("V", 0);
-      SmartDashboard.putNumber("P", 0);
-      SmartDashboard.putNumber("D", 0);
-    }
-
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withKG(0.3)
@@ -120,6 +115,15 @@ public class Elevator extends SubsystemBase {
 
     leftMotor.getConfigurator().apply(talonFXConfiguration);
     rightMotor.getConfigurator().apply(talonFXConfiguration);
+
+    if (tuningModeEnabled) {
+      tunableTalonFX = new TunableTalonFX(getName(), "Elevator motors", SlotConfigs.from(positionPIDConfigs), leftMotor, rightMotor);
+    }
+
+    if(healthCheckEnabled) {
+      leftMotorCheck = new TalonHealthChecker(leftMotor, getName());
+      rightMotorCheck = new TalonHealthChecker(rightMotor, getName());
+    }
   }
 
   public Command cmdManualHome() {
@@ -160,29 +164,26 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
+    detectSensorTransition();
+
+    if (tuningModeEnabled) {
+      tunableTalonFX.updateValuesFromSmartNT();
+    }
+
+    if (healthCheckEnabled) {
+      if (DriverStation.isDisabled()) {
+        leftMotorCheck.checkUp();
+        rightMotorCheck.checkUp();
+      }
+    }
+  }
+
+  private void detectSensorTransition() {
     if (!homeFound && previousHomeSensor != isAtHome()) {
       homeFound = true;
       resetMotorPositionToPosition(Position.SENSOR.rotations);
     }
     previousHomeSensor = isAtHome();
-
-    if (timer.hasElapsed(timerDuration)) {
-      if (tuningMode) {
-        Slot0Configs positionPIDConfigs = new Slot0Configs()
-            .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(SmartDashboard.getNumber("G", 0))
-            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
-            .withKS(SmartDashboard.getNumber("S", 0))
-            .withKV(SmartDashboard.getNumber("V", 0))
-            .withKP(SmartDashboard.getNumber("P", 0))
-            .withKI(0)
-            .withKD(SmartDashboard.getNumber("D", 0));
-
-        leftMotor.getConfigurator().apply(positionPIDConfigs);
-        rightMotor.getConfigurator().apply(positionPIDConfigs);
-      }
-      timer.reset();
-    }
   }
 
   @Logged(name = "Home found")
