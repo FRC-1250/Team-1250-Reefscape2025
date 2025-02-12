@@ -83,12 +83,12 @@ public class ControlFactory {
 
     public Rotation2d determineHeadingToReef() {
         if (swerveDrivetrain.getOperatorForwardDirection().getDegrees() == 0) {
-            return Rotation2d.fromDegrees(
+            return Rotation2d.fromRadians(
                     Math.atan2(
                             swerveDrivetrain.getState().Pose.getY() - blueReef.getY(),
                             swerveDrivetrain.getState().Pose.getX() - blueReef.getX()));
         } else {
-            return Rotation2d.fromDegrees(
+            return Rotation2d.fromRadians(
                     Math.atan2(
                             swerveDrivetrain.getState().Pose.getY() - redReef.getY(),
                             swerveDrivetrain.getState().Pose.getX() - redReef.getX()));

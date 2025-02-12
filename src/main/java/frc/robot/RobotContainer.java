@@ -12,7 +12,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,7 +45,8 @@ public class RobotContainer {
 
     private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle = new FieldCentricFacingAngle()
             .withDeadband(MaxSpeed * 0.1)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withHeadingPID(12, 0, 0);
 
     private final SeekAprilTag seekAprilTag = new SeekAprilTag()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -81,8 +81,6 @@ public class RobotContainer {
     private final boolean devController = true;
     private final boolean driveEnabled = false;
     private final boolean automationEnabled = false;
-    private final SlewRateLimiter xDriveLimiter = new SlewRateLimiter(0.75);
-    private final SlewRateLimiter yDriveLimiter = new SlewRateLimiter(0.75);
 
     public RobotContainer() {
         configureBindings();
@@ -129,20 +127,21 @@ public class RobotContainer {
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> drive
-                            .withVelocityX(yDriveLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
-                            .withVelocityY(xDriveLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
+                            .withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                             .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
 
             joystick.back().toggleOnTrue(drivetrain.applyRequest(
                     () -> driveFacingAngle
-                            .withVelocityX(yDriveLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
-                            .withVelocityY(xDriveLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
+                            .withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
                             .withTargetDirection(controlFactory.determineHeadingToReef())));
 
             joystick.a().whileTrue(drivetrain.applyRequest(
                     () -> seekAprilTag
                             .withMaxSpeed(MaxSpeed)
-                            .withMaxAngularRate(MaxAngularRate)));
+                            .withMaxAngularRate(MaxAngularRate)
+                            .withRobotPose(drivetrain.getState().Pose)));
 
         }
 

@@ -13,7 +13,7 @@ import frc.robot.LimelightHelpers;
 
 public class SeekAprilTag implements NativeSwerveRequest {
     // Default Robot Centric drive variables
-    private double VelocityX = 0;
+    public double VelocityX = 0;
     private double VelocityY = 0;
     private double RotationalRate = 0;
     private double Deadband = 0;
@@ -30,8 +30,8 @@ public class SeekAprilTag implements NativeSwerveRequest {
     private double targetAngle = 0;
     private double aprilTagID = 0;
     private Pose3d aptilTagPose3d = new Pose3d();
-    private PIDController headingController = new PIDController(4, 0, 0);
-    private PIDController translationController = new PIDController(4, 0, 0);
+    private PIDController headingController = new PIDController(7, 0, 0);
+    private PIDController translationController = new PIDController(10, 0, 0);
 
     public SeekAprilTag() {
     }
@@ -116,9 +116,9 @@ public class SeekAprilTag implements NativeSwerveRequest {
                 targetAngle = 120;
             }
 
-            double VelocityX = translationController.calculate(aptilTagPose3d.getZ(), 1) * maxSpeed;
-            double VelocityY = translationController.calculate(aptilTagPose3d.getX(), 0) * maxSpeed;
-            double RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
+            VelocityX = -translationController.calculate(aptilTagPose3d.getZ(), 1) * maxSpeed;
+            VelocityY = -translationController.calculate(aptilTagPose3d.getX(), 1) * maxSpeed;
+            RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
                     Math.toRadians(targetAngle)) * maxAngularRate;
 
             if (Math.sqrt(VelocityX * VelocityX + VelocityY * VelocityY) < Deadband) {
