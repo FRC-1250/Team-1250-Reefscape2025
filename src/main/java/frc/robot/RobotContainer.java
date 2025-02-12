@@ -31,6 +31,7 @@ import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.EndEffector.HeadPosition;
+import frc.robot.util.SeekAprilTag;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -45,6 +46,9 @@ public class RobotContainer {
 
     private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle = new FieldCentricFacingAngle()
             .withDeadband(MaxSpeed * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SeekAprilTag seekAprilTag = new SeekAprilTag()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry();
@@ -134,13 +138,20 @@ public class RobotContainer {
                             .withVelocityX(yDriveLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
                             .withVelocityY(xDriveLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
                             .withTargetDirection(controlFactory.determineHeadingToReef())));
+
+            joystick.a().whileTrue(drivetrain.applyRequest(
+                    () -> seekAprilTag
+                            .withMaxSpeed(MaxSpeed)
+                            .withMaxAngularRate(MaxAngularRate)));
+
         }
 
         if (automationEnabled) {
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
-            // TODO: Revist logic after testing, lock the elevator for 2 seconds when tripped instead
+            // TODO: Revist logic after testing, lock the elevator for 2 seconds when
+            // tripped instead
             hasCoralInShute.onTrue(controlFactory.lockElevator(2));
         }
 
