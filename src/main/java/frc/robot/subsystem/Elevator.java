@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase {
     L3(15),
     L3_5(18),
     L4(20),
-    PEAK(25);
+    PEAK(68);
 
     public final double rotations;
 
@@ -83,7 +83,7 @@ public class Elevator extends SubsystemBase {
         .withKD(0);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
+        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(50))
         .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(300))
         .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(0));
 

@@ -79,7 +79,7 @@ public class RobotContainer {
     private final Trigger hasCoralInShute = new Trigger(() -> elevator.hasCoralInChute());
 
     private final boolean devController = true;
-    private final boolean driveEnabled = false;
+    private final boolean driveEnabled = true;
     private final boolean automationEnabled = false;
 
     public RobotContainer() {
