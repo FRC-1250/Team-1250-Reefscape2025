@@ -38,16 +38,16 @@ import frc.robot.util.TunableTalonFX;
 public class Elevator extends SubsystemBase {
   public enum Position {
     STARTING_CONFIGURATION(0),
-    SENSOR(0.5),
+    SENSOR(0.8),
     CONTAIN_ALGAE(0),
-    CORAL_STATION(0),
+    CORAL_STATION(7.5),
     L1(5),
     L2(10),
     L2_5(12),
     L3(15),
     L3_5(18),
-    L4(20),
-    PEAK(68);
+    L4(50),
+    PEAK(61);
 
     public final double rotations;
 
@@ -83,8 +83,8 @@ public class Elevator extends SubsystemBase {
         .withKD(0);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(50))
-        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(300))
+        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
+        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
         .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(0));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
@@ -179,7 +179,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void detectSensorTransition() {
-    if (!homeFound && previousHomeSensor != isAtHome()) {
+    if ( previousHomeSensor != isAtHome()) {
       homeFound = true;
       resetMotorPositionToPosition(Position.SENSOR.rotations);
     }
@@ -205,6 +205,16 @@ public class Elevator extends SubsystemBase {
   public double getLeftMotorPosition() {
     return leftMotor.getPosition().getValueAsDouble();
   }
+
+@Logged(name = "Left Velocity")
+public double getLeftMotorVelocity() {
+  return leftMotor.getVelocity().getValueAsDouble();
+}
+
+@Logged (name = "Right Velocity") 
+public double getRightMotorVelocity() {
+  return rightMotor.getVelocity().getValueAsDouble();
+}
 
   public boolean isAbovePosition(Position position) {
     return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();

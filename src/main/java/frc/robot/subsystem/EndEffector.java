@@ -24,9 +24,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(1),
+    DEPLOYED(.1),
     MIDDLE(0.5),
-    HOME(0);
+    HOME(.75);
 
     public final double value;
 
@@ -98,6 +98,8 @@ public class EndEffector extends SubsystemBase {
 
     headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
     algaeIntakeArm.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
+    
+    setAlgaeIntakePostion(AlgaeServoPosition.HOME);
   }
 
   public Command cmdStopCoralMotor() {
