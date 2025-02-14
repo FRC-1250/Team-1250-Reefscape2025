@@ -117,7 +117,7 @@ public class SeekAprilTag implements NativeSwerveRequest {
             }
 
             VelocityX = -translationController.calculate(aptilTagPose3d.getZ(), 1) * maxSpeed;
-            VelocityY = -translationController.calculate(aptilTagPose3d.getX(), 1) * maxSpeed;
+            VelocityY = -translationController.calculate(aptilTagPose3d.getX(), 0) * maxSpeed;
             RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
                     Math.toRadians(targetAngle)) * maxAngularRate;
 
