@@ -41,7 +41,7 @@ public class TunableTalonFX {
     private SlotConfigs slotConfigs;
 
     public TunableTalonFX(String subsystemName, String tuningGroupName, SlotConfigs slotConfigs, TalonFX... talons) {
-        tuningModeAlert = new Alert(String.format("%s PID tuning mode active.", subsystemName), AlertType.kInfo);
+        tuningModeAlert = new Alert(String.format("[%s] %s PID tuning mode active.", subsystemName, tuningGroupName), AlertType.kInfo);
         tuningModeAlert.set(true);
 
         pid = NetworkTableInstance.getDefault().getTable(String.format("Robot tuner/%s", tuningGroupName));
