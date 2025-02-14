@@ -27,7 +27,6 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -117,10 +116,11 @@ public class Elevator extends SubsystemBase {
     rightMotor.getConfigurator().apply(talonFXConfiguration);
 
     if (tuningModeEnabled) {
-      tunableTalonFX = new TunableTalonFX(getName(), "Elevator motors", SlotConfigs.from(positionPIDConfigs), leftMotor, rightMotor);
+      tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs), leftMotor,
+          rightMotor);
     }
 
-    if(healthCheckEnabled) {
+    if (healthCheckEnabled) {
       leftMotorCheck = new TalonHealthChecker(leftMotor, getName());
       rightMotorCheck = new TalonHealthChecker(rightMotor, getName());
     }
@@ -171,10 +171,8 @@ public class Elevator extends SubsystemBase {
     }
 
     if (healthCheckEnabled) {
-      if (DriverStation.isDisabled()) {
-        leftMotorCheck.checkUp();
-        rightMotorCheck.checkUp();
-      }
+      leftMotorCheck.checkUp();
+      rightMotorCheck.checkUp();
     }
   }
 
