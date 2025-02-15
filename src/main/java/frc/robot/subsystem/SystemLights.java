@@ -4,83 +4,78 @@
 
 package frc.robot.subsystem;
 
+import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
-import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
-import com.ctre.phoenix.time.StopWatch;
 import com.ctre.phoenix.led.CANdleConfiguration;
-import com.ctre.phoenix.led.LarsonAnimation;
-import com.ctre.phoenix.led.StrobeAnimation;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SystemLights extends SubsystemBase {
-  /** Creates a new SystemLights. */
-  private final CANdle candle = new CANdle(15, "rio");
-  private final int LedCount = 300;
 
-  Timer timer = new Timer();
-  StrobeAnimation strobeAnimation = new StrobeAnimation(1, 48, 12);
-  LarsonAnimation larsonAnimation = new LarsonAnimation(1, 48, 12);
+  private final CANdle candle = new CANdle(30, "rio");
 
-  public double getVbat() {
-    return candle.getBusVoltage();
-  }
+  public enum PresetColor {
+    BLACK(0, 0, 0),
+    WHITE(255, 255, 255),
+    RED(255, 0, 0),
+    GREEN(0, 255, 0),
+    BLUE(0, 0, 255),
+    PURPLE(157, 0, 255),
+    PINK(255, 141, 161),
+    KELLY_GREEN(76, 187, 23);
 
-  public double get5V() {
-    return candle.get5VRailVoltage();
-  }
+    private final int red;
+    private final int green;
+    private final int blue;
+    private final int rgbMin = 0;
+    private final int rgbMax = 255;
 
-  public double getCurrent() {
-    return candle.getCurrent();
-  }
-
-  public double getTemperature() {
-    return candle.getTemperature();
-  }
-
-  public void configBrightness(double percent) {
-    candle.configBrightnessScalar(percent, 0);
-  }
-
-  public void configLos(boolean disableWhenLos) {
-    candle.configLOSBehavior(disableWhenLos, 0);
-  }
-
-  public void configLedType(LEDStripType type) {
-    candle.configLEDType(type, 0);
-  }
-
-  public void configStatusLedBehavior(boolean offWhenActive) {
-    candle.configStatusLedState(offWhenActive, 0);
+    PresetColor(int red, int green, int blue) {
+      this.red = MathUtil.clamp(red, rgbMin, rgbMax);
+      this.green = MathUtil.clamp(green, rgbMin, rgbMax);
+      this.blue = MathUtil.clamp(blue, rgbMin, rgbMax);
+    }
   }
 
   public SystemLights() {
     CANdleConfiguration configAll = new CANdleConfiguration();
-    configAll.disableWhenLOS = false;
-    configAll.brightnessScalar = 0.1;
-    configAll.vBatOutputMode = VBatOutputMode.Modulated;
-    configAll.v5Enabled = false;
-    candle.configAllSettings(configAll, 100);
-    timer.start();
-    larsonAnimation.setBounceMode(BounceMode.Back);
+    configAll.brightnessScalar = 1;
+    configAll.disableWhenLOS = true;
+    configAll.enableOptimizations = true;
+    configAll.statusLedOffWhenActive = true;
+    configAll.stripType = LEDStripType.RGB;
+    configAll.v5Enabled = true;
+    configAll.vBatOutputMode = VBatOutputMode.Off;
+    candle.configAllSettings(configAll);
+    setDefaultCommand(setLEDs(PresetColor.KELLY_GREEN));
   }
 
-  public void setLEDs(int r, int g, int b) {
-    candle.setLEDs(r, g, b);
+  public Command setAnimation(Animation animation) {
+    return Commands.runOnce(() -> candle.animate(animation), this);
   }
 
-   private void cycleLights() {
-    if (timer.get() > .5 && timer.get() < 15) {
-      setLEDs(255, 215, 0);
-    } else if (timer.get() > 16 && timer.get() < 35) {
-      candle.animate(larsonAnimation);
-    } else if (timer.get() > 50) {
-      timer.restart();
-    }
+  public Command setLEDs(PresetColor color) {
+    return Commands.runOnce(() -> {
+      candle.clearAnimation(0);
+      candle.setLEDs(color.red, color.green, color.blue);
+    }, this);
+  }
+
+  public Command setLEDs(int r, int g, int b) {
+    return Commands.runOnce(() -> {
+      candle.clearAnimation(0);
+      candle.setLEDs(r, g, b);
+    }, this);
+  }
+
+  public Command clear() {
+    return Commands
+        .runOnce(() -> candle.setLEDs(PresetColor.BLACK.red, PresetColor.BLACK.green, PresetColor.BLACK.blue), this);
   }
 
   @Override

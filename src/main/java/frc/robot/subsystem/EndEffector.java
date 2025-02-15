@@ -16,18 +16,17 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-@Logged
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(1),
-    HOME(0);
+    DEPLOYED(.1),
+    MIDDLE(0.5),
+    HOME(.75);
 
     public final double value;
 
@@ -36,11 +35,21 @@ public class EndEffector extends SubsystemBase {
     }
   }
 
+  public enum ServoOffset {
+    BUMP(0.01),
+    JUMP(0.1);
+
+    public final double value;
+
+    ServoOffset(double value) {
+      this.value = value;
+    }
+  }
+
   public static class HeadPosition {
-    private final static double TURE_CENTER = 0.5;
+    private final static double TURE_CENTER = 0.4575;
     private final static double CORAL_BRANCH_SERVO_OFFSET = 0.15;
-    private final static double NINTY_DEGREE_OFFSET = 0.3;
-    private final static double BUMP = 0.01;
+    private final static double NINTY_DEGREE_OFFSET = 0.35;
 
     public final static double LOGICAL_CENTER = 0.5;
     public final static double CENTER = TURE_CENTER;
@@ -53,7 +62,7 @@ public class EndEffector extends SubsystemBase {
   private TalonFX algaeMotor = new TalonFX(21);
   private DutyCycleOut algaeDutyCycleOut = new DutyCycleOut(0);
   private DigitalInput algaeSensor = new DigitalInput(4);
-  private Servo algaeIntakePosition = new Servo(1);
+  private Servo algaeIntakeArm = new Servo(1);
 
   private TalonFX coralMotor = new TalonFX(20);
   private DutyCycleOut coralDutyCycleOut = new DutyCycleOut(0);
@@ -67,7 +76,7 @@ public class EndEffector extends SubsystemBase {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(1)
+        .withKP(0.25)
         .withKI(0)
         .withKD(0)
         .withKV(0);
@@ -77,7 +86,7 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     coralTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
 
     TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();
@@ -88,12 +97,9 @@ public class EndEffector extends SubsystemBase {
     algaeMotor.getConfigurator().apply(algaeTalonConfiguration);
 
     headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
-    algaeIntakePosition.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
-  }
-
-  @Override
-  public void periodic() {
-   SmartDashboard.putNumber("Head postion", headRotate.getPosition());
+    algaeIntakeArm.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
+    
+    setAlgaeIntakePostion(AlgaeServoPosition.HOME);
   }
 
   public Command cmdStopCoralMotor() {
@@ -112,7 +118,7 @@ public class EndEffector extends SubsystemBase {
 
   public Command cmdAddCoralRotations(double rotations) {
     return new FunctionalCommand(
-        () -> currentPosition = getCoralPosition(),
+        () -> currentPosition = getCoralMotorPosition(),
         () -> setCoralPosition(currentPosition + rotations),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(currentPosition + rotations),
@@ -131,10 +137,18 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command cmdBumpHead(boolean moveRight) {
-    if(moveRight) {
-      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() + HeadPosition.BUMP), this);
+    if (moveRight) {
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.BUMP.value), this);
     } else {
-      return Commands.runOnce(() -> setHeadPosition(headRotate.getPosition() - HeadPosition.BUMP), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.BUMP.value), this);
+    }
+  }
+
+  public Command cmdJumpHead(boolean moveRight) {
+    if (moveRight) {
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.JUMP.value), this);
+    } else {
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.JUMP.value), this);
     }
   }
 
@@ -153,8 +167,49 @@ public class EndEffector extends SubsystemBase {
     return Commands.runOnce(() -> setAlgaeIntakePostion(value), this);
   }
 
-  public boolean getCoralSensor() {
+  public Command cmdBumpAlgaeIntake(boolean moveRight) {
+    if (moveRight) {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.BUMP.value), this);
+    } else {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.BUMP.value), this);
+    }
+  }
+
+  public Command cmdJumpAlgaeIntake(boolean moveRight) {
+    if (moveRight) {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.JUMP.value), this);
+    } else {
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.JUMP.value), this);
+    }
+  }
+
+  @Override
+  public void periodic() {
+  }
+
+  @Logged(name = "Has coral")
+  public boolean hasCoral() {
     return !coralSensor.get();
+  }
+
+  @Logged(name = "Has algae")
+  public boolean hasAlgae() {
+    return !algaeSensor.get();
+  }
+
+  @Logged(name = "Algae intake position")
+  public double getAlgaeIntakeArmPosition() {
+    return algaeIntakeArm.getPosition();
+  }
+
+  @Logged(name = "Head rotate position")
+  public double getHeadPosition() {
+    return headRotate.getPosition();
+  }
+
+  @Logged(name = "Coral motor rotations")
+  public double getCoralMotorPosition() {
+    return coralMotor.getPosition().getValueAsDouble();
   }
 
   private void stopCoralMotor() {
@@ -169,20 +224,12 @@ public class EndEffector extends SubsystemBase {
     coralMotor.setControl(coralPositionControl.withPosition(position));
   }
 
-  private double getCoralPosition() {
-    return coralMotor.getPosition().getValueAsDouble();
-  }
-
   private boolean isCoralNearPosition(double position) {
-    return MathUtil.isNear(position, getCoralPosition(), 1);
+    return MathUtil.isNear(position, getCoralMotorPosition(), 1);
   }
 
   private void setHeadPosition(double position) {
     headRotate.setPosition(position);
-  }
-
-  public boolean getAlgaeSensor() {
-    return !algaeSensor.get();
   }
 
   private void stopAlgaeMotor() {
@@ -194,7 +241,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   private void setAlgaeIntakePostion(double position) {
-    algaeIntakePosition.setPosition(position);
+    algaeIntakeArm.setPosition(position);
   }
 
   private void setAlgaeIntakePostion(AlgaeServoPosition position) {
