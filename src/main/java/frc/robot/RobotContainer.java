@@ -81,7 +81,7 @@ public class RobotContainer {
 
     private final boolean devController = true;
     private final boolean driveEnabled = false;
-    private final boolean automationEnabled = false;
+    private final boolean automationEnabled = true;
 
     public RobotContainer() {
         configureBindings();
@@ -115,13 +115,13 @@ public class RobotContainer {
         joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
         joystick.leftTrigger().and(reefHasLowAlgae).onTrue(controlFactory.delagaeReefLowPosition());
 
-        joystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
-        joystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
-        joystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
-        joystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
+        joystick.povDown().onTrue(controlFactory.goToPosition((Elevator.Position.L1)));
+        joystick.povRight().onTrue(controlFactory.goToPosition((Elevator.Position.L2)));
+        joystick.povLeft().onTrue(controlFactory.goToPosition((Elevator.Position.L3)));
+        joystick.povUp().onTrue(controlFactory.goToPosition((Elevator.Position.L4)));
 
-        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.coralStation());
-        joystick.b().and(hasAlgae).onTrue(controlFactory.algaeContainment());
+        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.goToPosition(Position.CORAL_STATION));
+        joystick.b().and(hasAlgae).onTrue(controlFactory.goToPosition(Position.CONTAIN_ALGAE));
 
         joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -151,7 +151,7 @@ public class RobotContainer {
         if (automationEnabled) {
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
-                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.LEFT)));
+                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT)));
             // TODO: Revist logic after testing, lock the elevator for 2 seconds when
             // tripped instead
             hasCoralInShute.onTrue(controlFactory.lockElevator(2));
@@ -176,11 +176,17 @@ public class RobotContainer {
             // Placeholder for climber -> devJoystick.L1().onTrue();
             devJoystick.L2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
 
+   
             // Elevator duty cycle out, up and down
             devJoystick.cross().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
             devJoystick.triangle().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
 
             // Elevator positions
+            devJoystick.povDown().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
+            devJoystick.povUp().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
+
+
+            
             devJoystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
             devJoystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
             devJoystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));

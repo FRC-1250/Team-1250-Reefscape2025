@@ -47,8 +47,8 @@ public class EndEffector extends SubsystemBase {
   }
 
   public static class HeadPosition {
-    private final static double TURE_CENTER = 0.4575;
-    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.15;
+    private final static double TURE_CENTER = 0.45;
+    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.115;
     private final static double NINTY_DEGREE_OFFSET = 0.35;
 
     public final static double LOGICAL_CENTER = 0.5;

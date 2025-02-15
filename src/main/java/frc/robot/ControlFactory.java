@@ -13,6 +13,7 @@ import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.SystemLights;
+import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.HealthStatus;
 
@@ -44,36 +45,32 @@ public class ControlFactory {
                 .withTimeout(lockDurationInSeconds);
     }
 
-    public Command algaeContainment() {
-        return Commands.sequence(
-            endEffector.cmdStopAlgaeMotor(),
-            endEffector.cmdStopCoralMotor(),
-            endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-            elevator.cmdSetPosition(Elevator.Position.CONTAIN_ALGAE)
-        );
-    }
-
-    public Command coralStation() {
-        return Commands.sequence(
-            endEffector.cmdStopAlgaeMotor(),
-            endEffector.cmdStopCoralMotor(),
-            endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-            elevator.cmdSetPosition(Elevator.Position.CORAL_STATION)
-        );
-    }
-
     public Command dealgaeReefHighPosition() {
         return Commands.sequence(
-            elevator.cmdSetPosition(Elevator.Position.L4),
-            endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED),
-            elevator.cmdSetPosition(Elevator.Position.L3_5));
+                elevator.cmdSetPosition(Elevator.Position.L4),
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED),
+                elevator.cmdSetPosition(Elevator.Position.L3_5));
+    }
+
+    public Command dealgaeReefHighPositionReverse(Position pos) {
+        return Commands.sequence(
+                elevator.cmdSetPosition(Elevator.Position.L4),
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
+                elevator.cmdSetPosition(pos));
     }
 
     public Command delagaeReefLowPosition() {
         return Commands.sequence(
-            elevator.cmdSetPosition(Elevator.Position.L3_5),
-            endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED),
-            elevator.cmdSetPosition(Elevator.Position.L2_5));
+                elevator.cmdSetPosition(Elevator.Position.L3_5),
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED),
+                elevator.cmdSetPosition(Elevator.Position.L2_5));
+    }
+
+    public Command delagaeReefLowPositionReverse(Position pos) {
+        return Commands.sequence(
+                elevator.cmdSetPosition(Elevator.Position.L3_5),
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
+                elevator.cmdSetPosition(pos));
     }
 
     public boolean hasLowAlgae() {
@@ -115,6 +112,16 @@ public class ControlFactory {
                 return true;
         }
         return false;
+    }
+
+    public Command goToPosition(Position pos) {
+        return Commands.sequence(
+                endEffector.cmdStopAlgaeMotor(),
+                endEffector.cmdStopCoralMotor(),
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
+                Commands.waitSeconds(0.5),
+                elevator.cmdSetPosition(pos));
+
     }
 
 }

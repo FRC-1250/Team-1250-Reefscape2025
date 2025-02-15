@@ -39,15 +39,15 @@ public class Elevator extends SubsystemBase {
   public enum Position {
     STARTING_CONFIGURATION(0),
     SENSOR(0.8),
-    CONTAIN_ALGAE(0),
+    CONTAIN_ALGAE(13.9),
     CORAL_STATION(7.5),
-    L1(5),
-    L2(10),
-    L2_5(12),
-    L3(15),
-    L3_5(18),
-    L4(50),
-    PEAK(61);
+    L1(11.5),
+    L2(20.3),
+    L2_5(33.8),
+    L3(35.2),
+    L3_5(44.7),
+    L4(60.2),
+    PEAK(63.25);
 
     public final double rotations;
 
@@ -156,7 +156,7 @@ public class Elevator extends SubsystemBase {
   public Command cmdSetDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setDutyCycleOut(output),
-        () -> stopMotors(),
+        () -> holdPosition(),
         this);
   }
 
@@ -255,6 +255,10 @@ public double getRightMotorVelocity() {
     rightMotor.setControl(motionMagicPostionControl);
   }
 
+  private void holdPosition() {
+    setPosition(getLeftMotorPosition());
+  }
+
   private void setDutyCycleOut(double output) {
     dutyCycleOut.Output = output;
     leftMotor.setControl(dutyCycleOut);
@@ -279,4 +283,6 @@ public double getRightMotorVelocity() {
   private boolean isNearPosition(Position position) {
     return isNearPosition(position.rotations);
   }
+
+
 }
