@@ -6,7 +6,7 @@ import java.util.List;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 public class PigeonHealthChecker extends PhoenixHealthChecker {
-    
+
     private final Pigeon2 pigeon;
 
     public PigeonHealthChecker(Pigeon2 pigeon, String subsystemName) {
