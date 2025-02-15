@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.HealthStatus;
 import frc.robot.util.TalonHealthChecker;
 import frc.robot.util.TunableTalonFX;
 
@@ -69,6 +70,7 @@ public class Elevator extends SubsystemBase {
   private TunableTalonFX tunableTalonFX;
   private TalonHealthChecker leftMotorCheck;
   private TalonHealthChecker rightMotorCheck;
+  private HealthStatus healthStatus = HealthStatus.IS_OK;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -171,8 +173,11 @@ public class Elevator extends SubsystemBase {
     }
 
     if (healthCheckEnabled) {
-      leftMotorCheck.checkUp();
-      rightMotorCheck.checkUp();
+      if (!leftMotorCheck.isDeviceHealthy() || !rightMotorCheck.isDeviceHealthy()) {
+        healthStatus = HealthStatus.ERROR;
+      } else {
+        healthStatus = HealthStatus.IS_OK;
+      }
     }
   }
 
@@ -213,6 +218,11 @@ public double getLeftMotorVelocity() {
 public double getRightMotorVelocity() {
   return rightMotor.getVelocity().getValueAsDouble();
 }
+
+  @Logged(name = "Health status")
+  public HealthStatus getHealthStatus() {
+    return healthStatus;
+  }
 
   public boolean isAbovePosition(Position position) {
     return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();

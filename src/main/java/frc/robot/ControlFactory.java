@@ -13,6 +13,8 @@ import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.SystemLights;
+import frc.robot.subsystem.SystemLights.PresetColor;
+import frc.robot.util.HealthStatus;
 
 /** Add your docs here. */
 public class ControlFactory {
@@ -20,6 +22,7 @@ public class ControlFactory {
     private final CommandSwerveDrivetrain swerveDrivetrain;
     private final Elevator elevator;
     private final EndEffector endEffector;
+    private final SystemLights systemLights;
     private final Translation2d blueReef = new Translation2d(4.490, 4);
     private final Translation2d redReef = new Translation2d(13.05, 4);
     private final double[] highAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
@@ -30,6 +33,7 @@ public class ControlFactory {
         this.swerveDrivetrain = swerveDrivetrain;
         this.elevator = elevator;
         this.endEffector = endEffector;
+        this.systemLights = systemLights;
     }
 
     public Command lockElevator(double lockDurationInSeconds) {
@@ -65,7 +69,6 @@ public class ControlFactory {
             elevator.cmdSetPosition(Elevator.Position.L3_5));
     }
 
-
     public Command delagaeReefLowPosition() {
         return Commands.sequence(
             elevator.cmdSetPosition(Elevator.Position.L3_5),
@@ -93,6 +96,17 @@ public class ControlFactory {
                             swerveDrivetrain.getState().Pose.getY() - redReef.getY(),
                             swerveDrivetrain.getState().Pose.getX() - redReef.getX()));
         }
+    }
+
+    public Command displaySubsystemErrorState() {
+        return Commands.run(
+                () -> {
+                    if (elevator.getHealthStatus() == HealthStatus.ERROR) {
+                        systemLights.setLEDs(PresetColor.PURPLE);
+                    } else {
+                        systemLights.setLEDs(PresetColor.KELLY_GREEN);
+                    }
+                }, systemLights);
     }
 
     private boolean idInArray(double[] arr, double id) {

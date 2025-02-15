@@ -13,6 +13,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -76,6 +77,7 @@ public class RobotContainer {
     private final Trigger isNearAlgaePosition = new Trigger(() -> elevator.isNearReefAlgaePosition());
     private final Trigger isNearAlgaeContainmentPositon = new Trigger(() -> elevator.isNearAlgaeContainmentPosition());
     private final Trigger hasCoralInShute = new Trigger(() -> elevator.hasCoralInChute());
+    private final Trigger isDisabled = new Trigger(() -> DriverStation.isDisabled());
 
     private final boolean devController = true;
     private final boolean driveEnabled = true;
@@ -123,6 +125,8 @@ public class RobotContainer {
 
         joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+        isDisabled.whileTrue(controlFactory.displaySubsystemErrorState());
+        
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> drive

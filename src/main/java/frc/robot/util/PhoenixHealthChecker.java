@@ -27,8 +27,8 @@ public abstract class PhoenixHealthChecker {
         minSecondsBetweenCheckups = 2;
     }
 
-    public boolean checkUp() {
-        final boolean healthy = isDeviceHealthy();
+    public boolean isDeviceHealthy() {
+        final boolean healthy = checkUp();
         if (timer.hasElapsed(minSecondsBetweenCheckups) && DriverStation.isDisabled()) {
             alert.set(!healthy);
             timer.reset();
@@ -38,7 +38,7 @@ public abstract class PhoenixHealthChecker {
 
     protected abstract List<Boolean> faultsToBooleanList();
 
-    private boolean isDeviceHealthy() {
+    private boolean checkUp() {
         if (!device.isConnected()) {
             setAlertMessage("is device connected? Check for power or CAN bus issues.");
             return false;
