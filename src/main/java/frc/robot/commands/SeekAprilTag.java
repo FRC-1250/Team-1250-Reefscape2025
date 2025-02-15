@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.commands;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters;
