@@ -80,7 +80,7 @@ public class RobotContainer {
     private final Trigger isDisabled = new Trigger(() -> DriverStation.isDisabled());
 
     private final boolean devController = true;
-    private final boolean driveEnabled = true;
+    private final boolean driveEnabled = false;
     private final boolean automationEnabled = false;
 
     public RobotContainer() {
@@ -161,13 +161,13 @@ public class RobotContainer {
             devJoystick = new CommandPS4Controller(1);
 
             // End effector head, left and right
-            devJoystick.axisGreaterThan(0, 0.75).whileTrue(endEffector.cmdBumpHead(true));
-            devJoystick.axisLessThan(0, -0.75).whileTrue(endEffector.cmdBumpHead(false));
+            devJoystick.axisGreaterThan(0, 0.75).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
+            devJoystick.axisLessThan(0, -0.75).whileTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
             devJoystick.L3().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
 
             // End effector algae intake, in and out
-            devJoystick.axisGreaterThan(5, 0.75).whileTrue(endEffector.cmdBumpAlgaeIntake(true));
-            devJoystick.axisLessThan(5, -0.75).whileTrue(endEffector.cmdBumpAlgaeIntake(false));
+            devJoystick.axisGreaterThan(5, 0.75).onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+            devJoystick.axisLessThan(5, -0.75).onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
             devJoystick.R3().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.MIDDLE));
 
             // Scoring options
@@ -186,6 +186,7 @@ public class RobotContainer {
             devJoystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
             devJoystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
             devJoystick.circle().onTrue(elevator.cmdSetPosition(Elevator.Position.CORAL_STATION));
+            devJoystick.square().onTrue(elevator.cmdSetPosition(Elevator.Position.STARTING_CONFIGURATION));
         }
     }
 
