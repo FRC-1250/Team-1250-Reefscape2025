@@ -4,12 +4,8 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.Utils;
-
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +24,16 @@ public class Robot extends TimedRobot {
     DriverStation.startDataLog(DataLogManager.getLog());
     Epilogue.bind(this);
     DriverStation.silenceJoystickConnectionWarning(true);
+
+    CommandScheduler.getInstance().onCommandInitialize(
+        command -> DataLogManager.log(
+            String.format("Command init: %s, with requirements: %s", command.getName(), command.getRequirements())));
+
+    CommandScheduler.getInstance().onCommandFinish(
+        command -> DataLogManager.log(String.format("Command finished: %s", command.getName())));
+
+    CommandScheduler.getInstance().onCommandInterrupt(
+        command -> DataLogManager.log(String.format("Command interrupted: %s", command.getName())));
   }
 
   @Override
