@@ -142,10 +142,7 @@ public class RobotContainer {
 
             joystick.a().whileTrue(drivetrain.applyRequest(
                     () -> seekAprilTag
-                            .withMaxSpeed(MaxSpeed)
-                            .withMaxAngularRate(MaxAngularRate)
                             .withRobotPose(drivetrain.getState().Pose)));
-
         }
 
         if (automationEnabled) {

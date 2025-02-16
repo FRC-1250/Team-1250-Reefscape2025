@@ -13,7 +13,7 @@ import frc.robot.LimelightHelpers;
 
 public class SeekAprilTag implements NativeSwerveRequest {
     // Default Robot Centric drive variables
-    public double VelocityX = 0;
+    private double VelocityX = 0;
     private double VelocityY = 0;
     private double RotationalRate = 0;
     private double Deadband = 0;
@@ -24,16 +24,17 @@ public class SeekAprilTag implements NativeSwerveRequest {
     private boolean DesaturateWheelSpeeds = true;
 
     // Custom attributes
-    private double maxSpeed = 0;
-    private double maxAngularRate = 0;
     private Pose2d robotPose2d = new Pose2d();
     private double targetAngle = 0;
-    private double aprilTagID = 0;
+    private double aprilTagID = -1;
     private Pose3d aptilTagPose3d = new Pose3d();
-    private PIDController headingController = new PIDController(7, 0, 0);
-    private PIDController translationController = new PIDController(10, 0, 0);
+    private PIDController headingController = new PIDController(5, 0, 0);
+    private PIDController translationController = new PIDController(5, 0, 0);
 
     public SeekAprilTag() {
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
+        headingController.setTolerance(0.05);
+        translationController.setTolerance(0.05);
     }
 
     public SeekAprilTag withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
@@ -46,20 +47,8 @@ public class SeekAprilTag implements NativeSwerveRequest {
         return this;
     }
 
-    public SeekAprilTag withMaxSpeed(double maxSpeed) {
-        this.maxSpeed = maxSpeed;
-        Deadband = maxSpeed * 0.1;
-        return this;
-    }
-
     public SeekAprilTag withRobotPose(Pose2d pose) {
         this.robotPose2d = pose;
-        return this;
-    }
-
-    public SeekAprilTag withMaxAngularRate(double maxAngularRate) {
-        this.maxAngularRate = maxAngularRate;
-        RotationalDeadband = maxAngularRate * 0.1;
         return this;
     }
 
@@ -97,7 +86,7 @@ public class SeekAprilTag implements NativeSwerveRequest {
         aprilTagID = LimelightHelpers.getFiducialID("limelight");
         aptilTagPose3d = LimelightHelpers.getTargetPose3d_RobotSpace("limelight");
 
-        if (Double.compare(aprilTagID, 0) == 0) {
+        if (Double.compare(aprilTagID, -1) == 0 || Double.compare(aprilTagID, 0) == 0) {
             VelocityX = 0;
             VelocityY = 0;
             RotationalRate = 0;
@@ -116,19 +105,10 @@ public class SeekAprilTag implements NativeSwerveRequest {
                 targetAngle = 120;
             }
 
-            VelocityX = -translationController.calculate(aptilTagPose3d.getZ(), 1) * maxSpeed;
-            VelocityY = -translationController.calculate(aptilTagPose3d.getX(), 0) * maxSpeed;
+            VelocityX = -translationController.calculate(aptilTagPose3d.getZ(), 0.5);
+            VelocityY = translationController.calculate(aptilTagPose3d.getX(), 0);
             RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
-                    Math.toRadians(targetAngle)) * maxAngularRate;
-
-            if (Math.sqrt(VelocityX * VelocityX + VelocityY * VelocityY) < Deadband) {
-                VelocityX = 0;
-                VelocityY = 0;
-            }
-
-            if (Math.abs(RotationalRate) < RotationalDeadband) {
-                RotationalRate = 0;
-            }
+                    Math.toRadians(targetAngle));
         }
     }
 }
