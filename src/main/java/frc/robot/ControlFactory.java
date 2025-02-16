@@ -75,9 +75,9 @@ public class ControlFactory {
     }
 
     public Command delagaeReef() {
-        return Commands.parallel(
-            endEffector.cmdSetAlgaeDutyCycleOut(-1),
-            endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.HOME)
+        return Commands.sequence(
+            endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.HOME),
+            endEffector.cmdSetAlgaeDutyCycleOut(-1)
         );
     }
 
