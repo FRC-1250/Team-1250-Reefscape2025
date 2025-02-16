@@ -104,14 +104,29 @@ public class ControlFactory {
     }
 
     public Command displaySubsystemErrorState() {
-        return Commands.run(
+        return Commands.startRun(
                 () -> {
+                    systemLights.diagnosticColors.clear();
                     if (elevator.getHealthStatus() == HealthStatus.ERROR) {
-                        systemLights.setLEDs(PresetColor.PURPLE);
-                    } else {
-                        systemLights.setLEDs(PresetColor.KELLY_GREEN);
+                        systemLights.diagnosticColors.add(PresetColor.PURPLE);
                     }
-                }, systemLights);
+
+                    if (endEffector.getHealthStatus() == HealthStatus.ERROR) {
+                        systemLights.diagnosticColors.add(PresetColor.WHITE);
+                    }
+
+                    if (swerveDrivetrain.getHealthStatus() == HealthStatus.ERROR) {
+                        systemLights.diagnosticColors.add(PresetColor.RED);
+                    }
+
+                    if (systemLights.diagnosticColors.size() == 0) {
+                        systemLights.diagnosticColors.add(PresetColor.KELLY_GREEN);
+                    }
+                    systemLights.setLEDs(systemLights.diagnosticColors.get(0));
+                },
+                () -> {
+                    systemLights.cycleDiagnosticColors();
+                }, systemLights).withTimeout(5);
     }
 
     private boolean idInArray(double[] arr, double id) {

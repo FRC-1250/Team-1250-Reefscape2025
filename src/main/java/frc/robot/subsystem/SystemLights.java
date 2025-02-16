@@ -4,6 +4,9 @@
 
 package frc.robot.subsystem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -11,6 +14,7 @@ import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +22,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SystemLights extends SubsystemBase {
 
   private final CANdle candle = new CANdle(30, "rio");
+  public List<PresetColor> diagnosticColors = new ArrayList<PresetColor>();
+  private Timer diagnosticTimer = new Timer();
+  private int diagnosticIndex = 0;
+  private double diagnosticTimeout = 5;
 
   public enum PresetColor {
     BLACK(0, 0, 0),
@@ -78,8 +86,23 @@ public class SystemLights extends SubsystemBase {
         .runOnce(() -> candle.setLEDs(PresetColor.BLACK.red, PresetColor.BLACK.green, PresetColor.BLACK.blue), this);
   }
 
+  public void cycleDiagnosticColors() {
+    setLEDs(diagnosticColors.get(diagnosticIndex % diagnosticColors.size()));
+    if (diagnosticColors.size() > 1) { // Avoid divide by 0 and only cycle if there more than just one color
+      if (!diagnosticTimer.isRunning()) {
+        diagnosticTimer.start();
+      }
+
+      if (diagnosticTimer.advanceIfElapsed(diagnosticTimeout / diagnosticColors.size())) {
+        diagnosticIndex++;
+        diagnosticTimer.reset();
+      }
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
 }

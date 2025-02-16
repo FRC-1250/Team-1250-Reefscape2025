@@ -14,6 +14,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,6 +30,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.HealthStatus;
+import frc.robot.util.PigeonHealthChecker;
+import frc.robot.util.SwerveModuleHealthChecker;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -51,6 +55,28 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    // Custom
+    private final boolean healthCheckEnabled = true;
+    private SwerveModuleHealthChecker frontLeftCheck;
+    private SwerveModuleHealthChecker frontRightCheck;
+    private SwerveModuleHealthChecker backLeftCheck;
+    private SwerveModuleHealthChecker backRightCheck;
+    private PigeonHealthChecker pigeonCheck;
+    private HealthStatus healthStatus = HealthStatus.IS_OK;
+
+    private void configureHealthCheck() {
+        var modules = getModules();
+        frontLeftCheck = new SwerveModuleHealthChecker(modules[0]);
+        frontRightCheck = new SwerveModuleHealthChecker(modules[1]);
+        backLeftCheck = new SwerveModuleHealthChecker(modules[2]);
+        backRightCheck = new SwerveModuleHealthChecker(modules[3]);
+        pigeonCheck = new PigeonHealthChecker(getPigeon2(), "Drivetrain");
+    }
+
+    public HealthStatus getHealthStatus() {
+        return healthStatus;
+    }
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -133,6 +159,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+
+        if (healthCheckEnabled) {
+            configureHealthCheck();
+        }
     }
 
     /**
@@ -287,6 +317,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
         addLimelightVisionMeasurements();
+
+        if (healthCheckEnabled) {
+            if (!frontLeftCheck.isModuleHealthy() ||
+                    !frontRightCheck.isModuleHealthy() ||
+                    !backLeftCheck.isModuleHealthy() ||
+                    !backRightCheck.isModuleHealthy() ||
+                    !pigeonCheck.isDeviceHealthy()) {
+                healthStatus = HealthStatus.ERROR;
+            } else {
+                healthStatus = HealthStatus.IS_OK;
+            }
+        }
     }
 
     public void addLimelightVisionMeasurements() {

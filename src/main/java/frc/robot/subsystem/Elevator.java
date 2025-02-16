@@ -64,7 +64,7 @@ public class Elevator extends SubsystemBase {
   private boolean homeFound = false;
   private boolean previousHomeSensor = isAtHome();
 
-  private final boolean tuningModeEnabled = true;
+  private final boolean tuningModeEnabled = false;
   private final boolean healthCheckEnabled = true;
   private TunableTalonFX tunableTalonFX;
   private TalonHealthChecker leftMotorCheck;

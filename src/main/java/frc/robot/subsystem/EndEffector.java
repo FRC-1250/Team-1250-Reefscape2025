@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.HealthStatus;
+import frc.robot.util.TalonHealthChecker;
+import frc.robot.util.TunableTalonFX;
 
 public class EndEffector extends SubsystemBase {
 
@@ -71,6 +74,11 @@ public class EndEffector extends SubsystemBase {
   private Servo headRotate = new Servo(0);
   private double currentPosition = 0;
 
+  private final boolean healthCheckEnabled = true;
+  private TalonHealthChecker algaeMotorCheck;
+  private TalonHealthChecker coralMotorCheck;
+  private HealthStatus healthStatus = HealthStatus.IS_OK;
+
   /** Creates a new EndEffector. */
   public EndEffector() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -98,8 +106,13 @@ public class EndEffector extends SubsystemBase {
 
     headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
     algaeIntakeArm.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
-    
+
     setAlgaeIntakePostion(AlgaeServoPosition.HOME);
+
+    if (healthCheckEnabled) {
+      algaeMotorCheck = new TalonHealthChecker(algaeMotor, getName());
+      coralMotorCheck = new TalonHealthChecker(coralMotor, getName());
+    }
   }
 
   public Command cmdStopCoralMotor() {
@@ -185,6 +198,19 @@ public class EndEffector extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (healthCheckEnabled) {
+      if (!algaeMotorCheck.isDeviceHealthy() ||
+          !coralMotorCheck.isDeviceHealthy()) {
+        healthStatus = HealthStatus.ERROR;
+      } else {
+        healthStatus = HealthStatus.IS_OK;
+      }
+    }
+  }
+
+  @Logged(name = "Health status")
+  public HealthStatus getHealthStatus() {
+    return healthStatus;
   }
 
   @Logged(name = "Has coral")
