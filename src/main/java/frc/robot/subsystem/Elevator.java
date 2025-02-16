@@ -182,7 +182,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void detectSensorTransition() {
-    if ( previousHomeSensor != isAtHome()) {
+    if (!homeFound && previousHomeSensor != isAtHome()) {
       homeFound = true;
       resetMotorPositionToPosition(Position.SENSOR.rotations);
     }
