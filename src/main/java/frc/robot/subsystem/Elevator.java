@@ -40,7 +40,6 @@ public class Elevator extends SubsystemBase {
     STARTING_CONFIGURATION(0),
     SENSOR(0.8),
     CONTAIN_ALGAE(13.9),
-    CORAL_STATION(7.5),
     L1(11.5),
     L2(20.3),
     L2_5(33.8),

@@ -14,6 +14,7 @@ import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
+import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.HealthStatus;
 
@@ -71,6 +72,13 @@ public class ControlFactory {
                 elevator.cmdSetPosition(Elevator.Position.L3_5),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
                 elevator.cmdSetPosition(pos));
+    }
+
+    public Command delagaeReef() {
+        return Commands.parallel(
+            endEffector.cmdSetAlgaeDutyCycleOut(-1),
+            endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.HOME)
+        );
     }
 
     public boolean hasLowAlgae() {

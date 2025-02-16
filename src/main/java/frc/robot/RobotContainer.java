@@ -80,7 +80,7 @@ public class RobotContainer {
     private final Trigger isDisabled = new Trigger(() -> DriverStation.isDisabled());
 
     private final boolean devController = true;
-    private final boolean driveEnabled = false;
+    private final boolean driveEnabled = true;
     private final boolean automationEnabled = true;
 
     public RobotContainer() {
@@ -105,28 +105,27 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
-
-        joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(15));
-        joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
-        joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
+        // More complicated triggers go to the top
+        joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(20));
+        joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(controlFactory.delagaeReef());
+        joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(1));
 
         joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
         joystick.leftTrigger().and(reefHasLowAlgae).onTrue(controlFactory.delagaeReefLowPosition());
+
+        joystick.b().and(hasAlgae).onTrue(controlFactory.goToPosition(Position.CONTAIN_ALGAE));
+        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.goToPosition(Position.STARTING_CONFIGURATION));
 
         joystick.povDown().onTrue(controlFactory.goToPosition((Elevator.Position.L1)));
         joystick.povRight().onTrue(controlFactory.goToPosition((Elevator.Position.L2)));
         joystick.povLeft().onTrue(controlFactory.goToPosition((Elevator.Position.L3)));
         joystick.povUp().onTrue(controlFactory.goToPosition((Elevator.Position.L4)));
 
-        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.goToPosition(Position.CORAL_STATION));
-        joystick.b().and(hasAlgae).onTrue(controlFactory.goToPosition(Position.CONTAIN_ALGAE));
+        joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
+        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
 
         joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        isDisabled.whileTrue(controlFactory.displaySubsystemErrorState());
-        
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> drive
@@ -146,6 +145,7 @@ public class RobotContainer {
         }
 
         if (automationEnabled) {
+            isDisabled.whileTrue(controlFactory.displaySubsystemErrorState());
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT)));
@@ -158,22 +158,25 @@ public class RobotContainer {
             devJoystick = new CommandPS4Controller(1);
 
             // End effector head, left and right
-            devJoystick.axisGreaterThan(0, 0.75).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-            devJoystick.axisLessThan(0, -0.75).whileTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
+            devJoystick.axisGreaterThan(0, 0.75)
+                    .onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
+            devJoystick.axisLessThan(0, -0.75)
+                    .whileTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
             devJoystick.L3().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
 
             // End effector algae intake, in and out
-            devJoystick.axisGreaterThan(5, 0.75).onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
-            devJoystick.axisLessThan(5, -0.75).onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
+            devJoystick.axisGreaterThan(5, 0.75)
+                    .onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+            devJoystick.axisLessThan(5, -0.75)
+                    .onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
             devJoystick.R3().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.MIDDLE));
 
             // Scoring options
-            devJoystick.R1().onTrue(endEffector.cmdAddCoralRotations(15));
+            devJoystick.R1().onTrue(endEffector.cmdAddCoralRotations(20));
             devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
             // Placeholder for climber -> devJoystick.L1().onTrue();
             devJoystick.L2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
 
-   
             // Elevator duty cycle out, up and down
             devJoystick.cross().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
             devJoystick.triangle().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
@@ -182,14 +185,12 @@ public class RobotContainer {
             devJoystick.povDown().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
             devJoystick.povUp().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
 
-
-            
             devJoystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
             devJoystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
             devJoystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
             devJoystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
-            devJoystick.circle().onTrue(elevator.cmdSetPosition(Elevator.Position.CORAL_STATION));
-            devJoystick.square().onTrue(elevator.cmdSetPosition(Elevator.Position.STARTING_CONFIGURATION));
+            devJoystick.circle().onTrue(elevator.cmdSetPosition(Elevator.Position.STARTING_CONFIGURATION));
+            devJoystick.square().onTrue(elevator.cmdSetPosition(Elevator.Position.CONTAIN_ALGAE));
         }
     }
 
