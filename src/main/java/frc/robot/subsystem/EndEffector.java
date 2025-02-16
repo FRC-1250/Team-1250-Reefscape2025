@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.TalonHealthChecker;
-import frc.robot.util.TunableTalonFX;
 
 public class EndEffector extends SubsystemBase {
 
@@ -174,6 +173,17 @@ public class EndEffector extends SubsystemBase {
         () -> setAlgaeDutyCycleOut(output),
         () -> stopAlgaeMotor(),
         this);
+  }
+
+  public Command cmdDealgae() {
+    return Commands.runEnd(
+        () -> {
+          setAlgaeDutyCycleOut(-1);
+          setAlgaeIntakePostion(AlgaeServoPosition.HOME);
+        },
+        () -> {
+          stopAlgaeMotor();
+        }, this);
   }
 
   public Command cmdSetAlgaeIntakePostion(AlgaeServoPosition value) {

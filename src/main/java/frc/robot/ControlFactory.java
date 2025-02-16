@@ -49,8 +49,13 @@ public class ControlFactory {
     public Command dealgaeReefHighPosition() {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.L4),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED),
-                elevator.cmdSetPosition(Elevator.Position.L3_5));
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+    }
+
+    public Command delagaeReefHigh() {
+        return Commands.sequence(
+                elevator.cmdSetPosition(Elevator.Position.L3_5),
+                endEffector.cmdDealgae());
     }
 
     public Command dealgaeReefHighPositionReverse(Position pos) {
@@ -67,18 +72,20 @@ public class ControlFactory {
                 elevator.cmdSetPosition(Elevator.Position.L2_5));
     }
 
+    public Command delagaeReefLow() {
+        return Commands.parallel(
+                Commands.sequence(
+                        endEffector.cmdSetAlgaeDutyCycleOut(-1),
+                        Commands.waitSeconds(1),
+                        endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.HOME)),
+                elevator.cmdSetPosition(Elevator.Position.L3_5));
+    }
+
     public Command delagaeReefLowPositionReverse(Position pos) {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.L3_5),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
                 elevator.cmdSetPosition(pos));
-    }
-
-    public Command delagaeReef() {
-        return Commands.sequence(
-            endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.HOME),
-            endEffector.cmdSetAlgaeDutyCycleOut(-1)
-        );
     }
 
     public boolean hasLowAlgae() {

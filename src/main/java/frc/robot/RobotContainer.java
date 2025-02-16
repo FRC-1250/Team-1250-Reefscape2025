@@ -107,7 +107,8 @@ public class RobotContainer {
     private void configureBindings() {
         // More complicated triggers go to the top
         joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(20));
-        joystick.rightTrigger().and(isNearAlgaePosition).whileTrue(controlFactory.delagaeReef());
+        joystick.rightTrigger().and(reefHasHighAlgae).whileTrue(controlFactory.delagaeReefHigh());
+        joystick.rightTrigger().and(reefHasLowAlgae).whileTrue(controlFactory.delagaeReefLow());
         joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(1));
 
         joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
