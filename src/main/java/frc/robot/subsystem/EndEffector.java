@@ -77,6 +77,7 @@ public class EndEffector extends SubsystemBase {
   private TalonHealthChecker algaeMotorCheck;
   private TalonHealthChecker coralMotorCheck;
   private HealthStatus healthStatus = HealthStatus.IS_OK;
+  private AlgaeServoPosition algaeIntakeState = AlgaeServoPosition.HOME;
 
   /** Creates a new EndEffector. */
   public EndEffector() {
@@ -187,7 +188,10 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command cmdSetAlgaeIntakePostion(AlgaeServoPosition value) {
-    return Commands.runOnce(() -> setAlgaeIntakePostion(value), this);
+    return Commands.runOnce(() -> {
+      setAlgaeIntakePostion(value);
+      algaeIntakeState = value;
+    }, this);
   }
 
   public Command cmdBumpAlgaeIntake(boolean moveRight) {
@@ -246,6 +250,10 @@ public class EndEffector extends SubsystemBase {
   @Logged(name = "Coral motor rotations")
   public double getCoralMotorPosition() {
     return coralMotor.getPosition().getValueAsDouble();
+  }
+
+  public boolean isAlgaeIntakeAtPosition(AlgaeServoPosition position) {
+    return position == algaeIntakeState;
   }
 
   private void stopCoralMotor() {

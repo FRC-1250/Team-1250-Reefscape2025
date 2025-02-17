@@ -67,17 +67,37 @@ public class RobotContainer {
     public final SystemLights systemLights = new SystemLights();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, systemLights);
+    public final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, systemLights);
 
-    private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
-    private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
+    // From control factory
     private final Trigger reefHasHighAlgae = new Trigger(() -> controlFactory.hasHighAlgae());
     private final Trigger reefHasLowAlgae = new Trigger(() -> controlFactory.hasLowAlgae());
-    private final Trigger isNearCoralPosition = new Trigger(() -> elevator.isNearCoralScoringPosition());
-    private final Trigger isNearAlgaePosition = new Trigger(() -> elevator.isNearReefAlgaePosition());
-    private final Trigger isNearAlgaeContainmentPositon = new Trigger(() -> elevator.isNearAlgaeContainmentPosition());
-    private final Trigger hasCoralInShute = new Trigger(() -> elevator.hasCoralInChute());
-    private final Trigger isDisabled = new Trigger(() -> DriverStation.isDisabled());
+
+    // From end effector
+    private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
+    private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
+
+    // From elevator
+    private final Trigger isAtLowAlgaePrepPosition = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.LOW_ALGAE_PREP));
+    private final Trigger isAtHighAlgaePrepPosition = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.HIGH_ALGAE_PREP));
+    private final Trigger isAtAlgaeContainmentPositon = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.CONTAIN_ALGAE));
+    private final Trigger isAtHighAlgaePosition = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.HIGH_ALGAE));
+    private final Trigger isAtLowAlgaePosition = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.LOW_ALGAE));
+    private final Trigger isAtL1 = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.L1));
+    private final Trigger isAtL2 = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.L2));
+    private final Trigger isAtL3 = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.L3));
+    private final Trigger isAtL4 = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.L4));
+    private final Trigger isAtHome = new Trigger(
+            () -> elevator.isAtPosition(Elevator.Position.STARTING_CONFIGURATION));
 
     private final boolean devController = true;
     private final boolean driveEnabled = true;
@@ -106,26 +126,99 @@ public class RobotContainer {
 
     private void configureBindings() {
         // More complicated triggers go to the top
-        joystick.rightTrigger().and(isNearCoralPosition).onTrue(endEffector.cmdAddCoralRotations(20));
-        joystick.rightTrigger().and(reefHasHighAlgae).whileTrue(controlFactory.delagaeReefHigh());
-        joystick.rightTrigger().and(reefHasLowAlgae).whileTrue(controlFactory.delagaeReefLow());
-        joystick.rightTrigger().and(isNearAlgaeContainmentPositon).whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(1));
+        joystick.rightTrigger()
+                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4))
+                .onTrue(endEffector.cmdAddCoralRotations(20));
+        joystick.rightTrigger()
+                .and(isAtHighAlgaePrepPosition)
+                .whileTrue(controlFactory.reefHighDealgae());
+        joystick.rightTrigger()
+                .and(isAtLowAlgaePrepPosition)
+                .whileTrue(controlFactory.reefLowDealgae());
+        joystick.rightTrigger()
+                .and(isAtAlgaeContainmentPositon)
+                .whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(1));
 
-        joystick.leftTrigger().and(reefHasHighAlgae).onTrue(controlFactory.dealgaeReefHighPosition());
-        joystick.leftTrigger().and(reefHasLowAlgae).onTrue(controlFactory.delagaeReefLowPosition());
+        joystick.leftTrigger()
+                .and(reefHasHighAlgae)
+                .onTrue(controlFactory.reefHighDealgaePrep());
+        joystick.leftTrigger()
+                .and(reefHasLowAlgae)
+                .onTrue(controlFactory.reefLowDealgaePrep());
 
-        joystick.b().and(hasAlgae).onTrue(controlFactory.goToPosition(Position.CONTAIN_ALGAE));
-        joystick.b().and(hasAlgae).negate().onTrue(controlFactory.goToPosition(Position.STARTING_CONFIGURATION));
+        joystick.povDown()
+                .and(isAtL2.or(isAtL3).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
+                .and(hasAlgae.negate())
+                .onTrue(elevator.cmdSetPosition((Elevator.Position.L1)));
+        joystick.povDown()
+                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L1)));
+        joystick.povDown()
+                .and(isAtHighAlgaePosition)
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L1)));
+        joystick.povDown()
+                .and(isAtLowAlgaePosition)
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L1)));
 
-        joystick.povDown().onTrue(controlFactory.goToPosition((Elevator.Position.L1)));
-        joystick.povRight().onTrue(controlFactory.goToPosition((Elevator.Position.L2)));
-        joystick.povLeft().onTrue(controlFactory.goToPosition((Elevator.Position.L3)));
-        joystick.povUp().onTrue(controlFactory.goToPosition((Elevator.Position.L4)));
+        joystick.povRight()
+                .and(isAtL1.or(isAtL3).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
+                .onTrue(elevator.cmdSetPosition((Elevator.Position.L2)));
+        joystick.povRight()
+                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L2)));
+        joystick.povRight().and(isAtHighAlgaePosition)
+                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L2)));
+        joystick.povRight().and(isAtLowAlgaePosition)
+                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L2)));
+
+        joystick.povLeft()
+                .and(isAtL1.or(isAtL2).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
+                .onTrue(elevator.cmdSetPosition((Elevator.Position.L3)));
+        joystick.povLeft()
+                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L3)));
+        joystick.povLeft().and(isAtHighAlgaePosition)
+                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L3)));
+        joystick.povLeft().and(isAtLowAlgaePosition)
+                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L3)));
+
+        joystick.povUp()
+                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtHome).or(isAtAlgaeContainmentPositon))
+                .onTrue(elevator.cmdSetPosition((Elevator.Position.L4)));
+        joystick.povUp()
+                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L4)));
+        joystick.povUp().and(isAtHighAlgaePosition)
+                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L4)));
+        joystick.povUp().and(isAtLowAlgaePosition)
+                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L4)));
+
+        joystick.b()
+                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon))
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
+        joystick.b()
+                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
+        joystick.b()
+                .and(isAtHighAlgaePosition)
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.STARTING_CONFIGURATION)));
+        joystick.b()
+                .and(isAtLowAlgaePosition)
+                .and(hasAlgae.negate())
+                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.STARTING_CONFIGURATION)));
+
+        joystick.b()
+                .and(hasAlgae)
+                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.CONTAIN_ALGAE)));
 
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
-
-        joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
@@ -143,16 +236,14 @@ public class RobotContainer {
             joystick.a().whileTrue(drivetrain.applyRequest(
                     () -> seekAprilTag
                             .withRobotPose(drivetrain.getState().Pose)));
+
+            joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         }
 
         if (automationEnabled) {
-            isDisabled.whileTrue(controlFactory.displaySubsystemErrorState());
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT)));
-            // TODO: Revist logic after testing, lock the elevator for 2 seconds when
-            // tripped instead
-            hasCoralInShute.onTrue(controlFactory.lockElevator(2));
         }
 
         if (devController) {

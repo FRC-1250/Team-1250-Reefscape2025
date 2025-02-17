@@ -42,9 +42,11 @@ public class Elevator extends SubsystemBase {
     CONTAIN_ALGAE(13.9),
     L1(11.5),
     L2(20.3),
-    L2_5(33.8),
+    LOW_ALGAE(33.8),
+    LOW_ALGAE_PREP(44.7),
     L3(35.2),
-    L3_5(44.7),
+    HIGH_ALGAE(44.7),
+    HIGH_ALGAE_PREP(55),
     L4(60.2),
     PEAK(63.25);
 
@@ -70,6 +72,8 @@ public class Elevator extends SubsystemBase {
   private TalonHealthChecker leftMotorCheck;
   private TalonHealthChecker rightMotorCheck;
   private HealthStatus healthStatus = HealthStatus.IS_OK;
+  private Position elevatorPosition = Position.STARTING_CONFIGURATION;
+  private Position previousElevatorPosition = Position.STARTING_CONFIGURATION;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -117,7 +121,8 @@ public class Elevator extends SubsystemBase {
     rightMotor.getConfigurator().apply(talonFXConfiguration);
 
     if (tuningModeEnabled) {
-      tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs), leftMotor,
+      tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs),
+          leftMotor,
           rightMotor);
     }
 
@@ -137,18 +142,12 @@ public class Elevator extends SubsystemBase {
         },
         () -> setPosition(position.rotations),
         interrupted -> {
+          if (!interrupted) {
+            previousElevatorPosition = elevatorPosition;
+            elevatorPosition = position;
+          }
         },
         () -> isNearPosition(position.rotations),
-        this);
-  }
-
-  public Command cmdSetPosition(double position) {
-    return new FunctionalCommand(
-        () -> {
-        },
-        () -> setPosition(position),
-        interrupted -> stopMotors(),
-        () -> isNearPosition(position),
         this);
   }
 
@@ -227,20 +226,19 @@ public double getRightMotorVelocity() {
     return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();
   }
 
-  public boolean isNearCoralScoringPosition() {
-    return (isNearPosition(Elevator.Position.L1)
-        || isNearPosition(Elevator.Position.L2)
-        || isNearPosition(Elevator.Position.L3)
-        || isNearPosition(Elevator.Position.L4));
+  public boolean isAtCoralScoringPosition() {
+    return (isAtPosition(Elevator.Position.L1)
+        || isAtPosition(Elevator.Position.L2)
+        || isAtPosition(Elevator.Position.L3)
+        || isAtPosition(Elevator.Position.L4));
   }
 
-  public boolean isNearReefAlgaePosition() {
-    return (isNearPosition(Elevator.Position.L2_5)
-        || isNearPosition(Elevator.Position.L3_5));
+  public boolean isAtPosition(Position position) {
+    return elevatorPosition == position;
   }
 
-  public boolean isNearAlgaeContainmentPosition() {
-    return isNearPosition(Elevator.Position.CONTAIN_ALGAE);
+  public boolean wasPreviouslyAtPosition(Position position) {
+    return previousElevatorPosition == position;
   }
 
   @Logged(name = "Home")
@@ -282,6 +280,5 @@ public double getRightMotorVelocity() {
   private boolean isNearPosition(Position position) {
     return isNearPosition(position.rotations);
   }
-
 
 }

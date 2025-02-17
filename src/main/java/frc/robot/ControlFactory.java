@@ -14,7 +14,6 @@ import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
-import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.HealthStatus;
 
@@ -46,44 +45,40 @@ public class ControlFactory {
                 .withTimeout(lockDurationInSeconds);
     }
 
-    public Command dealgaeReefHighPosition() {
+    public Command reefHighDealgaePrep() {
         return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.Position.L4),
+                elevator.cmdSetPosition(Elevator.Position.HIGH_ALGAE_PREP),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
     }
 
-    public Command delagaeReefHigh() {
+    public Command reefHighDealgae() {
         return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.Position.L3_5),
+                elevator.cmdSetPosition(Elevator.Position.HIGH_ALGAE),
                 endEffector.cmdDealgae());
     }
 
-    public Command dealgaeReefHighPositionReverse(Position pos) {
+    public Command reefHighDealgaeUndo(Position pos) {
         return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.Position.L4),
+                elevator.cmdSetPosition(Elevator.Position.HIGH_ALGAE_PREP),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
                 elevator.cmdSetPosition(pos));
     }
 
-    public Command delagaeReefLowPosition() {
+    public Command reefLowDealgaePrep() {
         return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.Position.L3_5),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED),
-                elevator.cmdSetPosition(Elevator.Position.L2_5));
+                elevator.cmdSetPosition(Elevator.Position.LOW_ALGAE_PREP),
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
     }
 
-    public Command delagaeReefLow() {
-        return Commands.parallel(
-                Commands.sequence(
-                        endEffector.cmdSetAlgaeDutyCycleOut(-1),
-                        Commands.waitSeconds(1),
-                        endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.HOME)),
-                elevator.cmdSetPosition(Elevator.Position.L3_5));
+    public Command reefLowDealgae() {
+        return Commands.sequence(
+                elevator.cmdSetPosition(Elevator.Position.LOW_ALGAE),
+                endEffector.cmdDealgae());
     }
 
-    public Command delagaeReefLowPositionReverse(Position pos) {
+    public Command reefLowDealgaeUndo(Position pos) {
         return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.Position.L3_5),
+                elevator.cmdSetPosition(Elevator.Position.LOW_ALGAE_PREP),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
                 elevator.cmdSetPosition(pos));
     }
@@ -111,29 +106,33 @@ public class ControlFactory {
     }
 
     public Command displaySubsystemErrorState() {
-        return Commands.startRun(
-                () -> {
-                    systemLights.diagnosticColors.clear();
-                    if (elevator.getHealthStatus() == HealthStatus.ERROR) {
-                        systemLights.diagnosticColors.add(PresetColor.PURPLE);
-                    }
+        return Commands.repeatingSequence(
+                Commands.runOnce(
+                        () -> {
+                            systemLights.diagnosticColors.clear();
+                            if (elevator.getHealthStatus() == HealthStatus.ERROR) {
+                                systemLights.diagnosticColors.add(PresetColor.PURPLE);
+                            }
 
-                    if (endEffector.getHealthStatus() == HealthStatus.ERROR) {
-                        systemLights.diagnosticColors.add(PresetColor.WHITE);
-                    }
+                            if (endEffector.getHealthStatus() == HealthStatus.ERROR) {
+                                systemLights.diagnosticColors.add(PresetColor.WHITE);
+                            }
 
-                    if (swerveDrivetrain.getHealthStatus() == HealthStatus.ERROR) {
-                        systemLights.diagnosticColors.add(PresetColor.RED);
-                    }
+                            if (swerveDrivetrain.getHealthStatus() == HealthStatus.ERROR) {
+                                systemLights.diagnosticColors.add(PresetColor.RED);
+                            }
 
-                    if (systemLights.diagnosticColors.size() == 0) {
-                        systemLights.diagnosticColors.add(PresetColor.KELLY_GREEN);
-                    }
-                    systemLights.setLEDs(systemLights.diagnosticColors.get(0));
-                },
-                () -> {
-                    systemLights.cycleDiagnosticColors();
-                }, systemLights).withTimeout(5);
+                            if (systemLights.diagnosticColors.size() == 0) {
+                                systemLights.diagnosticColors.add(PresetColor.KELLY_GREEN);
+                            }
+                            systemLights.setLEDs(systemLights.diagnosticColors.get(0));
+                        }, systemLights),
+                Commands.run(
+                        () -> {
+                            systemLights.cycleDiagnosticColors();
+                        }, systemLights).withTimeout(5))
+                .withName("Diagnostic lights")
+                .ignoringDisable(true);
     }
 
     private boolean idInArray(double[] arr, double id) {
@@ -144,11 +143,11 @@ public class ControlFactory {
         return false;
     }
 
-    public Command goToPosition(Position pos) {
+    public Command homeEndEffectorAndSetElevatorPosition(Position pos) {
         return Commands.sequence(
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
                 endEffector.cmdStopAlgaeMotor(),
                 endEffector.cmdStopCoralMotor(),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
                 Commands.waitSeconds(0.5),
                 elevator.cmdSetPosition(pos));
 

@@ -60,7 +60,6 @@ public class SystemLights extends SubsystemBase {
     configAll.v5Enabled = true;
     configAll.vBatOutputMode = VBatOutputMode.Off;
     candle.configAllSettings(configAll);
-    setDefaultCommand(setLEDs(PresetColor.KELLY_GREEN));
   }
 
   public Command setAnimation(Animation animation) {
