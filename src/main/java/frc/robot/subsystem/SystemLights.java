@@ -66,16 +66,14 @@ public class SystemLights extends SubsystemBase {
     return Commands.runOnce(() -> candle.animate(animation), this);
   }
 
-  public Command setLEDs(PresetColor color) {
-    return Commands.runOnce(() -> {
-      candle.clearAnimation(0);
+  public Command cmdSetLEDs(PresetColor color) {
+    return Commands.run(() -> {
       candle.setLEDs(color.red, color.green, color.blue);
     }, this);
   }
 
-  public Command setLEDs(int r, int g, int b) {
-    return Commands.runOnce(() -> {
-      candle.clearAnimation(0);
+  public Command cmdSetLEDs(int r, int g, int b) {
+    return Commands.run(() -> {
       candle.setLEDs(r, g, b);
     }, this);
   }
@@ -83,6 +81,10 @@ public class SystemLights extends SubsystemBase {
   public Command clear() {
     return Commands
         .runOnce(() -> candle.setLEDs(PresetColor.BLACK.red, PresetColor.BLACK.green, PresetColor.BLACK.blue), this);
+  }
+  
+  public void setLEDs(PresetColor color) {
+      candle.setLEDs(color.red, color.green, color.blue);
   }
 
   public void cycleDiagnosticColors() {

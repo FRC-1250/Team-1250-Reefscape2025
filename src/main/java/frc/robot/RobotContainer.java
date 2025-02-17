@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -31,6 +32,7 @@ import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.EndEffector.HeadPosition;
+import frc.robot.subsystem.SystemLights.PresetColor;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -76,6 +78,9 @@ public class RobotContainer {
     // From end effector
     private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
     private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
+
+    //System Lights Triggers
+    private final Trigger isEnabled = new Trigger(() -> DriverStation.isEnabled());
 
     // From elevator
     private final Trigger isAtLowAlgaePrepPosition = new Trigger(
@@ -130,10 +135,10 @@ public class RobotContainer {
                 .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4))
                 .onTrue(endEffector.cmdAddCoralRotations(20));
         joystick.rightTrigger()
-                .and(isAtHighAlgaePrepPosition)
+                .and(isAtHighAlgaePrepPosition.or(isAtHighAlgaePosition))
                 .whileTrue(controlFactory.reefHighDealgae());
         joystick.rightTrigger()
-                .and(isAtLowAlgaePrepPosition)
+                .and(isAtLowAlgaePrepPosition.or(isAtLowAlgaePosition))
                 .whileTrue(controlFactory.reefLowDealgae());
         joystick.rightTrigger()
                 .and(isAtAlgaeContainmentPositon)
@@ -243,9 +248,15 @@ public class RobotContainer {
         if (automationEnabled) {
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
-                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT)));
+                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT))
+                    .andThen(Commands.waitSeconds(1.5))
+                    .andThen(elevator.cmdSetPosition(Position.L1)));
         }
 
+        isEnabled.and(hasCoral.negate()).onTrue(systemLights.cmdSetLEDs(PresetColor.KELLY_GREEN));
+        isEnabled.and(hasCoral.negate()).and(isAtHome).whileTrue(endEffector.cmdSetCoralDutyCycleOut(.05));
+        hasCoral.whileTrue(systemLights.cmdSetLEDs(PresetColor.RED));
+        
         if (devController) {
             devJoystick = new CommandPS4Controller(1);
 
@@ -325,7 +336,9 @@ public class RobotContainer {
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("EasyAuto", "EasyAuto");
+        addPathAuto("Test", "Test");
         SmartDashboard.putData("Auto Chooser", autoChooser);
+
     }
 
 }

@@ -125,7 +125,7 @@ public class ControlFactory {
                             if (systemLights.diagnosticColors.size() == 0) {
                                 systemLights.diagnosticColors.add(PresetColor.KELLY_GREEN);
                             }
-                            systemLights.setLEDs(systemLights.diagnosticColors.get(0));
+                            systemLights.cmdSetLEDs(systemLights.diagnosticColors.get(0));
                         }, systemLights),
                 Commands.run(
                         () -> {

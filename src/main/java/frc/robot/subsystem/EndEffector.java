@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystem.Elevator.Position;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.TalonHealthChecker;
 
@@ -28,7 +29,7 @@ public class EndEffector extends SubsystemBase {
   public enum AlgaeServoPosition {
     DEPLOYED(.1),
     MIDDLE(0.5),
-    HOME(.75);
+    HOME(.89);
 
     public final double value;
 
@@ -108,6 +109,7 @@ public class EndEffector extends SubsystemBase {
     algaeIntakeArm.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
 
     setAlgaeIntakePostion(AlgaeServoPosition.HOME);
+    setHeadPosition(HeadPosition.CENTER);
 
     if (healthCheckEnabled) {
       algaeMotorCheck = new TalonHealthChecker(algaeMotor, getName());
