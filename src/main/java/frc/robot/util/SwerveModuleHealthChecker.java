@@ -18,8 +18,8 @@ public class SwerveModuleHealthChecker {
     }
 
     public boolean isModuleHealthy() {
-        return driveCheck.isDeviceHealthy() &&
-                steerCheck.isDeviceHealthy() &&
+        return driveCheck.isDeviceHealthy() &
+                steerCheck.isDeviceHealthy() &
                 encoderCheck.isDeviceHealthy();
     }
 }
