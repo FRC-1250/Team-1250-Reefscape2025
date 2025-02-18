@@ -43,15 +43,15 @@ public class RobotContainer {
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+            .withDriveRequestType(DriveRequestType.Velocity);
 
     private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle = new FieldCentricFacingAngle()
             .withDeadband(MaxSpeed * 0.1)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withDriveRequestType(DriveRequestType.Velocity)
             .withHeadingPID(12, 0, 0);
 
     private final SeekAprilTag seekAprilTag = new SeekAprilTag()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+            .withDriveRequestType(DriveRequestType.Velocity);
 
     private final Telemetry logger = new Telemetry();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
