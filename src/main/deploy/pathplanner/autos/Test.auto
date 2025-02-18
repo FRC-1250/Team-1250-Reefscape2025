@@ -9,6 +9,18 @@
           "data": {
             "pathName": "CenterHG"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HGCoralStationL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LCoralStationLK"
+          }
         }
       ]
     }

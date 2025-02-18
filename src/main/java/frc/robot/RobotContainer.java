@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
@@ -111,6 +112,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         configureSmartDashboardBindings();
+        configureAutoRoutines();
         configureAutoCommands();
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -337,8 +339,16 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("EasyAuto", "EasyAuto");
         addPathAuto("Test", "Test");
+        addPathAuto("Check Routines", "Check Routines");
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
+    }
+
+    private void configureAutoRoutines() {
+        NamedCommands.registerCommand("go L4", elevator.cmdSetPosition(Position.L4));
+        NamedCommands.registerCommand("Rotate Head", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
+        NamedCommands.registerCommand("launch coral", endEffector.cmdAddCoralRotations(20));
+        NamedCommands.registerCommand("go Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
     }
 
 }

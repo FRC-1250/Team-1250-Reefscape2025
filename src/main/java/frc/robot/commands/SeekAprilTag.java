@@ -29,12 +29,13 @@ public class SeekAprilTag implements NativeSwerveRequest {
     private double aprilTagID = -1;
     private Pose3d aptilTagPose3d = new Pose3d();
     private PIDController headingController = new PIDController(5, 0, 0);
-    private PIDController translationController = new PIDController(5, 0, 0);
-
+    private PIDController translationControllery = new PIDController(1.5, 0, 0);
+    private PIDController translationControllerx = new PIDController(1.5, 0, 0);
     public SeekAprilTag() {
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         headingController.setTolerance(0.05);
-        translationController.setTolerance(0.05);
+        translationControllerx.setTolerance(0.05);
+        translationControllery.setTolerance(0.05);
     }
 
     public SeekAprilTag withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
@@ -105,8 +106,8 @@ public class SeekAprilTag implements NativeSwerveRequest {
                 targetAngle = 120;
             }
 
-            VelocityX = -translationController.calculate(aptilTagPose3d.getZ(), 0.43);
-            VelocityY = translationController.calculate(aptilTagPose3d.getX(), 0);
+            VelocityX = -translationControllerx.calculate(aptilTagPose3d.getZ(), 0.43);
+            VelocityY = translationControllery.calculate(aptilTagPose3d.getX(), 0);
             RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
                     Math.toRadians(targetAngle));
         }

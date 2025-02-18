@@ -9,6 +9,24 @@
           "data": {
             "pathName": "LEFTMiddleCageJI"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JICoralStationL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LCoralStationLK"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LKCoralStationL"
+          }
         }
       ]
     }
