@@ -171,7 +171,8 @@ public class Elevator extends SubsystemBase {
     }
 
     if (healthCheckEnabled) {
-      if (!leftMotorCheck.isDeviceHealthy() || !rightMotorCheck.isDeviceHealthy()) {
+      if (!leftMotorCheck.isDeviceHealthy() |
+          !rightMotorCheck.isDeviceHealthy()) {
         healthStatus = HealthStatus.ERROR;
       } else {
         healthStatus = HealthStatus.IS_OK;

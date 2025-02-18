@@ -215,7 +215,7 @@ public class EndEffector extends SubsystemBase {
   @Override
   public void periodic() {
     if (healthCheckEnabled) {
-      if (!algaeMotorCheck.isDeviceHealthy() ||
+      if (!algaeMotorCheck.isDeviceHealthy() |
           !coralMotorCheck.isDeviceHealthy()) {
         healthStatus = HealthStatus.ERROR;
       } else {

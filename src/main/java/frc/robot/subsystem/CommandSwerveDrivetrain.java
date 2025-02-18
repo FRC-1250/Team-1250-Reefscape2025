@@ -319,10 +319,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         addLimelightVisionMeasurements();
 
         if (healthCheckEnabled) {
-            if (!frontLeftCheck.isModuleHealthy() ||
-                    !frontRightCheck.isModuleHealthy() ||
-                    !backLeftCheck.isModuleHealthy() ||
-                    !backRightCheck.isModuleHealthy() ||
+            if (!frontLeftCheck.isModuleHealthy() |
+                    !frontRightCheck.isModuleHealthy() |
+                    !backLeftCheck.isModuleHealthy() |
+                    !backRightCheck.isModuleHealthy() |
                     !pigeonCheck.isDeviceHealthy()) {
                 healthStatus = HealthStatus.ERROR;
             } else {
