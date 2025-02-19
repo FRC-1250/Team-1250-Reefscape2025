@@ -85,7 +85,7 @@ public class EndEffector extends SubsystemBase {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(0.5)
+        .withKP(3)
         .withKI(0)
         .withKD(0)
         .withKV(0);

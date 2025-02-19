@@ -347,7 +347,7 @@ public class RobotContainer {
     private void configureAutoRoutines() {
         NamedCommands.registerCommand("go L4", elevator.cmdSetPosition(Position.L4));
         NamedCommands.registerCommand("Rotate Head", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
-        NamedCommands.registerCommand("launch coral", endEffector.cmdAddCoralRotations(20));
+        NamedCommands.registerCommand("launch coral", endEffector.cmdAddCoralRotations(20).withTimeout(5));
         NamedCommands.registerCommand("go Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
     }
 
