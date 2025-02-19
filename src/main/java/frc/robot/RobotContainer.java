@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -108,6 +109,9 @@ public class RobotContainer {
     private final boolean devController = true;
     private final boolean driveEnabled = true;
     private final boolean automationEnabled = true;
+
+    private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
+    private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);
 
     public RobotContainer() {
         configureBindings();
@@ -230,8 +234,8 @@ public class RobotContainer {
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> drive
-                            .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                            .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
+                            .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
                             .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
 
             joystick.back().toggleOnTrue(drivetrain.applyRequest(
