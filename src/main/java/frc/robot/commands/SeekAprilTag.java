@@ -33,6 +33,7 @@ public class SeekAprilTag implements NativeSwerveRequest {
     private PIDController xController = new PIDController(0.64, 0, 0.00);
     private double yFF = 0.5;
     private double xFF = 0.5;
+    private boolean userDriveForward = false;
 
     public SeekAprilTag() {
         headingController.enableContinuousInput(-Math.PI, Math.PI);
@@ -53,6 +54,16 @@ public class SeekAprilTag implements NativeSwerveRequest {
 
     public SeekAprilTag withRobotPose(Pose2d pose) {
         this.robotPose2d = pose;
+        return this;
+    }
+
+    public SeekAprilTag withVelocityX(double velocity) {
+        this.VelocityX = velocity;
+        return this;
+    }
+
+    public SeekAprilTag withUserDriveForward(boolean value) {
+        this.userDriveForward = value;
         return this;
     }
 
@@ -109,10 +120,12 @@ public class SeekAprilTag implements NativeSwerveRequest {
                 targetAngle = 120;
             }
 
-            if (xController.atSetpoint())
-                VelocityX = 0;
-            else
-                VelocityX = -xController.calculate(aptilTagPose3d.getZ(), 0.43) + xFF;
+            if (!userDriveForward) {
+                if (xController.atSetpoint())
+                    VelocityX = 0;
+                else
+                    VelocityX = -xController.calculate(aptilTagPose3d.getZ(), 0.43) + xFF;
+            }
 
             if (yController.atSetpoint())
                 VelocityY = 0;
