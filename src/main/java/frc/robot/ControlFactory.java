@@ -95,9 +95,9 @@ public class ControlFactory {
         if (swerveDrivetrain.getOperatorForwardDirection().getDegrees() == 0) {
             return Rotation2d.fromRadians(
                     Math.atan2(
-                            swerveDrivetrain.getState().Pose.getY() - blueReef.getY(),
-                            swerveDrivetrain.getState().Pose.getX() - blueReef.getX()));
-        } else {
+                            blueReef.getY() - swerveDrivetrain.getState().Pose.getY(),
+                            blueReef.getX() - swerveDrivetrain.getState().Pose.getX()));
+        } else { // 180 degrees
             return Rotation2d.fromRadians(
                     Math.atan2(
                             swerveDrivetrain.getState().Pose.getY() - redReef.getY(),
