@@ -29,13 +29,16 @@ public class SeekAprilTag implements NativeSwerveRequest {
     private double aprilTagID = -1;
     private Pose3d aptilTagPose3d = new Pose3d();
     private PIDController headingController = new PIDController(5, 0, 0);
-    private PIDController translationControllery = new PIDController(1.5, 0, 0);
-    private PIDController translationControllerx = new PIDController(1.5, 0, 0);
+    private PIDController yController = new PIDController(0.64, 0, 0.00);
+    private PIDController xController = new PIDController(0.64, 0, 0.00);
+    private double yFF = 0.5;
+    private double xFF = 0.5;
+
     public SeekAprilTag() {
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         headingController.setTolerance(0.05);
-        translationControllerx.setTolerance(0.05);
-        translationControllery.setTolerance(0.05);
+        xController.setTolerance(0.01);
+        yController.setTolerance(0.01);
     }
 
     public SeekAprilTag withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
@@ -106,10 +109,21 @@ public class SeekAprilTag implements NativeSwerveRequest {
                 targetAngle = 120;
             }
 
-            VelocityX = -translationControllerx.calculate(aptilTagPose3d.getZ(), 0.43);
-            VelocityY = translationControllery.calculate(aptilTagPose3d.getX(), 0);
-            RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
-                    Math.toRadians(targetAngle));
+            if (xController.atSetpoint())
+                VelocityX = 0;
+            else
+                VelocityX = -xController.calculate(aptilTagPose3d.getZ(), 0.43) + xFF;
+
+            if (yController.atSetpoint())
+                VelocityY = 0;
+            else
+                VelocityY = yController.calculate(aptilTagPose3d.getX(), 0) + yFF;
+
+            if (headingController.atSetpoint())
+                RotationalRate = 0;
+            else
+                RotationalRate = headingController.calculate(robotPose2d.getRotation().getRadians(),
+                        Math.toRadians(targetAngle));
         }
     }
 }
