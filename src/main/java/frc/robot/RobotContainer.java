@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.SeekAprilTag;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
@@ -70,8 +71,11 @@ public class RobotContainer {
     @Logged(name = "System lights")
     public final SystemLights systemLights = new SystemLights();
 
+    @Logged(name = "Climber")
+    public final Climber climber = new Climber();
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, systemLights);
+    public final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, climber, systemLights);
 
     // From control factory
     private final Trigger reefHasHighAlgae = new Trigger(() -> controlFactory.hasHighAlgae());
@@ -232,6 +236,7 @@ public class RobotContainer {
 
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
+        joystick.y().whileTrue(climber.cmdSetTorque(Amps.of(10)));
 
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
