@@ -130,7 +130,7 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(position),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(position),
-        this).withName(String.format("Head new position - %d", position));
+        this).withName(String.format("Head new position - %f", position));
   }
 
   public Command cmdAddCoralRotations(double rotations) {
@@ -139,19 +139,19 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(currentPosition + rotations),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(currentPosition + rotations),
-        this).withName(String.format("Coral motor add rotations - %d", rotations));
+        this).withName(String.format("Coral motor add rotations - %f", rotations));
   }
 
   public Command cmdSetCoralDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setCoralDutyCycleOut(output),
         () -> stopCoralMotor(),
-        this).withName(String.format("Algae intake duty cycle - %d", output));
+        this).withName(String.format("Algae intake duty cycle - %f", output));
   }
 
   public Command cmdSetHeadRotation(double value) {
     return Commands.runOnce(() -> setHeadPosition(value), this)
-        .withName(String.format("Head new position - %d", value));
+        .withName(String.format("Head new position - %f", value));
   }
 
   public Command cmdBumpHead(boolean moveRight) {
@@ -178,7 +178,7 @@ public class EndEffector extends SubsystemBase {
     return Commands.runEnd(
         () -> setAlgaeDutyCycleOut(output),
         () -> stopAlgaeMotor(),
-        this).withName(String.format("Algae intake duty cycle - %d", output));
+        this).withName(String.format("Algae intake duty cycle - %f", output));
   }
 
   public Command cmdDealgae() {
@@ -196,7 +196,7 @@ public class EndEffector extends SubsystemBase {
     return Commands.runOnce(() -> {
       setAlgaeIntakePostion(value);
       algaeIntakeState = value;
-    }, this).withName(String.format("Algae intake new position - %d", value.value));
+    }, this).withName(String.format("Algae intake new position - %f", value.value));
   }
 
   public Command cmdBumpAlgaeIntake(boolean moveRight) {

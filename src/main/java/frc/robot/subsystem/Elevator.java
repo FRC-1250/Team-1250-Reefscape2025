@@ -160,7 +160,7 @@ public class Elevator extends SubsystemBase {
     return Commands.runEnd(
         () -> setDutyCycleOut(output),
         () -> holdPosition(),
-        this).withName(String.format("Elevator duty cycle - %d", output));
+        this).withName(String.format("Elevator duty cycle - %f", output));
   }
 
   public Command cmdStop() {
