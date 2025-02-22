@@ -98,6 +98,7 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.MotorOutput.PeakForwardDutyCycle = 0.75;
     coralTalonConfiguration.MotorOutput.PeakReverseDutyCycle = -0.75;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
+    coralMotor.getPosition().setUpdateFrequency(100);
 
     TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();
     algaeTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
