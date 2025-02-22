@@ -20,14 +20,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystem.Elevator.Position;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.TalonHealthChecker;
 
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(.1),
+    DEPLOYED(.25),
     MIDDLE(0.5),
     HOME(.89);
 
@@ -56,10 +55,10 @@ public class EndEffector extends SubsystemBase {
 
     public final static double LOGICAL_CENTER = 0.5;
     public final static double CENTER = TURE_CENTER;
-    public final static double CENTER_LEFT = TURE_CENTER - CORAL_BRANCH_SERVO_OFFSET;
-    public final static double LEFT = TURE_CENTER - NINTY_DEGREE_OFFSET;
-    public final static double CENTER_RIGHT = TURE_CENTER + CORAL_BRANCH_SERVO_OFFSET;
-    public final static double RIGHT = TURE_CENTER + NINTY_DEGREE_OFFSET;
+    public final static double CENTER_LEFT = TURE_CENTER + CORAL_BRANCH_SERVO_OFFSET;
+    public final static double LEFT = TURE_CENTER + NINTY_DEGREE_OFFSET;
+    public final static double CENTER_RIGHT = TURE_CENTER - CORAL_BRANCH_SERVO_OFFSET;
+    public final static double RIGHT = TURE_CENTER - NINTY_DEGREE_OFFSET;
   }
 
   private TalonFX algaeMotor = new TalonFX(21);
@@ -85,7 +84,7 @@ public class EndEffector extends SubsystemBase {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(3)
+        .withKP(1)
         .withKI(0)
         .withKD(0)
         .withKV(0);
@@ -96,6 +95,8 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     coralTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    coralTalonConfiguration.MotorOutput.PeakForwardDutyCycle = 0.75;
+    coralTalonConfiguration.MotorOutput.PeakReverseDutyCycle = -0.75;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
 
     TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();

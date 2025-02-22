@@ -127,7 +127,7 @@ public class RobotContainer {
 
     public void determineMaxSpeed() {
         if (elevator.isAbovePosition(Position.L3)) {
-            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 2;
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3;
         } else if (elevator.isAbovePosition(Position.L1)) {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 1.5;
         } else {
@@ -240,8 +240,8 @@ public class RobotContainer {
 
             joystick.back().toggleOnTrue(drivetrain.applyRequest(
                     () -> driveFacingAngle
-                            .withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                            .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                            .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
+                            .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
                             .withTargetDirection(controlFactory.determineHeadingToReef())));
 
             joystick.a().whileTrue(drivetrain.applyRequest(
@@ -255,7 +255,7 @@ public class RobotContainer {
             hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT))
-                    .andThen(Commands.waitSeconds(1.5))
+                    .andThen(Commands.waitSeconds(0.5))
                     .andThen(elevator.cmdSetPosition(Position.L1)));
         }
 
@@ -351,7 +351,7 @@ public class RobotContainer {
     private void configureAutoRoutines() {
         NamedCommands.registerCommand("go L4", elevator.cmdSetPosition(Position.L4));
         NamedCommands.registerCommand("Rotate Head", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
-        NamedCommands.registerCommand("launch coral", endEffector.cmdAddCoralRotations(20).withTimeout(5));
+        NamedCommands.registerCommand("launch coral", endEffector.cmdAddCoralRotations(20).withTimeout(2));
         NamedCommands.registerCommand("go Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
     }
 
