@@ -31,7 +31,7 @@ public class Climber extends SubsystemBase {
   public Climber() {
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.SupplyCurrentLimit = 25;
+    currentLimitsConfigs.SupplyCurrentLimit = 80;
 
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
     motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;

@@ -109,6 +109,7 @@ public class RobotContainer {
             () -> elevator.isAtPosition(Elevator.Position.L4));
     private final Trigger isAtHome = new Trigger(
             () -> elevator.isAtPosition(Elevator.Position.STARTING_CONFIGURATION));
+    private final Trigger isTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
 
     private final boolean devController = true;
     private final boolean driveEnabled = true;
@@ -234,9 +235,10 @@ public class RobotContainer {
                 .and(hasAlgae)
                 .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.CONTAIN_ALGAE)));
 
+        joystick.back().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
-        joystick.y().whileTrue(climber.cmdSetTorque(Amps.of(10)));
+        joystick.y().whileTrue(climber.cmdSetTorque(Amps.of(80)));
 
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
@@ -259,7 +261,7 @@ public class RobotContainer {
         }
 
         if (automationEnabled) {
-            hasCoral.negate().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+            hasCoral.negate().and(isTeleop).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
             hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT))
                     .andThen(Commands.waitSeconds(0.5))
