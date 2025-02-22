@@ -29,9 +29,9 @@ public class SeekAprilTag implements NativeSwerveRequest {
     private double aprilTagID = -1;
     private Pose3d aptilTagPose3d = new Pose3d();
     private PIDController headingController = new PIDController(5, 0, 0);
-    private PIDController yController = new PIDController(0.64, 0, 0.00);
+    private PIDController yController = new PIDController(0.3, 0, 0.00);
     private PIDController xController = new PIDController(0.64, 0, 0.00);
-    private double yFF = 0.5;
+    private double yFF = 0.1;
     private double xFF = 0.5;
     private boolean userDriveForward = false;
 
