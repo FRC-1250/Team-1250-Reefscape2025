@@ -81,7 +81,7 @@ public class RobotContainer {
     private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
     private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
 
-    //System Lights Triggers
+    // System Lights Triggers
     private final Trigger isEnabled = new Trigger(() -> DriverStation.isEnabled());
 
     // From elevator
@@ -116,7 +116,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         configureSmartDashboardBindings();
-        configureAutoRoutines();
+        configureNamedCommands();
         configureAutoCommands();
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -210,11 +210,13 @@ public class RobotContainer {
         joystick.b()
                 .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon))
                 .and(hasAlgae.negate())
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
+                .onTrue(controlFactory
+                        .homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
         joystick.b()
                 .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
                 .and(hasAlgae.negate())
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
+                .onTrue(controlFactory
+                        .homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
         joystick.b()
                 .and(isAtHighAlgaePosition)
                 .and(hasAlgae.negate())
@@ -238,7 +240,7 @@ public class RobotContainer {
                             .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
                             .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
 
-            joystick.back().toggleOnTrue(drivetrain.applyRequest(
+            joystick.x().whileTrue(drivetrain.applyRequest(
                     () -> driveFacingAngle
                             .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
                             .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
@@ -262,7 +264,7 @@ public class RobotContainer {
         isEnabled.and(hasCoral.negate()).onTrue(systemLights.cmdSetLEDs(PresetColor.KELLY_GREEN));
         isEnabled.and(hasCoral.negate()).and(isAtHome).whileTrue(endEffector.cmdSetCoralDutyCycleOut(.05));
         hasCoral.whileTrue(systemLights.cmdSetLEDs(PresetColor.RED));
-        
+
         if (devController) {
             devJoystick = new CommandPS4Controller(1);
 
@@ -341,18 +343,20 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("EasyAuto", "EasyAuto");
-        addPathAuto("Test", "Test");
-        addPathAuto("Check Routines", "Check Routines");
+        addPathAuto("CenterSingleCoral", "CenterSingleCoral");
+        addPathAuto("LeftDoubleCoral", "LeftDoubleCoral");
         SmartDashboard.putData("Auto Chooser", autoChooser);
-
     }
 
-    private void configureAutoRoutines() {
-        NamedCommands.registerCommand("go L4", elevator.cmdSetPosition(Position.L4));
-        NamedCommands.registerCommand("Rotate Head", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
-        NamedCommands.registerCommand("launch coral", endEffector.cmdAddCoralRotations(20).withTimeout(2));
-        NamedCommands.registerCommand("go Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
+    private void configureNamedCommands() {
+        NamedCommands.registerCommand("L4", elevator.cmdSetPosition(Position.L4));
+        NamedCommands.registerCommand("Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
+        NamedCommands.registerCommand("RotateHeadLeft", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
+        NamedCommands.registerCommand("RotateHeadRight", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT));
+        NamedCommands.registerCommand("ScoreCoral", endEffector.cmdAddCoralRotations(20).withTimeout(2));
+        NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
+        NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
+
     }
 
 }

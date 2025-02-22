@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -34,6 +36,11 @@ public class Robot extends TimedRobot {
 
     CommandScheduler.getInstance().onCommandInterrupt(
         command -> DataLogManager.log(String.format("Command interrupted: %s", command.getName())));
+  }
+
+  @Override
+  public void robotInit() {
+      FollowPathCommand.warmupCommand().schedule();
   }
 
   @Override

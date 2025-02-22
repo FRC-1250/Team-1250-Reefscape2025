@@ -13,37 +13,37 @@
         {
           "type": "named",
           "data": {
-            "name": "go L4"
+            "name": "L4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Rotate Head"
+            "name": "RotateHeadRight"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "launch coral"
+            "name": "ScoreCoral"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.25
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "go Home"
+            "name": "Home"
           }
         }
       ]
