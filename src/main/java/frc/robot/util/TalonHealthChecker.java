@@ -19,7 +19,7 @@ public class TalonHealthChecker extends PhoenixHealthChecker {
         return Arrays.asList(
                 talon.getStickyFault_BootDuringEnable().getValue(),
                 talon.getStickyFault_BridgeBrownout().getValue(),
-                talon.getStickyFault_Hardware().getValue(),
+                // talon.getStickyFault_Hardware().getValue(),
                 talon.getStickyFault_OverSupplyV().getValue(),
                 talon.getStickyFault_RemoteSensorDataInvalid().getValue(),
                 talon.getStickyFault_RemoteSensorReset().getValue(),
