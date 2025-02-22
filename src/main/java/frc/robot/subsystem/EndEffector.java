@@ -98,7 +98,7 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.MotorOutput.PeakForwardDutyCycle = 0.75;
     coralTalonConfiguration.MotorOutput.PeakReverseDutyCycle = -0.75;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
-    coralMotor.getPosition().setUpdateFrequency(100);
+    coralMotor.getPosition().setUpdateFrequency(200);
 
     TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();
     algaeTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
@@ -120,7 +120,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command cmdStopCoralMotor() {
-    return Commands.runOnce(() -> stopCoralMotor(), this);
+    return Commands.runOnce(() -> stopCoralMotor(), this).withName("Coral motor stop");
   }
 
   public Command cmdSetCoralPosition(double position) {
@@ -130,7 +130,7 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(position),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(position),
-        this);
+        this).withName(String.format("Head new position - %d", position));
   }
 
   public Command cmdAddCoralRotations(double rotations) {
@@ -139,18 +139,19 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(currentPosition + rotations),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(currentPosition + rotations),
-        this);
+        this).withName(String.format("Coral motor add rotations - %d", rotations));
   }
 
   public Command cmdSetCoralDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setCoralDutyCycleOut(output),
         () -> stopCoralMotor(),
-        this);
+        this).withName(String.format("Algae intake duty cycle - %d", output));
   }
 
   public Command cmdSetHeadRotation(double value) {
-    return Commands.runOnce(() -> setHeadPosition(value), this);
+    return Commands.runOnce(() -> setHeadPosition(value), this)
+        .withName(String.format("Head new position - %d", value));
   }
 
   public Command cmdBumpHead(boolean moveRight) {
@@ -170,14 +171,14 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Command cmdStopAlgaeMotor() {
-    return Commands.runOnce(() -> algaeMotor.stopMotor(), this);
+    return Commands.runOnce(() -> algaeMotor.stopMotor(), this).withName("Algae intake stop");
   }
 
   public Command cmdSetAlgaeDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setAlgaeDutyCycleOut(output),
         () -> stopAlgaeMotor(),
-        this);
+        this).withName(String.format("Algae intake duty cycle - %d", output));
   }
 
   public Command cmdDealgae() {
@@ -188,14 +189,14 @@ public class EndEffector extends SubsystemBase {
         },
         () -> {
           stopAlgaeMotor();
-        }, this);
+        }, this).withName("Algae intake - Delagae");
   }
 
   public Command cmdSetAlgaeIntakePostion(AlgaeServoPosition value) {
     return Commands.runOnce(() -> {
       setAlgaeIntakePostion(value);
       algaeIntakeState = value;
-    }, this);
+    }, this).withName(String.format("Algae intake new position - %d", value.value));
   }
 
   public Command cmdBumpAlgaeIntake(boolean moveRight) {

@@ -121,11 +121,9 @@ public class Elevator extends SubsystemBase {
     leftMotor.getConfigurator().apply(talonFXConfiguration);
     rightMotor.getConfigurator().apply(talonFXConfiguration);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(100,
-        leftMotor.getVelocity(),
+    BaseStatusSignal.setUpdateFrequencyForAll(200,
         leftMotor.getPosition(),
-        rightMotor.getPosition(),
-        rightMotor.getVelocity());
+        rightMotor.getPosition());
 
     if (tuningModeEnabled) {
       tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs),
@@ -140,7 +138,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command cmdManualHome() {
-    return cmdSetDutyCycleOut(-0.05).until(() -> homeFound);
+    return cmdSetDutyCycleOut(-0.05).until(() -> homeFound).withName("Elevator force home");
   }
 
   public Command cmdSetPosition(Position position) {
@@ -155,18 +153,18 @@ public class Elevator extends SubsystemBase {
           }
         },
         () -> isNearPosition(position.rotations),
-        this);
+        this).withName(String.format("Elevator new position - %s", position.name()));
   }
 
   public Command cmdSetDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setDutyCycleOut(output),
         () -> holdPosition(),
-        this);
+        this).withName(String.format("Elevator duty cycle - %d", output));
   }
 
   public Command cmdStop() {
-    return Commands.runOnce(() -> stopMotors(), this);
+    return Commands.runOnce(() -> stopMotors(), this).withName("Elevator stop");
   }
 
   @Override
@@ -215,15 +213,13 @@ public class Elevator extends SubsystemBase {
     return leftMotor.getPosition().getValueAsDouble();
   }
 
-@Logged(name = "Left Velocity")
-public double getLeftMotorVelocity() {
-  return leftMotor.getVelocity().getValueAsDouble();
-}
+  public double getLeftMotorVelocity() {
+    return leftMotor.getVelocity().getValueAsDouble();
+  }
 
-@Logged (name = "Right Velocity") 
-public double getRightMotorVelocity() {
-  return rightMotor.getVelocity().getValueAsDouble();
-}
+  public double getRightMotorVelocity() {
+    return rightMotor.getVelocity().getValueAsDouble();
+  }
 
   @Logged(name = "Health status")
   public HealthStatus getHealthStatus() {
