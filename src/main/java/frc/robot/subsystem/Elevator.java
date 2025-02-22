@@ -83,12 +83,12 @@ public class Elevator extends SubsystemBase {
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
         .withKS(0.2)
         .withKV(0.25)
-        .withKP(7.5)
+        .withKP(7)
         .withKI(0)
         .withKD(0);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(80))
+        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
         .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(175))
         .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(0));
 
@@ -108,7 +108,7 @@ public class Elevator extends SubsystemBase {
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
     voltageConfigs.PeakForwardVoltage = 12;
-    voltageConfigs.PeakReverseVoltage = -6;
+    voltageConfigs.PeakReverseVoltage = -4;
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
     talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
