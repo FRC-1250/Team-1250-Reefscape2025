@@ -75,6 +75,7 @@ public class Elevator extends SubsystemBase {
   private HealthStatus healthStatus = HealthStatus.IS_OK;
   private Position elevatorPosition = Position.STARTING_CONFIGURATION;
   private Position previousElevatorPosition = Position.STARTING_CONFIGURATION;
+  private double leftMotorPosition = 0;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -154,6 +155,15 @@ public class Elevator extends SubsystemBase {
         },
         () -> isNearPosition(position.rotations),
         this).withName(String.format("Elevator new position - %s", position.name()));
+  }
+
+  public Command cmdAddRotations(double rotations) {
+    return new FunctionalCommand(
+        () -> leftMotorPosition = getLeftMotorPosition(),
+        () -> setPosition(leftMotorPosition + rotations),
+        interrupted -> stopMotors(),
+        () -> isNearPosition(leftMotorPosition + rotations),
+        this).withName(String.format("Elevator motor add rotations - %f", rotations));
   }
 
   public Command cmdSetDutyCycleOut(double output) {

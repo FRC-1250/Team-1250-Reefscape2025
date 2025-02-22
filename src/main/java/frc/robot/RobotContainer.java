@@ -332,6 +332,12 @@ public class RobotContainer {
         SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false).withName("Algae intake, jump out"));
         SmartDashboard.putData(
                 endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName("Algae intake, middle"));
+
+        // Elevator
+        SmartDashboard.putData(elevator.cmdAddRotations(5));
+        SmartDashboard.putData(elevator.cmdAddRotations(1));
+        SmartDashboard.putData(elevator.cmdAddRotations(-5));
+        SmartDashboard.putData(elevator.cmdAddRotations(-1));
     }
 
     private void addPathAuto(String name, String pathName) {
