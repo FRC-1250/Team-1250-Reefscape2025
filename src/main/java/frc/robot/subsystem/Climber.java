@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,7 +43,8 @@ public class Climber extends SubsystemBase {
     talonFXConfiguration.MotorOutput = motorOutputConfigs;
 
     climber.getConfigurator().apply(talonFXConfiguration);
-
+    climber.setPosition(0);
+    climber.getPosition().setUpdateFrequency(200);
     if (healthCheckEnabled) {
       climberCheck = new TalonHealthChecker(climber, getName());
     }
@@ -52,6 +54,7 @@ public class Climber extends SubsystemBase {
     return Commands.runEnd(
         () -> setTorque(newCurrent),
         () -> climber.stopMotor(), this)
+        .until(() -> isNearPosition(12))
         .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
   }
 
@@ -77,5 +80,13 @@ public class Climber extends SubsystemBase {
 
   private void setTorque(Current newCurrent) {
     climber.setControl(torqueControl.withOutput(newCurrent));
+  }
+
+  private double getRotations(){
+    return climber.getPosition().getValueAsDouble();
+  }
+
+  private boolean isNearPosition(double position){
+    return MathUtil.isNear(position, getRotations(), .5);
   }
 }
