@@ -22,6 +22,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotionMagicIsRunningValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
@@ -31,6 +32,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.TalonHealthChecker;
@@ -49,7 +51,7 @@ public class Elevator extends SubsystemBase {
     HIGH_ALGAE(44.7),
     HIGH_ALGAE_PREP(55),
     L4(60.2),
-    PEAK(63.25);
+    PEAK(50);
 
     public final double rotations;
 
@@ -154,23 +156,31 @@ public class Elevator extends SubsystemBase {
           }
         },
         () -> isNearPosition(position.rotations),
-        this).withName(String.format("Elevator new position - %s", position.name()));
+        this).withName(String.format("Elevator new position %s", position.name()));
   }
 
   public Command cmdAddRotations(double rotations) {
     return new FunctionalCommand(
         () -> leftMotorPosition = getLeftMotorPosition(),
-        () -> setPosition(leftMotorPosition + rotations),
+        () -> {
+          if (leftMotorPosition + rotations < 0) {
+            setPosition(0);
+          } else if ((leftMotorPosition + rotations) > Position.PEAK.rotations) {
+            setPosition(Position.PEAK.rotations);
+          } else {
+            setPosition(leftMotorPosition + rotations);
+          }
+        },
         interrupted -> stopMotors(),
-        () -> isNearPosition(leftMotorPosition + rotations),
-        this).withName(String.format("Elevator motor add rotations - %f", rotations));
+        () -> leftMotor.getMotionMagicIsRunning().getValue() == MotionMagicIsRunningValue.Disabled,
+        this).withName(String.format("Elevator pos add %f", rotations));
   }
 
   public Command cmdSetDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setDutyCycleOut(output),
         () -> holdPosition(),
-        this).withName(String.format("Elevator duty cycle - %f", output));
+        this).withName(String.format("Elevator duty cycle %f", output));
   }
 
   public Command cmdStop() {
@@ -179,7 +189,8 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    detectSensorTransition();
+    // TODO: Verify if notifier command works better
+    // detectSensorTransition();
 
     if (tuningModeEnabled) {
       tunableTalonFX.updateValuesFromSmartNT();
@@ -193,6 +204,10 @@ public class Elevator extends SubsystemBase {
         healthStatus = HealthStatus.IS_OK;
       }
     }
+  }
+
+  public Command cmdHandleSensorTransition() {
+    return new NotifierCommand(() -> detectSensorTransition(), 0.05).until(() -> homeFound).withName("Elevator find home");
   }
 
   private void detectSensorTransition() {

@@ -44,6 +44,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
       FollowPathCommand.warmupCommand().schedule();
        Pathfinding.setPathfinder(new LocalADStar());
+       m_robotContainer.elevator.cmdHandleSensorTransition().schedule();
   }
 
   @Override
