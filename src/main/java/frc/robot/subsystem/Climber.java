@@ -4,7 +4,6 @@
 
 package frc.robot.subsystem;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -29,16 +28,11 @@ public class Climber extends SubsystemBase {
   private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
 
   public Climber() {
-    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.SupplyCurrentLimit = 80;
-
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
-    motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
+    motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-    talonFXConfiguration.CurrentLimits = currentLimitsConfigs;
     talonFXConfiguration.MotorOutput = motorOutputConfigs;
 
     climber.getConfigurator().apply(talonFXConfiguration);
@@ -53,7 +47,7 @@ public class Climber extends SubsystemBase {
     return Commands.runEnd(
         () -> setTorque(newCurrent),
         () -> climber.stopMotor(), this)
-        .until(() -> getRotations() > 5.0)
+        .until(() -> getRotations() > 20.0)
         .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
   }
 
