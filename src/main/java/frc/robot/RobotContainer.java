@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
@@ -152,7 +151,7 @@ public class RobotContainer {
     public void determineMaxSpeed() {
         if (elevator.isAbovePosition(Position.L3)) {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3;
-        } else if (elevator.isAbovePosition(Position.L1)) {
+        } else if (elevator.isAbovePosition(Position.L2)) {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 1.5;
         } else {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -257,22 +256,20 @@ public class RobotContainer {
         joystick.back().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
         joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
         joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
-        joystick.y().whileTrue(climber.cmdSetTorque(Amps.of(80)));
+        joystick.y().onTrue(climber.cmdSetTorque(Amps.of(80)));
 
         if (driveEnabled) {
             drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> drive
                             .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
                             .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
-                            .withRotationalRate(-joystick.getRightX() * MaxAngularRate)));
+                            .withRotationalRate(-joystick.getRightX() * MaxAngularRate)).withName("Field centric swerve"));
 
             joystick.x().whileTrue(drivetrain.applyRequest(
                     () -> driveFacingAngle
                             .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
                             .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
-                            .withTargetDirection(controlFactory.determineHeadingToReef())));
-
-            joystick.a().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18), 0));
+                            .withTargetDirection(controlFactory.determineHeadingToReef())).withName("Auto turn to reef"));
 
             // Red
             joystick.a().and(isId6).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6), 0));
@@ -290,16 +287,15 @@ public class RobotContainer {
             joystick.a().and(isId21).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21), 0));
             joystick.a().and(isId22).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22), 0));
 
-
-            joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+            joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
         }
 
         if (automationEnabled) {
             hasCoral.negate().and(isTeleop).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-            hasCoral.onTrue(endEffector.cmdAddCoralRotations(5)
+            hasCoral.and(isTeleop).onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT))
-                    .andThen(Commands.waitSeconds(0.5))
-                    .andThen(elevator.cmdSetPosition(Position.L1)));
+                    .andThen(Commands.waitSeconds(0.2))
+                    .andThen(elevator.cmdSetPosition(Position.L1)).withName("Coral index and prep"));
         }
 
         isEnabled.and(hasCoral.negate()).onTrue(systemLights.cmdSetLEDs(PresetColor.KELLY_GREEN));
@@ -326,46 +322,31 @@ public class RobotContainer {
             // Scoring options
             devJoystick.R1().onTrue(endEffector.cmdAddCoralRotations(20));
             devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
-            // Placeholder for climber -> devJoystick.L1().onTrue();
+            devJoystick.L1().onTrue(climber.cmdSetTorque(Amps.of(80)));
             devJoystick.L2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
 
             // Elevator duty cycle out, up and down
-            devJoystick.cross().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
-            devJoystick.triangle().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
-
-            // Elevator positions
-            devJoystick.povDown().whileTrue(elevator.cmdSetDutyCycleOut(-0.2));
-            devJoystick.povUp().whileTrue(elevator.cmdSetDutyCycleOut(0.2));
-
-            devJoystick.povDown().onTrue(elevator.cmdSetPosition(Elevator.Position.L1));
-            devJoystick.povRight().onTrue(elevator.cmdSetPosition(Elevator.Position.L2));
-            devJoystick.povLeft().onTrue(elevator.cmdSetPosition(Elevator.Position.L3));
-            devJoystick.povUp().onTrue(elevator.cmdSetPosition(Elevator.Position.L4));
-            devJoystick.circle().onTrue(elevator.cmdSetPosition(Elevator.Position.STARTING_CONFIGURATION));
-            devJoystick.square().onTrue(elevator.cmdSetPosition(Elevator.Position.CONTAIN_ALGAE));
+            devJoystick.cross().onTrue(elevator.cmdAddRotations(-1));
+            devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
+            devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
+            devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
         }
     }
 
     private void configureSmartDashboardBindings() {
-        // Sys ID for swerve
-        SmartDashboard.putData(drivetrain.sysIdDynamic(Direction.kForward).withName("Dynamic forward"));
-        SmartDashboard.putData(drivetrain.sysIdDynamic(Direction.kReverse).withName("Dynamic reverse"));
-        SmartDashboard.putData(drivetrain.sysIdQuasistatic(Direction.kForward).withName("Quasistatic forward"));
-        SmartDashboard.putData(drivetrain.sysIdQuasistatic(Direction.kReverse).withName("Quasistatic reverse"));
-
         // Servo replacement commands
-        SmartDashboard.putData(endEffector.cmdBumpHead(true).withName("Head, bump right"));
-        SmartDashboard.putData(endEffector.cmdBumpHead(false).withName("Head, bump left"));
-        SmartDashboard.putData(endEffector.cmdJumpHead(true).withName("Head, jump right"));
-        SmartDashboard.putData(endEffector.cmdJumpHead(false).withName("Head, jump left"));
+        SmartDashboard.putData(endEffector.cmdBumpHead(true));
+        SmartDashboard.putData(endEffector.cmdBumpHead(false));
+        SmartDashboard.putData(endEffector.cmdJumpHead(true));
+        SmartDashboard.putData(endEffector.cmdJumpHead(false));
         SmartDashboard.putData(endEffector.cmdSetHeadRotation(HeadPosition.LOGICAL_CENTER).withName("Head, center"));
 
-        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(true).withName("Algae intake, bump in"));
-        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(false).withName("Algae intake, bump out"));
-        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(true).withName("Algae intake, jump in"));
-        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false).withName("Algae intake, jump out"));
+        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(true));
+        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(false));
+        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(true));
+        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false));
         SmartDashboard.putData(
-                endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName("Algae intake, middle"));
+                endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName(" Intake, middle"));
 
         // Elevator
         SmartDashboard.putData(elevator.cmdAddRotations(5));
@@ -400,7 +381,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
         NamedCommands.registerCommand("RotateHeadLeft", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
         NamedCommands.registerCommand("RotateHeadRight", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT));
-        NamedCommands.registerCommand("ScoreCoral", endEffector.cmdAddCoralRotations(20).withTimeout(2));
+        NamedCommands.registerCommand("ScoreCoral", endEffector.cmdAddCoralRotations(20));
         NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
         NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
 
