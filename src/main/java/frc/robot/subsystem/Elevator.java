@@ -73,8 +73,8 @@ public class Elevator extends SubsystemBase {
   private TalonHealthChecker leftMotorCheck;
   private TalonHealthChecker rightMotorCheck;
   private HealthStatus healthStatus = HealthStatus.IS_OK;
-  private Position elevatorPosition = Position.STARTING_CONFIGURATION;
-  private Position previousElevatorPosition = Position.STARTING_CONFIGURATION;
+  public Position elevatorPosition = Position.STARTING_CONFIGURATION;
+  public Position previousElevatorPosition = Position.STARTING_CONFIGURATION;
   private double leftMotorPosition = 0;
 
   public Elevator() {
@@ -260,7 +260,7 @@ public class Elevator extends SubsystemBase {
     return !homeSensor.get();
   }
 
-  private void setPosition(double position) {
+  public void setPosition(double position) {
     motionMagicPostionControl.Position = position;
     leftMotor.setControl(motionMagicPostionControl);
     rightMotor.setControl(motionMagicPostionControl);
@@ -287,6 +287,11 @@ public class Elevator extends SubsystemBase {
   }
 
   private boolean isNearPosition(double position) {
+    return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
+        || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
+  }
+
+  public boolean isNearPositionAndTolerance(double position, double tolerance) {
     return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
         || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
   }

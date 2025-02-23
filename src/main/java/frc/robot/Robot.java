@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
@@ -41,12 +43,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
       FollowPathCommand.warmupCommand().schedule();
+       Pathfinding.setPathfinder(new LocalADStar());
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.determineMaxSpeed();
+    m_robotContainer.controlFactory.addLimelightVisionMeasurements();
   }
 
   @Override

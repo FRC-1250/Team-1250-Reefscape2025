@@ -25,17 +25,18 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.SeekAprilTag;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
+import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.EndEffector.HeadPosition;
 import frc.robot.subsystem.SystemLights.PresetColor;
+import frc.robot.util.ReefScoringMap;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -52,9 +53,6 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.1)
             .withDriveRequestType(DriveRequestType.Velocity)
             .withHeadingPID(12, 0, 0);
-
-    private final SeekAprilTag seekAprilTag = new SeekAprilTag()
-            .withDriveRequestType(DriveRequestType.Velocity);
 
     private final Telemetry logger = new Telemetry();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -75,7 +73,14 @@ public class RobotContainer {
     public final Climber climber = new Climber();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final ControlFactory controlFactory = new ControlFactory(drivetrain, elevator, endEffector, climber, systemLights);
+    public final Limelight limelight = new Limelight();
+    public final ControlFactory controlFactory = new ControlFactory(
+            drivetrain,
+            elevator,
+            endEffector,
+            climber,
+            limelight,
+            systemLights);
 
     // From control factory
     private final Trigger reefHasHighAlgae = new Trigger(() -> controlFactory.hasHighAlgae());
@@ -85,8 +90,9 @@ public class RobotContainer {
     private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
     private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
 
-    // System Lights Triggers
+    // From Driverstation
     private final Trigger isEnabled = new Trigger(() -> DriverStation.isEnabled());
+    private final Trigger isTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
 
     // From elevator
     private final Trigger isAtLowAlgaePrepPosition = new Trigger(
@@ -109,7 +115,20 @@ public class RobotContainer {
             () -> elevator.isAtPosition(Elevator.Position.L4));
     private final Trigger isAtHome = new Trigger(
             () -> elevator.isAtPosition(Elevator.Position.STARTING_CONFIGURATION));
-    private final Trigger isTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
+
+    // From limelight
+    private final Trigger isId6 = new Trigger(() -> limelight.isBestTagSeen(6));
+    private final Trigger isId7 = new Trigger(() -> limelight.isBestTagSeen(7));
+    private final Trigger isId8 = new Trigger(() -> limelight.isBestTagSeen(8));
+    private final Trigger isId9 = new Trigger(() -> limelight.isBestTagSeen(9));
+    private final Trigger isId10 = new Trigger(() -> limelight.isBestTagSeen(10));
+    private final Trigger isId11 = new Trigger(() -> limelight.isBestTagSeen(11));
+    private final Trigger isId17 = new Trigger(() -> limelight.isBestTagSeen(17));
+    private final Trigger isId18 = new Trigger(() -> limelight.isBestTagSeen(18));
+    private final Trigger isId19 = new Trigger(() -> limelight.isBestTagSeen(19));
+    private final Trigger isId20 = new Trigger(() -> limelight.isBestTagSeen(20));
+    private final Trigger isId21 = new Trigger(() -> limelight.isBestTagSeen(21));
+    private final Trigger isId22 = new Trigger(() -> limelight.isBestTagSeen(22));
 
     private final boolean devController = true;
     private final boolean driveEnabled = true;
@@ -253,9 +272,24 @@ public class RobotContainer {
                             .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
                             .withTargetDirection(controlFactory.determineHeadingToReef())));
 
-            joystick.a().whileTrue(drivetrain.applyRequest(
-                    () -> seekAprilTag
-                            .withRobotPose(drivetrain.getState().Pose)));
+            joystick.a().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18), 0));
+
+            // Red
+            joystick.a().and(isId6).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6), 0));
+            joystick.a().and(isId7).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(7), 0));
+            joystick.a().and(isId8).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(8), 0));
+            joystick.a().and(isId9).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9), 0));
+            joystick.a().and(isId10).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10), 0));
+            joystick.a().and(isId11).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11), 0));
+
+            // Blue
+            joystick.a().and(isId17).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(17), 0));
+            joystick.a().and(isId18).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18), 0));
+            joystick.a().and(isId19).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(19), 0));
+            joystick.a().and(isId20).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20), 0));
+            joystick.a().and(isId21).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21), 0));
+            joystick.a().and(isId22).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22), 0));
+
 
             joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         }

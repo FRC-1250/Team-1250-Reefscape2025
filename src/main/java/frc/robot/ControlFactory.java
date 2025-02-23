@@ -4,8 +4,15 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -13,6 +20,7 @@ import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.EndEffector;
+import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.SystemLights.PresetColor;
@@ -26,21 +34,29 @@ public class ControlFactory {
     private final EndEffector endEffector;
     private final SystemLights systemLights;
     private final Climber climber;
+    private final Limelight limelight;
     private final Translation2d blueReef = new Translation2d(4.490, 4);
     private final Translation2d redReef = new Translation2d(13.05, 4);
     private final double[] highAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
     private final double[] lowAlgaeAprilTags = { 7, 9, 11, 18, 20, 22 };
+    private final PathConstraints constraints = new PathConstraints(
+            3.0,
+            3.0,
+            Units.degreesToRadians(270),
+            Units.degreesToRadians(360));
 
     public ControlFactory(
             CommandSwerveDrivetrain swerveDrivetrain,
             Elevator elevator,
             EndEffector endEffector,
             Climber climber,
+            Limelight limelight,
             SystemLights systemLights) {
         this.swerveDrivetrain = swerveDrivetrain;
         this.elevator = elevator;
         this.endEffector = endEffector;
         this.climber = climber;
+        this.limelight = limelight;
         this.systemLights = systemLights;
     }
 
@@ -129,7 +145,7 @@ public class ControlFactory {
                                 systemLights.diagnosticColors.add(PresetColor.RED);
                             }
 
-                            if(climber.getHealthStatus() == HealthStatus.ERROR) {
+                            if (climber.getHealthStatus() == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.BLUE);
                             }
 
@@ -162,6 +178,53 @@ public class ControlFactory {
                 Commands.waitSeconds(0.5),
                 elevator.cmdSetPosition(pos));
 
+    }
+
+    public Command dynamicElevatorPosition(Position position) {
+        return Commands.run(() -> {
+            double rotationOffset = 0;
+
+            // 0.43 meters is the min distance to the apriltag with bumpers to the reef..
+            double distanceToTarget = limelight.getDistanceFromTarget() - 0.43;
+
+            // 0.1016 meters is ~ 1 coral...
+            if (distanceToTarget <= 0.125) {
+                // Assume every 0.125 meters produced 5 rotations
+                rotationOffset = distanceToTarget * 40.0;
+            }
+
+            // Set the position with the offset applied, if one exists
+            elevator.setPosition(position.rotations + rotationOffset);
+
+            if (elevator.isNearPositionAndTolerance(position.rotations, rotationOffset + 0.5)) {
+                elevator.previousElevatorPosition = elevator.elevatorPosition;
+                elevator.elevatorPosition = position;
+            }
+        },
+                elevator)
+                .withName(String.format("Elevator dynamic position - %s", position.name()));
+    }
+
+    public Command pathfindToPose(Pose2d targetPose, double goalVelocity) {
+        return AutoBuilder.pathfindToPose(
+                targetPose,
+                constraints,
+                goalVelocity // Goal end velocity in meters/sec
+        );
+    }
+
+    public void addLimelightVisionMeasurements() {
+        var driveState = swerveDrivetrain.getState();
+        double headingDeg = driveState.Pose.getRotation().getDegrees();
+        double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+
+        limelight.setRobotOrientation(headingDeg);
+        var llMeasurement = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
+        if (llMeasurement != null && llMeasurement.tagCount > 0 && llMeasurement.avgTagDist < 1 && omegaRps < 2.0) {
+            swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            swerveDrivetrain.addVisionMeasurement(llMeasurement.pose,
+                    Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
+        }
     }
 
 }
