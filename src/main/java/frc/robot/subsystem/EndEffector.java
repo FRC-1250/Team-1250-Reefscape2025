@@ -95,8 +95,8 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     coralTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    coralTalonConfiguration.MotorOutput.PeakForwardDutyCycle = 0.75;
-    coralTalonConfiguration.MotorOutput.PeakReverseDutyCycle = -0.75;
+    coralTalonConfiguration.Voltage.PeakForwardVoltage = 6;
+    coralTalonConfiguration.Voltage.PeakReverseVoltage = -6;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
     coralMotor.getPosition().setUpdateFrequency(200);
 
