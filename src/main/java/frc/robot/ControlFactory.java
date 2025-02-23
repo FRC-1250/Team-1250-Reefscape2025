@@ -71,39 +71,41 @@ public class ControlFactory {
     public Command reefHighDealgaePrep() {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.HIGH_ALGAE_PREP),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED))
+                .withName("High dealgae prep");
     }
 
     public Command reefHighDealgae() {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.HIGH_ALGAE),
-                endEffector.cmdDealgae());
+                endEffector.cmdDealgae()).withName("High dealgae");
     }
 
     public Command reefHighDealgaeUndo(Position pos) {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.HIGH_ALGAE_PREP),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-                elevator.cmdSetPosition(pos));
+                elevator.cmdSetPosition(pos).withName("High dealgae undo prep"));
     }
 
     public Command reefLowDealgaePrep() {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.LOW_ALGAE_PREP),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED))
+                .withName("Low dealgae prep");
     }
 
     public Command reefLowDealgae() {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.LOW_ALGAE),
-                endEffector.cmdDealgae());
+                endEffector.cmdDealgae().withName("Low dealgae"));
     }
 
     public Command reefLowDealgaeUndo(Position pos) {
         return Commands.sequence(
                 elevator.cmdSetPosition(Elevator.Position.LOW_ALGAE_PREP),
                 endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-                elevator.cmdSetPosition(pos));
+                elevator.cmdSetPosition(pos).withName("Low dealgae undo prep"));
     }
 
     public boolean hasLowAlgae() {
@@ -176,7 +178,7 @@ public class ControlFactory {
                 endEffector.cmdStopAlgaeMotor(),
                 endEffector.cmdStopCoralMotor(),
                 Commands.waitSeconds(0.5),
-                elevator.cmdSetPosition(pos));
+                elevator.cmdSetPosition(pos)).withName("Home");
 
     }
 
@@ -210,7 +212,7 @@ public class ControlFactory {
                 targetPose,
                 constraints,
                 goalVelocity // Goal end velocity in meters/sec
-        );
+        ).withName("Pathfind to pose");
     }
 
     public void addLimelightVisionMeasurements() {
@@ -220,7 +222,7 @@ public class ControlFactory {
 
         limelight.setRobotOrientation(headingDeg);
         var llMeasurement = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
-        if (llMeasurement != null && llMeasurement.tagCount > 0 && llMeasurement.avgTagDist < 1 && omegaRps < 2.0) {
+        if (llMeasurement != null && llMeasurement.tagCount > 0 && llMeasurement.avgTagDist < 2 && omegaRps < 2.0) {
             swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
             swerveDrivetrain.addVisionMeasurement(llMeasurement.pose,
                     Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
