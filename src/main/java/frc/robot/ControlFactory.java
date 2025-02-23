@@ -189,8 +189,8 @@ public class ControlFactory {
 
             // 0.1016 meters is ~ 1 coral...
             if (distanceToTarget <= 0.125) {
-                // Assume every 0.125 meters produced 5 rotations
-                rotationOffset = distanceToTarget * 40.0;
+                // Assume every 0.125 meters produced 2.5 rotations
+                rotationOffset = distanceToTarget * 20.0;
             }
 
             // Set the position with the offset applied, if one exists
