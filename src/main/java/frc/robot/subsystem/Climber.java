@@ -13,7 +13,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -54,7 +53,7 @@ public class Climber extends SubsystemBase {
     return Commands.runEnd(
         () -> setTorque(newCurrent),
         () -> climber.stopMotor(), this)
-        .until(() -> isNearPosition(12))
+        .until(() -> getRotations() > 5.0)
         .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
   }
 
@@ -86,7 +85,4 @@ public class Climber extends SubsystemBase {
     return climber.getPosition().getValueAsDouble();
   }
 
-  private boolean isNearPosition(double position){
-    return MathUtil.isNear(position, getRotations(), .5);
-  }
 }
