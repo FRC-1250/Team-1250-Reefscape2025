@@ -131,7 +131,7 @@ public class RobotContainer {
 
     private final boolean devController = true;
     private final boolean driveEnabled = true;
-    private final boolean automationEnabled = true;
+    private final boolean automationEnabled = false;
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);

@@ -163,16 +163,11 @@ public class Elevator extends SubsystemBase {
     return new FunctionalCommand(
         () -> leftMotorPosition = getLeftMotorPosition(),
         () -> {
-          if (leftMotorPosition + rotations < 0) {
-            setPosition(0);
-          } else if ((leftMotorPosition + rotations) > Position.PEAK.rotations) {
-            setPosition(Position.PEAK.rotations);
-          } else {
-            setPosition(leftMotorPosition + rotations);
-          }
+          setPosition(leftMotorPosition + rotations);
         },
-        interrupted -> stopMotors(),
-        () -> leftMotor.getMotionMagicIsRunning().getValue() == MotionMagicIsRunningValue.Disabled,
+        interrupted -> {
+        },
+        () -> isNearPosition(leftMotorPosition + rotations),
         this).withName(String.format("Elevator pos add %f", rotations));
   }
 
