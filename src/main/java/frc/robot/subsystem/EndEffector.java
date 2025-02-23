@@ -130,7 +130,7 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(position),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(position),
-        this).withName(String.format("Head new position - %f", position));
+        this).withName(String.format("Head new position %f", position));
   }
 
   public Command cmdAddCoralRotations(double rotations) {
@@ -139,34 +139,38 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(currentPosition + rotations),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(currentPosition + rotations),
-        this).withName(String.format("Coral motor add rotations - %f", rotations));
+        this).withName(String.format("Coral motor add rotations %f", rotations));
   }
 
   public Command cmdSetCoralDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setCoralDutyCycleOut(output),
         () -> stopCoralMotor(),
-        this).withName(String.format("Algae intake duty cycle - %f", output));
+        this).withName(String.format("Algae intake duty cycle %f", output));
   }
 
   public Command cmdSetHeadRotation(double value) {
     return Commands.runOnce(() -> setHeadPosition(value), this)
-        .withName(String.format("Head new position - %f", value));
+        .withName(String.format("Head new position %f", value));
   }
 
   public Command cmdBumpHead(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.BUMP.value), this)
+          .withName(String.format("Head pos add %f", ServoOffset.BUMP.value));
     } else {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.BUMP.value), this)
+          .withName(String.format("Head pos add -%f", ServoOffset.BUMP.value));
     }
   }
 
   public Command cmdJumpHead(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.JUMP.value), this)
+          .withName(String.format("Head pos add %f", ServoOffset.JUMP.value));
     } else {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.JUMP.value), this)
+          .withName(String.format("Head pos add -%f", ServoOffset.JUMP.value));
     }
   }
 
@@ -201,17 +205,21 @@ public class EndEffector extends SubsystemBase {
 
   public Command cmdBumpAlgaeIntake(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.BUMP.value), this)
+          .withName(String.format("Intake pos add %f", ServoOffset.BUMP.value));
     } else {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.BUMP.value), this)
+          .withName(String.format("Intake pos add -%f", ServoOffset.BUMP.value));
     }
   }
 
   public Command cmdJumpAlgaeIntake(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.JUMP.value), this)
+          .withName(String.format("Intake pos add %f", ServoOffset.JUMP.value));
     } else {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.JUMP.value), this)
+          .withName(String.format("Intake pos add -%f", ServoOffset.JUMP.value));
     }
   }
 
