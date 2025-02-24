@@ -20,13 +20,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.HealthStatus;
+import frc.robot.util.TalonHealthChecker;
 
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(.1),
+    DEPLOYED(0.35),
     MIDDLE(0.5),
-    HOME(.75);
+    HOME(.89);
 
     public final double value;
 
@@ -47,16 +49,17 @@ public class EndEffector extends SubsystemBase {
   }
 
   public static class HeadPosition {
-    private final static double TURE_CENTER = 0.45;
-    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.115;
+    private final static double TURE_CENTER = 0.44;
+    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.08;
     private final static double NINTY_DEGREE_OFFSET = 0.35;
 
+    public final static double IDLE = 0.3;
     public final static double LOGICAL_CENTER = 0.5;
     public final static double CENTER = TURE_CENTER;
-    public final static double CENTER_LEFT = TURE_CENTER - CORAL_BRANCH_SERVO_OFFSET;
-    public final static double LEFT = TURE_CENTER - NINTY_DEGREE_OFFSET;
-    public final static double CENTER_RIGHT = TURE_CENTER + CORAL_BRANCH_SERVO_OFFSET;
-    public final static double RIGHT = TURE_CENTER + NINTY_DEGREE_OFFSET;
+    public final static double CENTER_LEFT = TURE_CENTER + CORAL_BRANCH_SERVO_OFFSET;
+    public final static double LEFT = TURE_CENTER + NINTY_DEGREE_OFFSET;
+    public final static double CENTER_RIGHT = TURE_CENTER - CORAL_BRANCH_SERVO_OFFSET;
+    public final static double RIGHT = TURE_CENTER - NINTY_DEGREE_OFFSET;
   }
 
   private TalonFX algaeMotor = new TalonFX(21);
@@ -71,12 +74,18 @@ public class EndEffector extends SubsystemBase {
   private Servo headRotate = new Servo(0);
   private double currentPosition = 0;
 
+  private final boolean healthCheckEnabled = true;
+  private TalonHealthChecker algaeMotorCheck;
+  private TalonHealthChecker coralMotorCheck;
+  private HealthStatus healthStatus = HealthStatus.IS_OK;
+  private AlgaeServoPosition algaeIntakeState = AlgaeServoPosition.HOME;
+
   /** Creates a new EndEffector. */
   public EndEffector() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(0.25)
+        .withKP(1)
         .withKI(0)
         .withKD(0)
         .withKV(0);
@@ -87,7 +96,10 @@ public class EndEffector extends SubsystemBase {
     coralTalonConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     coralTalonConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     coralTalonConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    coralTalonConfiguration.Voltage.PeakForwardVoltage = 6;
+    coralTalonConfiguration.Voltage.PeakReverseVoltage = -6;
     coralMotor.getConfigurator().apply(coralTalonConfiguration);
+    coralMotor.getPosition().setUpdateFrequency(200);
 
     TalonFXConfiguration algaeTalonConfiguration = new TalonFXConfiguration();
     algaeTalonConfiguration.CurrentLimits.SupplyCurrentLimit = 25;
@@ -98,12 +110,18 @@ public class EndEffector extends SubsystemBase {
 
     headRotate.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
     algaeIntakeArm.setBoundsMicroseconds(2500, 1500, 1500, 1500, 500);
-    
+
     setAlgaeIntakePostion(AlgaeServoPosition.HOME);
+    setHeadPosition(HeadPosition.CENTER);
+
+    if (healthCheckEnabled) {
+      algaeMotorCheck = new TalonHealthChecker(algaeMotor, getName());
+      coralMotorCheck = new TalonHealthChecker(coralMotor, getName());
+    }
   }
 
   public Command cmdStopCoralMotor() {
-    return Commands.runOnce(() -> stopCoralMotor(), this);
+    return Commands.runOnce(() -> stopCoralMotor(), this).withName("Coral motor stop");
   }
 
   public Command cmdSetCoralPosition(double position) {
@@ -113,7 +131,7 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(position),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(position),
-        this);
+        this).withName(String.format("Head new position %f", position));
   }
 
   public Command cmdAddCoralRotations(double rotations) {
@@ -122,69 +140,105 @@ public class EndEffector extends SubsystemBase {
         () -> setCoralPosition(currentPosition + rotations),
         interrupted -> stopCoralMotor(),
         () -> isCoralNearPosition(currentPosition + rotations),
-        this);
+        this).withName(String.format("Coral motor add rotations %f", rotations));
   }
 
   public Command cmdSetCoralDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setCoralDutyCycleOut(output),
         () -> stopCoralMotor(),
-        this);
+        this).withName(String.format("Algae intake duty cycle %f", output));
   }
 
   public Command cmdSetHeadRotation(double value) {
-    return Commands.runOnce(() -> setHeadPosition(value), this);
+    return Commands.runOnce(() -> setHeadPosition(value), this)
+        .withName(String.format("Head new position %f", value));
   }
 
   public Command cmdBumpHead(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.BUMP.value), this)
+          .withName(String.format("Head pos add %f", ServoOffset.BUMP.value));
     } else {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.BUMP.value), this)
+          .withName(String.format("Head pos add -%f", ServoOffset.BUMP.value));
     }
   }
 
   public Command cmdJumpHead(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() + ServoOffset.JUMP.value), this)
+          .withName(String.format("Head pos add %f", ServoOffset.JUMP.value));
     } else {
-      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setHeadPosition(getHeadPosition() - ServoOffset.JUMP.value), this)
+          .withName(String.format("Head pos add -%f", ServoOffset.JUMP.value));
     }
   }
 
   public Command cmdStopAlgaeMotor() {
-    return Commands.runOnce(() -> algaeMotor.stopMotor(), this);
+    return Commands.runOnce(() -> algaeMotor.stopMotor(), this).withName("Algae intake stop");
   }
 
   public Command cmdSetAlgaeDutyCycleOut(double output) {
     return Commands.runEnd(
         () -> setAlgaeDutyCycleOut(output),
         () -> stopAlgaeMotor(),
-        this);
+        this).withName(String.format("Algae intake duty cycle - %f", output));
+  }
+
+  public Command cmdDealgae() {
+    return Commands.runEnd(
+        () -> {
+          setAlgaeDutyCycleOut(-1);
+          setAlgaeIntakePostion(AlgaeServoPosition.HOME);
+        },
+        () -> {
+          stopAlgaeMotor();
+        }, this).withName("Algae intake - Delagae");
   }
 
   public Command cmdSetAlgaeIntakePostion(AlgaeServoPosition value) {
-    return Commands.runOnce(() -> setAlgaeIntakePostion(value), this);
+    return Commands.runOnce(() -> {
+      setAlgaeIntakePostion(value);
+      algaeIntakeState = value;
+    }, this).withName(String.format("Algae intake new position - %f", value.value));
   }
 
   public Command cmdBumpAlgaeIntake(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.BUMP.value), this)
+          .withName(String.format("Intake pos add %f", ServoOffset.BUMP.value));
     } else {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.BUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.BUMP.value), this)
+          .withName(String.format("Intake pos add -%f", ServoOffset.BUMP.value));
     }
   }
 
   public Command cmdJumpAlgaeIntake(boolean moveRight) {
     if (moveRight) {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() + ServoOffset.JUMP.value), this)
+          .withName(String.format("Intake pos add %f", ServoOffset.JUMP.value));
     } else {
-      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.JUMP.value), this);
+      return Commands.runOnce(() -> setAlgaeIntakePostion(getAlgaeIntakeArmPosition() - ServoOffset.JUMP.value), this)
+          .withName(String.format("Intake pos add -%f", ServoOffset.JUMP.value));
     }
   }
 
   @Override
   public void periodic() {
+    if (healthCheckEnabled) {
+      if (!algaeMotorCheck.isDeviceHealthy() |
+          !coralMotorCheck.isDeviceHealthy()) {
+        healthStatus = HealthStatus.ERROR;
+      } else {
+        healthStatus = HealthStatus.IS_OK;
+      }
+    }
+  }
+
+  @Logged(name = "Health status")
+  public HealthStatus getHealthStatus() {
+    return healthStatus;
   }
 
   @Logged(name = "Has coral")
@@ -210,6 +264,10 @@ public class EndEffector extends SubsystemBase {
   @Logged(name = "Coral motor rotations")
   public double getCoralMotorPosition() {
     return coralMotor.getPosition().getValueAsDouble();
+  }
+
+  public boolean isAlgaeIntakeAtPosition(AlgaeServoPosition position) {
+    return position == algaeIntakeState;
   }
 
   private void stopCoralMotor() {
@@ -246,6 +304,14 @@ public class EndEffector extends SubsystemBase {
 
   private void setAlgaeIntakePostion(AlgaeServoPosition position) {
     setAlgaeIntakePostion(position.value);
+  }
+
+  public Command cmdAutoIndexer() {
+    return Commands.run(
+        () -> {
+          setHeadPosition(HeadPosition.CENTER);
+          setCoralDutyCycleOut(.05);
+        }, this).withName("Auto Indexer").until(() -> hasCoral());
   }
 
 }

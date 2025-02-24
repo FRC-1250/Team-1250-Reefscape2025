@@ -20,7 +20,7 @@ public class PigeonHealthChecker extends PhoenixHealthChecker {
                 pigeon.getStickyFault_BootDuringEnable().getValue(),
                 pigeon.getStickyFault_BootupGyroscope().getValue(),
                 pigeon.getStickyFault_DataAcquiredLate().getValue(),
-                pigeon.getStickyFault_Hardware().getValue(),
+                // pigeon.getStickyFault_Hardware().getValue(),
                 pigeon.getStickyFault_Undervoltage().getValue());
     }
 

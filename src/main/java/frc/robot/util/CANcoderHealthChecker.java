@@ -19,7 +19,7 @@ public class CANcoderHealthChecker extends PhoenixHealthChecker {
         return Arrays.asList(
                 cancoder.getStickyFault_BootDuringEnable().getValue(),
                 cancoder.getStickyFault_BadMagnet().getValue(),
-                cancoder.getStickyFault_Hardware().getValue(),
+                // cancoder.getStickyFault_Hardware().getValue(),
                 cancoder.getStickyFault_Undervoltage().getValue());
     }
 }

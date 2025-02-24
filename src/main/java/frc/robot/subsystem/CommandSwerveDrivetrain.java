@@ -15,11 +15,9 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -27,8 +25,10 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.HealthStatus;
+import frc.robot.util.PigeonHealthChecker;
+import frc.robot.util.SwerveModuleHealthChecker;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -51,6 +51,28 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    // Custom
+    private final boolean healthCheckEnabled = true;
+    private SwerveModuleHealthChecker frontLeftCheck;
+    private SwerveModuleHealthChecker frontRightCheck;
+    private SwerveModuleHealthChecker backLeftCheck;
+    private SwerveModuleHealthChecker backRightCheck;
+    private PigeonHealthChecker pigeonCheck;
+    private HealthStatus healthStatus = HealthStatus.IS_OK;
+
+    private void configureHealthCheck() {
+        var modules = getModules();
+        frontLeftCheck = new SwerveModuleHealthChecker(modules[0]);
+        frontRightCheck = new SwerveModuleHealthChecker(modules[1]);
+        backLeftCheck = new SwerveModuleHealthChecker(modules[2]);
+        backRightCheck = new SwerveModuleHealthChecker(modules[3]);
+        pigeonCheck = new PigeonHealthChecker(getPigeon2(), "Drivetrain");
+    }
+
+    public HealthStatus getHealthStatus() {
+        return healthStatus;
+    }
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -111,7 +133,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     this));
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -133,6 +155,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+
+        if (healthCheckEnabled) {
+            configureHealthCheck();
+        }
     }
 
     /**
@@ -286,19 +312,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        addLimelightVisionMeasurements();
-    }
 
-    public void addLimelightVisionMeasurements() {
-        var driveState = getState();
-        double headingDeg = driveState.Pose.getRotation().getDegrees();
-        double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-
-        LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
-        var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        if (llMeasurement != null && llMeasurement.tagCount > 0 && omegaRps < 2.0) {
-            setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-            addVisionMeasurement(llMeasurement.pose, Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
+        if (healthCheckEnabled) {
+            if (!frontLeftCheck.isModuleHealthy() |
+                    !frontRightCheck.isModuleHealthy() |
+                    !backLeftCheck.isModuleHealthy() |
+                    !backRightCheck.isModuleHealthy() |
+                    !pigeonCheck.isDeviceHealthy()) {
+                healthStatus = HealthStatus.ERROR;
+            } else {
+                healthStatus = HealthStatus.IS_OK;
+            }
         }
     }
 
