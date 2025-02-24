@@ -26,6 +26,7 @@ public class Climber extends SubsystemBase {
   private HealthStatus healthStatus = HealthStatus.IS_OK;
   private TalonHealthChecker climberCheck;
   private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
+  private final double requiredRotations = 235; // 235 ~= 13 inches of travel on the climber
 
   public Climber() {
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
@@ -47,7 +48,7 @@ public class Climber extends SubsystemBase {
     return Commands.runEnd(
         () -> setTorque(newCurrent),
         () -> climber.stopMotor(), this)
-        .until(() -> getRotations() > 20.0)
+        .until(() -> getRotations() >= requiredRotations)
         .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
   }
 
