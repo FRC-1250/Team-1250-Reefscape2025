@@ -26,7 +26,7 @@ import frc.robot.util.TalonHealthChecker;
 public class EndEffector extends SubsystemBase {
 
   public enum AlgaeServoPosition {
-    DEPLOYED(.25),
+    DEPLOYED(0.35),
     MIDDLE(0.5),
     HOME(.89);
 
@@ -49,10 +49,11 @@ public class EndEffector extends SubsystemBase {
   }
 
   public static class HeadPosition {
-    private final static double TURE_CENTER = 0.45;
-    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.115;
+    private final static double TURE_CENTER = 0.44;
+    private final static double CORAL_BRANCH_SERVO_OFFSET = 0.08;
     private final static double NINTY_DEGREE_OFFSET = 0.35;
 
+    public final static double IDLE = 0.3;
     public final static double LOGICAL_CENTER = 0.5;
     public final static double CENTER = TURE_CENTER;
     public final static double CENTER_LEFT = TURE_CENTER + CORAL_BRANCH_SERVO_OFFSET;
@@ -303,6 +304,14 @@ public class EndEffector extends SubsystemBase {
 
   private void setAlgaeIntakePostion(AlgaeServoPosition position) {
     setAlgaeIntakePostion(position.value);
+  }
+
+  public Command cmdAutoIndexer() {
+    return Commands.run(
+        () -> {
+          setHeadPosition(HeadPosition.CENTER);
+          setCoralDutyCycleOut(.05);
+        }, this).withName("Auto Indexer").until(() -> hasCoral());
   }
 
 }

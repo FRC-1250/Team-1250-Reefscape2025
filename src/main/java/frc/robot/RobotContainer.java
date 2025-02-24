@@ -90,7 +90,6 @@ public class RobotContainer {
     private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
 
     // From Driverstation
-    private final Trigger isEnabled = new Trigger(() -> DriverStation.isEnabled());
     private final Trigger isTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
 
     // From elevator
@@ -131,7 +130,7 @@ public class RobotContainer {
 
     private final boolean devController = true;
     private final boolean driveEnabled = true;
-    private final boolean automationEnabled = false;
+    private final boolean automationEnabled = true;
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);
@@ -291,17 +290,18 @@ public class RobotContainer {
         }
 
         if (automationEnabled) {
-            hasCoral.negate().and(isTeleop).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-            hasCoral.and(isTeleop).onTrue(endEffector.cmdAddCoralRotations(5)
-                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT))
+            isTeleop.and(hasCoral.negate()).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+            isTeleop.and(hasCoral).onTrue(endEffector.cmdAddCoralRotations(5)
+                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.IDLE))
                     .andThen(Commands.waitSeconds(0.2))
-                    .andThen(elevator.cmdSetPosition(Position.L1)).withName("Coral index and prep"));
+                    .andThen(elevator.cmdSetPosition(Position.L1))
+                    .withName("Coral index and prep"));
+
+            isTeleop.and(hasCoral.negate()).onTrue(systemLights.cmdSetLEDs(PresetColor.KELLY_GREEN));
+            isTeleop.and(hasCoral.negate()).and(isAtHome).whileTrue(endEffector.cmdSetCoralDutyCycleOut(.05));
+            isTeleop.and(hasCoral).onTrue(systemLights.cmdSetLEDs(PresetColor.RED));
         }
-
-        isEnabled.and(hasCoral.negate()).onTrue(systemLights.cmdSetLEDs(PresetColor.KELLY_GREEN));
-        isEnabled.and(hasCoral.negate()).and(isAtHome).whileTrue(endEffector.cmdSetCoralDutyCycleOut(.05));
-        hasCoral.whileTrue(systemLights.cmdSetLEDs(PresetColor.RED));
-
+      
         if (devController) {
             devJoystick = new CommandPS4Controller(1);
 
@@ -381,9 +381,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
         NamedCommands.registerCommand("RotateHeadLeft", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
         NamedCommands.registerCommand("RotateHeadRight", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT));
+        NamedCommands.registerCommand("HeadIdle", endEffector.cmdSetHeadRotation(HeadPosition.IDLE));
         NamedCommands.registerCommand("ScoreCoral", endEffector.cmdAddCoralRotations(20));
         NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
         NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
+        NamedCommands.registerCommand("AutoIndexer", endEffector.cmdAutoIndexer().andThen(endEffector.cmdAddCoralRotations(5)));
 
     }
 
