@@ -43,15 +43,15 @@ public class Elevator extends SubsystemBase {
     STARTING_CONFIGURATION(0),
     SENSOR(0.8),
     CONTAIN_ALGAE(13.9),
-    L1(11.5),
-    L2(23.1),
-    LOW_ALGAE(37.5),
-    LOW_ALGAE_PREP(43.3),
-    L3(36.1),
-    HIGH_ALGAE(52.1),
-    HIGH_ALGAE_PREP(58.1),
-    L4(64.1),
-    PEAK(66);
+    L1(6.08),
+    L2(17.7),
+    LOW_ALGAE(32.1),
+    LOW_ALGAE_PREP(37.9),
+    L3(34.7),
+    HIGH_ALGAE(46.7),
+    HIGH_ALGAE_PREP(52.7),
+    L4(58.7),
+    PEAK(61);
 
     public final double rotations;
 
@@ -296,9 +296,13 @@ public class Elevator extends SubsystemBase {
     rightMotor.setPosition(rotations);
   }
 
+  public Command cmdResetPos() {
+    return Commands.runOnce(() -> resetMotorPositionToPosition(Position.STARTING_CONFIGURATION.rotations), this).ignoringDisable(true);
+  }
+
   private boolean isNearPosition(double position) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
-        || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
+    return MathUtil.isNear(position, getLeftMotorPosition(), 0.25)
+        || MathUtil.isNear(position, getRightMotorPosition(), 0.25);
   }
 
   public boolean isNearPositionAndTolerance(double position, double tolerance) {

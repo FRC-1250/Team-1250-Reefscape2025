@@ -353,6 +353,8 @@ public class RobotContainer {
         SmartDashboard.putData(elevator.cmdAddRotations(1));
         SmartDashboard.putData(elevator.cmdAddRotations(-5));
         SmartDashboard.putData(elevator.cmdAddRotations(-1));
+
+        SmartDashboard.putData(elevator.cmdResetPos());
     }
 
     private void addPathAuto(String name, String pathName) {
