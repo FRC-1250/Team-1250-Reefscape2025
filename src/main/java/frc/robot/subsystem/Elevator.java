@@ -43,15 +43,15 @@ public class Elevator extends SubsystemBase {
     STARTING_CONFIGURATION(0),
     SENSOR(0.8),
     CONTAIN_ALGAE(13.9),
-    L1(11.7),
-    L2(18.5),
-    LOW_ALGAE(31.3),
-    LOW_ALGAE_PREP(36.2),
-    L3(34.4),
-    HIGH_ALGAE(46.8),
-    HIGH_ALGAE_PREP(51.6),
-    L4(63),
-    PEAK(65);
+    L1(11.5),
+    L2(23.1),
+    LOW_ALGAE(37.5),
+    LOW_ALGAE_PREP(43.3),
+    L3(36.1),
+    HIGH_ALGAE(52.1),
+    HIGH_ALGAE_PREP(58.1),
+    L4(64.1),
+    PEAK(66);
 
     public final double rotations;
 
