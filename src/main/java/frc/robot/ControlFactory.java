@@ -39,11 +39,14 @@ public class ControlFactory {
     private final Translation2d redReef = new Translation2d(13.05, 4);
     private final double[] highAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
     private final double[] lowAlgaeAprilTags = { 7, 9, 11, 18, 20, 22 };
-    private final PathConstraints constraints = new PathConstraints(
-            3.0,
+
+    // Use similar values to when we're apporaching a scoring position in a real
+    // auto for waypointing
+    private final PathConstraints adamsSmoothPathConstraints = new PathConstraints(
+            1.2,
             3.0,
             Units.degreesToRadians(270),
-            Units.degreesToRadians(360));
+            Units.degreesToRadians(720));
 
     public ControlFactory(
             CommandSwerveDrivetrain swerveDrivetrain,
@@ -210,7 +213,7 @@ public class ControlFactory {
     public Command pathfindToPose(Pose2d targetPose, double goalVelocity) {
         return AutoBuilder.pathfindToPose(
                 targetPose,
-                constraints,
+                adamsSmoothPathConstraints,
                 goalVelocity // Goal end velocity in meters/sec
         ).withName("Pathfind to pose");
     }
