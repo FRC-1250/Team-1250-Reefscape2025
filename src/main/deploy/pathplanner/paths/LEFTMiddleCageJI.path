@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.230050505050505,
-        "y": 6.200126262626262
+        "x": 7.205092376500736,
+        "y": 6.113265146520115
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.5508675103957525,
-        "y": 5.8229529822694435
+        "x": 6.650308109420402,
+        "y": 5.962777526985951
       },
       "isLocked": false,
       "linkedName": "MiddleCage"
     },
     {
       "anchor": {
-        "x": 5.105744949494949,
-        "y": 5.051578282828283
+        "x": 5.156432165877549,
+        "y": 5.118442681276327
       },
       "prevControl": {
-        "x": 5.213770978145582,
-        "y": 5.277034214517766
+        "x": 5.34503593924802,
+        "y": 5.282542092215001
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,7 +32,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7663344407530591,
+      "minWaypointRelativePos": 0.4859392575928056,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.5,
@@ -56,7 +56,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -121.21840276434645
+    "rotation": -119.86283435627512
   },
   "reversed": false,
   "folder": null,

@@ -5,9 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "LEFTMiddleCageJI"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "LEFTMiddleCageJI"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RotateHeadIdle"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreRightL4AndHome"
           }
         },
         {
@@ -17,15 +36,34 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "LCoralStationLK"
+            "name": "AutoIndexer"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "LKCoralStationL"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "LCoralStationLK"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RotateHeadIdle"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreRightL4AndHome"
           }
         }
       ]

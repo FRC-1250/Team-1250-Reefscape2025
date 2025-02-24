@@ -381,12 +381,30 @@ public class RobotContainer {
         NamedCommands.registerCommand("Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
         NamedCommands.registerCommand("RotateHeadLeft", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
         NamedCommands.registerCommand("RotateHeadRight", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT));
-        NamedCommands.registerCommand("HeadIdle", endEffector.cmdSetHeadRotation(HeadPosition.IDLE));
+        NamedCommands.registerCommand("RotateHeadIdle", endEffector.cmdSetHeadRotation(HeadPosition.IDLE));
         NamedCommands.registerCommand("ScoreCoral", endEffector.cmdAddCoralRotations(20));
         NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
         NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
         NamedCommands.registerCommand("AutoIndexer", endEffector.cmdAutoIndexer().andThen(endEffector.cmdAddCoralRotations(5)));
 
+        // Complex commands
+        NamedCommands.registerCommand(
+                "ScoreRightL4AndHome",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+
+        NamedCommands.registerCommand(
+                "ScoreLeftL4AndHome",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
     }
 
 }
