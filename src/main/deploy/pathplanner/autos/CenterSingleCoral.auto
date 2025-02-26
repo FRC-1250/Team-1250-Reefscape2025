@@ -26,7 +26,13 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreRightL4AndHome"
+            "name": "ScoreRightL4AndLowAlgeaPrep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DealgaeLow"
           }
         }
       ]

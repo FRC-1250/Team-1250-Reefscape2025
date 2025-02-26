@@ -388,6 +388,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
         NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
         NamedCommands.registerCommand("AutoIndexer", endEffector.cmdAutoIndexer().andThen(endEffector.cmdAddCoralRotations(5)));
+        NamedCommands.registerCommand("HighAlgeaPrep", elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP));
+        //NamedCommands.registerCommand("LowAlgeaPrep", elevator.cmdSetPosition(Position.LOW_ALGAE_PREP));
 
         // Complex commands
         NamedCommands.registerCommand(
@@ -400,6 +402,24 @@ public class RobotContainer {
                         .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
 
         NamedCommands.registerCommand(
+                "ScoreRightL4AndHighAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP)));
+
+        NamedCommands.registerCommand(
+                "ScoreRightL4AndLowAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
+
+        NamedCommands.registerCommand(
                 "ScoreLeftL4AndHome",
                 elevator.cmdSetPosition(Position.L4)
                         .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
@@ -407,6 +427,24 @@ public class RobotContainer {
                         .andThen(endEffector.cmdAddCoralRotations(20))
                         .andThen(Commands.waitSeconds(0.5))
                         .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+
+        NamedCommands.registerCommand(
+                "ScoreLeftL4AndHighAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP)));
+
+        NamedCommands.registerCommand(
+                "ScoreLeftL4AndLowAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
     }
 
 }

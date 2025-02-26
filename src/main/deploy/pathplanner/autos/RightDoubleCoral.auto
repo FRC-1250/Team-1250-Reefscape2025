@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CenterHG"
+                  "pathName": "RIGHTMiddleCageEF"
                 }
               },
               {
@@ -32,7 +32,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HGCoralStationL"
+            "pathName": "EFCoralstationR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIndexer"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RCoralStationCD"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RotateHeadIdle"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreLeftL4AndHome"
           }
         }
       ]

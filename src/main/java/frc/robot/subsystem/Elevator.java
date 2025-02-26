@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -20,6 +21,7 @@ import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotionMagicIsRunningValue;
@@ -108,6 +110,7 @@ public class Elevator extends SubsystemBase {
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
     motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+    motorOutputConfigs.DutyCycleNeutralDeadband = 0.05;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
     voltageConfigs.PeakForwardVoltage = 12;
@@ -185,7 +188,7 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     // TODO: Verify if notifier command works better
-    // detectSensorTransition();
+    detectSensorTransition();
 
     if (tuningModeEnabled) {
       tunableTalonFX.updateValuesFromSmartNT();
