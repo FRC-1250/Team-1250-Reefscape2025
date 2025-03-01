@@ -128,7 +128,7 @@ public class RobotContainer {
     private final Trigger isId21 = new Trigger(() -> limelight.isBestTagSeen(21));
     private final Trigger isId22 = new Trigger(() -> limelight.isBestTagSeen(22));
 
-    private final boolean devController = true;
+    private final boolean devController = false;
     private final boolean driveEnabled = true;
     private final boolean automationEnabled = true;
 
@@ -170,7 +170,7 @@ public class RobotContainer {
                 .whileTrue(controlFactory.reefLowDealgae());
         joystick.rightTrigger()
                 .and(isAtAlgaeContainmentPositon)
-                .whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(1));
+                .whileTrue(endEffector.cmdFireAlgae());
 
         joystick.leftTrigger()
                 .and(reefHasHighAlgae)
@@ -230,7 +230,7 @@ public class RobotContainer {
                 .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L4)));
 
         joystick.b()
-                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon))
+                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon).or(isAtHome))
                 .and(hasAlgae.negate())
                 .onTrue(controlFactory
                         .homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
@@ -330,6 +330,22 @@ public class RobotContainer {
             devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
             devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
             devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
+        } else {
+                devJoystick = new CommandPS4Controller(1);
+
+                devJoystick.cross().onTrue(elevator.cmdAddRotations(-1));
+                devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
+                devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
+                devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
+
+                devJoystick.R1().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
+                devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
+
+                devJoystick.L1().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+                devJoystick.L2().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
+
+                devJoystick.povUp().whileTrue(elevator.cmdSetDutyCycleOut(0.30));
+                devJoystick.povDown().whileTrue(elevator.cmdSetDutyCycleOut(-0.20));
         }
     }
 
@@ -375,6 +391,7 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("CenterSingleCoral", "CenterSingleCoral");
         addPathAuto("LeftDoubleCoral", "LeftDoubleCoral");
+        addPathAuto("RightDoubleCoral", "RightDoubleCoral");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
