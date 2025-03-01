@@ -44,7 +44,7 @@ public class Elevator extends SubsystemBase {
   public enum Position {
     STARTING_CONFIGURATION(0),
     SENSOR(0.8),
-    CONTAIN_ALGAE(13.9),
+    CONTAIN_ALGAE(17.65),
     L1(6.08),
     L2(17.7),
     LOW_ALGAE(32.1),
