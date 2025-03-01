@@ -43,7 +43,7 @@ import frc.robot.util.TunableTalonFX;
 public class Elevator extends SubsystemBase {
   public enum Position {
     STARTING_CONFIGURATION(0),
-    SENSOR(0.8),
+    SENSOR(1.3),
     CONTAIN_ALGAE(17.65),
     L1(6.08),
     L2(17.7),
@@ -315,6 +315,11 @@ public class Elevator extends SubsystemBase {
 
   private boolean isNearPosition(Position position) {
     return isNearPosition(position.rotations);
+  }
+
+  @Logged
+  public Position getElevatorState() {
+    return elevatorPosition;
   }
 
 }
