@@ -26,7 +26,7 @@ public class Climber extends SubsystemBase {
   private HealthStatus healthStatus = HealthStatus.IS_OK;
   private TalonHealthChecker climberCheck;
   private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
-  private final double requiredRotations = 235; // 235 ~= 13 inches of travel on the climber
+  private final double requiredRotations = 244; // 235 ~= 13 inches of travel on the climber
 
   public Climber() {
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
