@@ -12,7 +12,7 @@
         "y": 1.257561787338608
       },
       "isLocked": false,
-      "linkedName": "RightWall"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.6028189730298
+    "rotation": -179.30130561701657
   },
   "useDefaultConstraints": true
 }

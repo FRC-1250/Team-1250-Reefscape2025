@@ -392,6 +392,7 @@ public class RobotContainer {
         addPathAuto("CenterSingleCoral", "CenterSingleCoral");
         addPathAuto("LeftDoubleCoral", "LeftDoubleCoral");
         addPathAuto("RightDoubleCoral", "RightDoubleCoral");
+        addPathAuto("RightSingleCoral", "RightSingleCoral");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
