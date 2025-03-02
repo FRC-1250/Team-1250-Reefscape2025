@@ -53,12 +53,12 @@ public class EndEffector extends SubsystemBase {
     private final static double CORAL_BRANCH_SERVO_OFFSET = 0.08;
     private final static double NINTY_DEGREE_OFFSET = 0.35;
 
-    public final static double IDLE = 0.25;
+    public final static double IDLE = 0.2;
     public final static double LOGICAL_CENTER = 0.5;
-    public final static double CENTER = TURE_CENTER;
-    public final static double CENTER_LEFT = .57;
+    public final static double CENTER = .38;
+    public final static double CENTER_LEFT = .51;
     public final static double LEFT = TURE_CENTER + NINTY_DEGREE_OFFSET;
-    public final static double CENTER_RIGHT = .3;
+    public final static double CENTER_RIGHT = .24;
     public final static double RIGHT = TURE_CENTER - NINTY_DEGREE_OFFSET;
   }
 
