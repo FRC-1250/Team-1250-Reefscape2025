@@ -290,7 +290,8 @@ public class RobotContainer {
         }
 
         if (automationEnabled) {
-            isTeleop.and(hasCoral.negate()).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+            isTeleop.and(hasCoral.negate()).onTrue(Commands.waitSeconds(0.2).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER)));
+
             isTeleop.and(hasCoral).onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.IDLE))
                     .andThen(Commands.waitSeconds(0.2))
@@ -393,6 +394,7 @@ public class RobotContainer {
         addPathAuto("LeftDoubleCoral", "LeftDoubleCoral");
         addPathAuto("RightDoubleCoral", "RightDoubleCoral");
         addPathAuto("RightSingleCoral", "RightSingleCoral");
+        addPathAuto("LeftSingleCoral", "LeftSingleCoral");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -463,6 +465,25 @@ public class RobotContainer {
                         .andThen(endEffector.cmdAddCoralRotations(20))
                         .andThen(Commands.waitSeconds(0.5))
                         .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
+
+                        NamedCommands.registerCommand(
+                                "ScoreRightL2AndHome",
+                                elevator.cmdSetPosition(Position.L2)
+                                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                                        .andThen(Commands.waitSeconds(0.5))
+                                        .andThen(endEffector.cmdAddCoralRotations(20))
+                                        .andThen(Commands.waitSeconds(0.5))
+                                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+
+                                        NamedCommands.registerCommand(
+                                                "ScoreLeftL2AndHome",
+                                                elevator.cmdSetPosition(Position.L2)
+                                                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                                                        .andThen(Commands.waitSeconds(0.5))
+                                                        .andThen(endEffector.cmdAddCoralRotations(20))
+                                                        .andThen(Commands.waitSeconds(0.5))
+                                                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
     }
 
+    
 }
