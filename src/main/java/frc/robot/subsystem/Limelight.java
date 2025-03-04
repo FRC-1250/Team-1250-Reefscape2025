@@ -5,6 +5,8 @@
 package frc.robot.subsystem;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
@@ -13,6 +15,17 @@ public class Limelight extends SubsystemBase {
 
   private final String name;
   private double fid = -1;
+
+  public enum LimeLightPipeline {
+    MORNING(0),
+    EVENING(1);
+
+    public final int pipelineId;
+
+    LimeLightPipeline(int pipelineId) {
+      this.pipelineId = pipelineId;
+    }
+  }
 
   public Limelight(String name) {
     this.name = name;
@@ -40,6 +53,10 @@ public class Limelight extends SubsystemBase {
 
   public double getDistanceFromTarget() {
     return LimelightHelpers.getTargetPose3d_RobotSpace(name).getMeasureZ().magnitude();
+  }
+
+  public Command switchPipeline(LimeLightPipeline limeLightPipeline) {
+    return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId));
   }
 
   @Override

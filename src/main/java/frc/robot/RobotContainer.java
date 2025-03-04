@@ -128,7 +128,7 @@ public class RobotContainer {
     private final Trigger isId21 = new Trigger(() -> limelight.isBestTagSeen(21));
     private final Trigger isId22 = new Trigger(() -> limelight.isBestTagSeen(22));
 
-    private final boolean devController = true;
+    private final boolean devController = false;
     private final boolean driveEnabled = true;
     private final boolean automationEnabled = true;
 
@@ -170,7 +170,7 @@ public class RobotContainer {
                 .whileTrue(controlFactory.reefLowDealgae());
         joystick.rightTrigger()
                 .and(isAtAlgaeContainmentPositon)
-                .whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(1));
+                .whileTrue(endEffector.cmdFireAlgae());
 
         joystick.leftTrigger()
                 .and(reefHasHighAlgae)
@@ -230,7 +230,7 @@ public class RobotContainer {
                 .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L4)));
 
         joystick.b()
-                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon))
+                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon).or(isAtHome))
                 .and(hasAlgae.negate())
                 .onTrue(controlFactory
                         .homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
@@ -290,7 +290,8 @@ public class RobotContainer {
         }
 
         if (automationEnabled) {
-            isTeleop.and(hasCoral.negate()).onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
+            isTeleop.and(hasCoral.negate()).onTrue(Commands.waitSeconds(0.2).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER)));
+
             isTeleop.and(hasCoral).onTrue(endEffector.cmdAddCoralRotations(5)
                     .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.IDLE))
                     .andThen(Commands.waitSeconds(0.2))
@@ -330,6 +331,22 @@ public class RobotContainer {
             devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
             devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
             devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
+        } else {
+                devJoystick = new CommandPS4Controller(1);
+
+                devJoystick.cross().onTrue(elevator.cmdAddRotations(-1));
+                devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
+                devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
+                devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
+
+                devJoystick.R1().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
+                devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
+
+                devJoystick.L1().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
+                devJoystick.L2().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
+
+                devJoystick.povUp().whileTrue(elevator.cmdSetDutyCycleOut(0.30));
+                devJoystick.povDown().whileTrue(elevator.cmdSetDutyCycleOut(-0.20));
         }
     }
 
@@ -353,6 +370,8 @@ public class RobotContainer {
         SmartDashboard.putData(elevator.cmdAddRotations(1));
         SmartDashboard.putData(elevator.cmdAddRotations(-5));
         SmartDashboard.putData(elevator.cmdAddRotations(-1));
+
+        SmartDashboard.putData(elevator.cmdResetPos());
     }
 
     private void addPathAuto(String name, String pathName) {
@@ -373,6 +392,9 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("CenterSingleCoral", "CenterSingleCoral");
         addPathAuto("LeftDoubleCoral", "LeftDoubleCoral");
+        addPathAuto("RightDoubleCoral", "RightDoubleCoral");
+        addPathAuto("RightSingleCoral", "RightSingleCoral");
+        addPathAuto("LeftSingleCoral", "LeftSingleCoral");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -386,6 +408,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
         NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
         NamedCommands.registerCommand("AutoIndexer", endEffector.cmdAutoIndexer().andThen(endEffector.cmdAddCoralRotations(5)));
+        NamedCommands.registerCommand("HighAlgeaPrep", elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP));
+        //NamedCommands.registerCommand("LowAlgeaPrep", elevator.cmdSetPosition(Position.LOW_ALGAE_PREP));
 
         // Complex commands
         NamedCommands.registerCommand(
@@ -398,6 +422,24 @@ public class RobotContainer {
                         .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
 
         NamedCommands.registerCommand(
+                "ScoreRightL4AndHighAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP)));
+
+        NamedCommands.registerCommand(
+                "ScoreRightL4AndLowAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
+
+        NamedCommands.registerCommand(
                 "ScoreLeftL4AndHome",
                 elevator.cmdSetPosition(Position.L4)
                         .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
@@ -405,6 +447,43 @@ public class RobotContainer {
                         .andThen(endEffector.cmdAddCoralRotations(20))
                         .andThen(Commands.waitSeconds(0.5))
                         .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+
+        NamedCommands.registerCommand(
+                "ScoreLeftL4AndHighAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP)));
+
+        NamedCommands.registerCommand(
+                "ScoreLeftL4AndLowAlgeaPrep",
+                elevator.cmdSetPosition(Position.L4)
+                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(endEffector.cmdAddCoralRotations(20))
+                        .andThen(Commands.waitSeconds(0.5))
+                        .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
+
+                        NamedCommands.registerCommand(
+                                "ScoreRightL2AndHome",
+                                elevator.cmdSetPosition(Position.L2)
+                                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
+                                        .andThen(Commands.waitSeconds(0.5))
+                                        .andThen(endEffector.cmdAddCoralRotations(20))
+                                        .andThen(Commands.waitSeconds(0.5))
+                                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+
+                                        NamedCommands.registerCommand(
+                                                "ScoreLeftL2AndHome",
+                                                elevator.cmdSetPosition(Position.L2)
+                                                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
+                                                        .andThen(Commands.waitSeconds(0.5))
+                                                        .andThen(endEffector.cmdAddCoralRotations(20))
+                                                        .andThen(Commands.waitSeconds(0.5))
+                                                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
     }
 
+    
 }

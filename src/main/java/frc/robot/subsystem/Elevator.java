@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -20,6 +21,7 @@ import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotionMagicIsRunningValue;
@@ -41,17 +43,17 @@ import frc.robot.util.TunableTalonFX;
 public class Elevator extends SubsystemBase {
   public enum Position {
     STARTING_CONFIGURATION(0),
-    SENSOR(0.8),
-    CONTAIN_ALGAE(13.9),
-    L1(11.7),
-    L2(18.5),
-    LOW_ALGAE(31.3),
-    LOW_ALGAE_PREP(36.2),
-    L3(34.4),
-    HIGH_ALGAE(46.8),
-    HIGH_ALGAE_PREP(51.6),
-    L4(63),
-    PEAK(65);
+    SENSOR(1.3),
+    CONTAIN_ALGAE(17.65),
+    L1(6.08),
+    L2(17.7),
+    LOW_ALGAE(32.1),
+    LOW_ALGAE_PREP(37.9),
+    L3(33.6),
+    HIGH_ALGAE(46.7),
+    HIGH_ALGAE_PREP(52.7),
+    L4(58.3),
+    PEAK(61.5);
 
     public final double rotations;
 
@@ -108,6 +110,7 @@ public class Elevator extends SubsystemBase {
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
     motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+    motorOutputConfigs.DutyCycleNeutralDeadband = 0.05;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
     voltageConfigs.PeakForwardVoltage = 12;
@@ -185,7 +188,7 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     // TODO: Verify if notifier command works better
-    // detectSensorTransition();
+    detectSensorTransition();
 
     if (tuningModeEnabled) {
       tunableTalonFX.updateValuesFromSmartNT();
@@ -296,9 +299,13 @@ public class Elevator extends SubsystemBase {
     rightMotor.setPosition(rotations);
   }
 
+  public Command cmdResetPos() {
+    return Commands.runOnce(() -> resetMotorPositionToPosition(Position.STARTING_CONFIGURATION.rotations), this).ignoringDisable(true);
+  }
+
   private boolean isNearPosition(double position) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
-        || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
+    return MathUtil.isNear(position, getLeftMotorPosition(), 0.25)
+        || MathUtil.isNear(position, getRightMotorPosition(), 0.25);
   }
 
   public boolean isNearPositionAndTolerance(double position, double tolerance) {
@@ -308,6 +315,11 @@ public class Elevator extends SubsystemBase {
 
   private boolean isNearPosition(Position position) {
     return isNearPosition(position.rotations);
+  }
+
+  @Logged
+  public Position getElevatorState() {
+    return elevatorPosition;
   }
 
 }

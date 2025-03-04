@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CenterHG"
+                  "pathName": "RIGHTMiddleCageEF"
                 }
               },
               {
@@ -27,12 +27,6 @@
           "type": "named",
           "data": {
             "name": "ScoreRightL4AndHome"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "HGCoralStationL"
           }
         }
       ]

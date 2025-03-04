@@ -37,8 +37,8 @@ public class ControlFactory {
     private final Limelight limelight;
     private final Translation2d blueReef = new Translation2d(4.490, 4);
     private final Translation2d redReef = new Translation2d(13.05, 4);
-    private final double[] highAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
-    private final double[] lowAlgaeAprilTags = { 7, 9, 11, 18, 20, 22 };
+    private final double[] lowAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
+    private final double[] highAlgaeAprilTags = { 7, 9, 11, 18, 20, 22 };
 
     // Use similar values to when we're apporaching a scoring position in a real
     // auto for waypointing
