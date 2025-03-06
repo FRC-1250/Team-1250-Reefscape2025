@@ -16,6 +16,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,8 @@ import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.ReefScoringMap;
 
 public class RobotContainer {
+    public Alliance alliance;
+
     // kSpeedAt12Volts desired top speed
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
@@ -91,6 +94,7 @@ public class RobotContainer {
 
     // From Driverstation
     private final Trigger isTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
+    private final Trigger isBlue = new Trigger(() -> drivetrain.getOperatorForwardDirection().getDegrees() == 0); // Check if operator direction is blue
 
     // From elevator
     private final Trigger isAtLowAlgaePrepPosition = new Trigger(
@@ -271,20 +275,20 @@ public class RobotContainer {
                             .withTargetDirection(controlFactory.determineHeadingToReef())).withName("Auto turn to reef"));
 
             // Red
-            joystick.a().and(isId6).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6), 0));
-            joystick.a().and(isId7).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(7), 0));
-            joystick.a().and(isId8).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(8), 0));
-            joystick.a().and(isId9).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9), 0));
-            joystick.a().and(isId10).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10), 0));
-            joystick.a().and(isId11).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11), 0));
+            joystick.a().and(isId6).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6), 0));
+            joystick.a().and(isId7).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(7), 0));
+            joystick.a().and(isId8).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(8), 0));
+            joystick.a().and(isId9).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9), 0));
+            joystick.a().and(isId10).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10), 0));
+            joystick.a().and(isId11).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11), 0));
 
             // Blue
-            joystick.a().and(isId17).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(17), 0));
-            joystick.a().and(isId18).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18), 0));
-            joystick.a().and(isId19).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(19), 0));
-            joystick.a().and(isId20).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20), 0));
-            joystick.a().and(isId21).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21), 0));
-            joystick.a().and(isId22).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22), 0));
+            joystick.a().and(isId17).and(isBlue).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(17), 0));
+            joystick.a().and(isId18).and(isBlue).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18), 0));
+            joystick.a().and(isId19).and(isBlue).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(19), 0));
+            joystick.a().and(isId20).and(isBlue).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20), 0));
+            joystick.a().and(isId21).and(isBlue).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21), 0));
+            joystick.a().and(isId22).and(isBlue).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22), 0));
 
             joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
         }
