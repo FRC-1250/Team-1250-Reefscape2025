@@ -34,6 +34,7 @@ import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Elevator.Position;
 import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
 import frc.robot.subsystem.EndEffector.HeadPosition;
+import frc.robot.subsystem.Limelight.LimeLightPipeline;
 import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.ReefScoringMap;
 
@@ -372,6 +373,10 @@ public class RobotContainer {
         SmartDashboard.putData(elevator.cmdAddRotations(-1));
 
         SmartDashboard.putData(elevator.cmdResetPos());
+
+        // Limelight
+        SmartDashboard.putData(limelight.switchPipeline(LimeLightPipeline.MORNING));
+        SmartDashboard.putData(limelight.switchPipeline(LimeLightPipeline.EVENING));
     }
 
     private void addPathAuto(String name, String pathName) {

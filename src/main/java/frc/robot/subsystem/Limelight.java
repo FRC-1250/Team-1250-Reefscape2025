@@ -4,7 +4,6 @@
 
 package frc.robot.subsystem;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,7 +55,9 @@ public class Limelight extends SubsystemBase {
   }
 
   public Command switchPipeline(LimeLightPipeline limeLightPipeline) {
-    return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId));
+    return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId))
+        .withName(String.format("%s set pipeline %s", name, limeLightPipeline.toString()))
+        .ignoringDisable(true);
   }
 
   @Override
