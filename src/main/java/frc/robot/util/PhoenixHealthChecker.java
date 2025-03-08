@@ -16,6 +16,7 @@ public abstract class PhoenixHealthChecker {
     private final Alert alert;
     private final Timer timer;
     private final double minSecondsBetweenCheckups;
+    private boolean healthy;
 
     public PhoenixHealthChecker(final ParentDevice device, final String subsystemName) {
         this.device = device;
@@ -28,10 +29,16 @@ public abstract class PhoenixHealthChecker {
     }
 
     public boolean isDeviceHealthy() {
-        final boolean healthy = checkUp();
-        if (timer.hasElapsed(minSecondsBetweenCheckups) && DriverStation.isDisabled()) {
-            alert.set(!healthy);
-            timer.reset();
+        if (!DriverStation.isDisabled()) {
+            // If DS is enabled, assume it is healthy...
+            healthy = true;
+        } else {
+            // ... until another check can be conducted
+            healthy = checkUp();
+            if (timer.hasElapsed(minSecondsBetweenCheckups)) {
+                alert.set(!healthy);
+                timer.reset();
+            }
         }
         return healthy;
     }
