@@ -214,7 +214,7 @@ public class Elevator extends SubsystemBase {
     var isAtHome = isAtHome();
     if (previousHomeSensor != isAtHome) {
       homeFound = true;
-      resetMotorPositionToPosition(0);
+      resetMotorPositionToPosition(Position.SENSOR.rotations);
     }
     previousHomeSensor = isAtHome;
   }
@@ -297,9 +297,13 @@ public class Elevator extends SubsystemBase {
     rightMotor.stopMotor();
   }
 
-  private void resetMotorPositionToPosition(double rotations) {
+  public void resetMotorPositionToPosition(double rotations) {
     leftMotor.setPosition(rotations);
     rightMotor.setPosition(rotations);
+  }
+
+  public void addRotationsToElevatorPosition(double rotationsToAdd) {
+    setPosition(rotationsToAdd + getLeftMotorPosition());
   }
 
   public Command cmdResetPos() {
