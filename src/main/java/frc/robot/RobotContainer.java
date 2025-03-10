@@ -14,6 +14,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -271,9 +272,10 @@ public class RobotContainer {
 
             joystick.x().whileTrue(drivetrain.applyRequest(
                     () -> driveFacingAngle
-                            .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
+                            .withVelocityX(0)
                             .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
-                            .withTargetDirection(controlFactory.determineHeadingToReef())).withName("Auto turn to reef"));
+                            .withTargetDirection(Rotation2d.fromDegrees(drivetrain.getOperatorForwardDirection().getDegrees())))
+                            .withName("Forward and strafe"));
 
             // Red
             joystick.a().and(isId6).and(isBlue).negate().whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6), 0));
