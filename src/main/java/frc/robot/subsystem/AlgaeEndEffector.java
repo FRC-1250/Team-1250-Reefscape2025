@@ -155,7 +155,11 @@ public class AlgaeEndEffector extends SubsystemBase {
   }
 
   public boolean isWristNearPosition(WristPosition position) {
-    return MathUtil.isNear(position.rotations, getWristPosition(), 0.01);
+    return isWristNearPosition(position.rotations);
+  }
+
+  public boolean isWristNearPosition(double rotations) {
+    return MathUtil.isNear(rotations, getWristPosition(), 0.01);
   }
 
   /*
