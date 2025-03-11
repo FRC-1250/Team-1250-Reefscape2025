@@ -50,6 +50,7 @@ public class Elevator extends SubsystemBase {
     HIGH_ALGAE(46.7),
     HIGH_ALGAE_PREP(52.7),
     L4(58.3),
+    BARGE(60),
     PEAK(61.5);
 
     public final double rotations;

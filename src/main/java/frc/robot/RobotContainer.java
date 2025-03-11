@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Elevator.SetElevatorPosition;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
@@ -136,7 +137,7 @@ public class RobotContainer {
 
     private final boolean devController = false;
     private final boolean driveEnabled = true;
-    private final boolean automationEnabled = true;
+    private final boolean automationEnabled = false;
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);
@@ -180,60 +181,14 @@ public class RobotContainer {
 
         joystick.leftTrigger()
                 .and(reefHasHighAlgae)
-                .onTrue(controlFactory.reefHighDealgaePrep());
+                .onTrue(new SetElevatorPosition(elevator, Position.HIGH_ALGAE));
         joystick.leftTrigger()
                 .and(reefHasLowAlgae)
-                .onTrue(controlFactory.reefLowDealgaePrep());
+                .onTrue(new SetElevatorPosition(elevator, Position.LOW_ALGAE));
 
-        joystick.povDown()
-                .and(isAtL2.or(isAtL3).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .and(hasAlgae.negate())
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L1)));
-        joystick.povDown()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L1)));
-        joystick.povDown()
-                .and(isAtHighAlgaePosition)
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L1)));
-        joystick.povDown()
-                .and(isAtLowAlgaePosition)
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L1)));
 
-        joystick.povRight()
-                .and(isAtL1.or(isAtL3).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L2)));
-        joystick.povRight()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L2)));
-        joystick.povRight().and(isAtHighAlgaePosition)
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L2)));
-        joystick.povRight().and(isAtLowAlgaePosition)
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L2)));
 
-        joystick.povLeft()
-                .and(isAtL1.or(isAtL2).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L3)));
-        joystick.povLeft()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L3)));
-        joystick.povLeft().and(isAtHighAlgaePosition)
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L3)));
-        joystick.povLeft().and(isAtLowAlgaePosition)
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L3)));
 
-        joystick.povUp()
-                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L4)));
-        joystick.povUp()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L4)));
-        joystick.povUp().and(isAtHighAlgaePosition)
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L4)));
-        joystick.povUp().and(isAtLowAlgaePosition)
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L4)));
 
         joystick.b()
                 .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon).or(isAtHome))
@@ -254,13 +209,9 @@ public class RobotContainer {
                 .and(hasAlgae.negate())
                 .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.STARTING_CONFIGURATION)));
 
-        joystick.b()
-                .and(hasAlgae)
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.CONTAIN_ALGAE)));
-
         joystick.back().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-        joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
+        joystick.rightBumper().onTrue(new SetElevatorPosition(elevator, Elevator.Position.BARGE));
+        joystick.leftBumper().onTrue(new SetElevatorPosition(elevator, Elevator.Position.BARGE));
         joystick.y().onTrue(climber.cmdSetTorque(Amps.of(80)));
 
         if (driveEnabled) {
