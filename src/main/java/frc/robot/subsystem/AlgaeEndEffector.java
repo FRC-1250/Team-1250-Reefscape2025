@@ -40,11 +40,10 @@ public class AlgaeEndEffector extends SubsystemBase {
   }
 
   public enum WristPosition {
-    HOME(0),
-    REEF(0),
-    FLOOR(0),
-    BARGE(0),
-    TOP_OF_CORAL(0);
+    HOME(0.33),
+    REEF(0.51),
+    FLOOR(0.69),
+    BARGE(0.25);
 
     public final double rotations;
 
@@ -88,9 +87,9 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.69;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.33;
     wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();
     wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     wristTalonFXConfiguration.Feedback.RotorToSensorRatio = 1;
