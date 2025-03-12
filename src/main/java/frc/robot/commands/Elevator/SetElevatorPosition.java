@@ -6,14 +6,14 @@ package frc.robot.commands.Elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystem.Elevator;
-import frc.robot.subsystem.Elevator.Position;
+import frc.robot.subsystem.Elevator.ElevatorPosition;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SetElevatorPosition extends Command {
   private final Elevator cmdElevator;
-  private final Position cmdPosition;
+  private final ElevatorPosition cmdPosition;
 
-  public SetElevatorPosition(Elevator elevator, Position position) {
+  public SetElevatorPosition(Elevator elevator, ElevatorPosition position) {
     cmdElevator = elevator;
     cmdPosition = position;
     addRequirements(elevator);

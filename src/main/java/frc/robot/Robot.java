@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    m_robotContainer.controlFactory.displaySubsystemErrorState().schedule();
+    m_robotContainer.controlFactory.cmdDisplaySubsystemErrorState().schedule();
   }
 
   @Override

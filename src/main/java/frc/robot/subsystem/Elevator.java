@@ -38,8 +38,8 @@ import frc.robot.util.TalonHealthChecker;
 import frc.robot.util.TunableTalonFX;
 
 public class Elevator extends SubsystemBase {
-  public enum Position {
-    STARTING_CONFIGURATION(0),
+  public enum ElevatorPosition {
+    HOME(0),
     SENSOR(1.3),
     CONTAIN_ALGAE(17.65),
     L1(6.08),
@@ -55,7 +55,7 @@ public class Elevator extends SubsystemBase {
 
     public final double rotations;
 
-    Position(double rotations) {
+    ElevatorPosition(double rotations) {
       this.rotations = rotations;
     }
   }
@@ -75,8 +75,8 @@ public class Elevator extends SubsystemBase {
   private TalonHealthChecker leftMotorCheck;
   private TalonHealthChecker rightMotorCheck;
   private HealthStatus healthStatus = HealthStatus.IS_OK;
-  public Position elevatorPosition = Position.STARTING_CONFIGURATION;
-  public Position previousElevatorPosition = Position.STARTING_CONFIGURATION;
+  public ElevatorPosition elevatorPosition = ElevatorPosition.HOME;
+  public ElevatorPosition previousElevatorPosition = ElevatorPosition.HOME;
   private double leftMotorPosition = 0;
 
   public Elevator() {
@@ -97,9 +97,9 @@ public class Elevator extends SubsystemBase {
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
     softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = Position.PEAK.rotations;
+    softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = ElevatorPosition.PEAK.rotations;
     softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.STARTING_CONFIGURATION.rotations;
+    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = ElevatorPosition.HOME.rotations;
 
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
@@ -146,7 +146,7 @@ public class Elevator extends SubsystemBase {
     return cmdSetDutyCycleOut(-0.05).until(() -> homeFound).withName("Elevator force home");
   }
 
-  public Command cmdSetPosition(Position position) {
+  public Command cmdSetPosition(ElevatorPosition position) {
     return new FunctionalCommand(
         () -> {
         },
@@ -215,7 +215,7 @@ public class Elevator extends SubsystemBase {
     var isAtHome = isAtHome();
     if (previousHomeSensor != isAtHome) {
       homeFound = true;
-      resetMotorPositionToPosition(Position.SENSOR.rotations);
+      resetMotorPositionToPosition(ElevatorPosition.SENSOR.rotations);
     }
     previousHomeSensor = isAtHome;
   }
@@ -253,22 +253,22 @@ public class Elevator extends SubsystemBase {
     return healthStatus;
   }
 
-  public boolean isAbovePosition(Position position) {
+  public boolean isAbovePosition(ElevatorPosition position) {
     return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();
   }
 
   public boolean isAtCoralScoringPosition() {
-    return (isAtPosition(Elevator.Position.L1)
-        || isAtPosition(Elevator.Position.L2)
-        || isAtPosition(Elevator.Position.L3)
-        || isAtPosition(Elevator.Position.L4));
+    return (isAtPosition(Elevator.ElevatorPosition.L1)
+        || isAtPosition(Elevator.ElevatorPosition.L2)
+        || isAtPosition(Elevator.ElevatorPosition.L3)
+        || isAtPosition(Elevator.ElevatorPosition.L4));
   }
 
-  public boolean isAtPosition(Position position) {
+  public boolean isAtPosition(ElevatorPosition position) {
     return elevatorPosition == position;
   }
 
-  public boolean wasPreviouslyAtPosition(Position position) {
+  public boolean wasPreviouslyAtPosition(ElevatorPosition position) {
     return previousElevatorPosition == position;
   }
 
@@ -308,7 +308,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command cmdResetPos() {
-    return Commands.runOnce(() -> resetMotorPositionToPosition(Position.STARTING_CONFIGURATION.rotations), this).ignoringDisable(true);
+    return Commands.runOnce(() -> resetMotorPositionToPosition(ElevatorPosition.HOME.rotations), this).ignoringDisable(true);
   }
 
   private boolean isNearPosition(double position) {
@@ -321,12 +321,12 @@ public class Elevator extends SubsystemBase {
         || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
   }
 
-  private boolean isNearPosition(Position position) {
+  private boolean isNearPosition(ElevatorPosition position) {
     return isNearPosition(position.rotations);
   }
 
   @Logged
-  public Position getElevatorState() {
+  public ElevatorPosition getElevatorState() {
     return elevatorPosition;
   }
 

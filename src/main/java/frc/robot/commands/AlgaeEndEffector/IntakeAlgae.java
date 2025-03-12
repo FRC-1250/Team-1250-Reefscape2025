@@ -11,16 +11,18 @@ import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
 public class IntakeAlgae extends Command {
 
   private final AlgaeEndEffector cmdAlgaeEndEffector;
+  private final IntakeVelocity cmdIntakeVelocity;
 
-  public IntakeAlgae(AlgaeEndEffector algaeEndEffector) {
+  public IntakeAlgae(AlgaeEndEffector algaeEndEffector, IntakeVelocity intakeVelocity) {
     addRequirements(algaeEndEffector);
     cmdAlgaeEndEffector = algaeEndEffector;
+    cmdIntakeVelocity = intakeVelocity;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    cmdAlgaeEndEffector.setIntakeVelocity(IntakeVelocity.INTAKE);
+    cmdAlgaeEndEffector.setIntakeVelocity(cmdIntakeVelocity);
   }
 
   // Called once the command ends or is interrupted.
