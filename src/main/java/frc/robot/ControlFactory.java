@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
+
 import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -16,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import frc.robot.commands.Climber.ShallowClimb;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
@@ -62,6 +65,14 @@ public class ControlFactory {
         this.limelight = limelight;
         this.systemLights = systemLights;
     }
+
+    /*
+     * Climber
+     */
+
+     public Command shallowClimb() {
+        return new ShallowClimb(climber, Amps.of(80));
+     }
 
     public Command lockElevator(double lockDurationInSeconds) {
         return Commands.idle(

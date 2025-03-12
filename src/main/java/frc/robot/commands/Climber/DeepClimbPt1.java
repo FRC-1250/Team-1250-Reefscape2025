@@ -12,11 +12,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystem.DeepClimber;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetDeepClimberPosition extends Command {
+public class DeepClimbPt1 extends Command {
  
    private final DeepClimber cmdDeepClimber;
 
-   public SetDeepClimberPosition(DeepClimber deepClimber){
+   public DeepClimbPt1(DeepClimber deepClimber){
       addRequirements(deepClimber);
       cmdDeepClimber = deepClimber;
    }

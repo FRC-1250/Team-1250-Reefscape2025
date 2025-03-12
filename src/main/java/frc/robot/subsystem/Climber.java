@@ -48,7 +48,7 @@ public class Climber extends SubsystemBase {
     return Commands.runEnd(
         () -> setTorque(newCurrent),
         () -> climber.stopMotor(), this)
-        .until(() -> getRotations() >= requiredRotations)
+        .until(() -> getPosition() >= requiredRotations)
         .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
   }
 
@@ -72,12 +72,20 @@ public class Climber extends SubsystemBase {
     }
   }
 
-  private void setTorque(Current newCurrent) {
+  public void setTorque(Current newCurrent) {
     climber.setControl(torqueControl.withOutput(newCurrent));
   }
 
-  private double getRotations(){
+  public double getPosition() {
     return climber.getPosition().getValueAsDouble();
+  }
+
+  public void stopMotor() {
+    climber.stopMotor();
+  }
+
+  public boolean hasPassedClimbThreshold() {
+    return getPosition() >= requiredRotations;
   }
 
 }
