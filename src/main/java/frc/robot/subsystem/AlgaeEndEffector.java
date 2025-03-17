@@ -8,7 +8,6 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -18,6 +17,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,13 +56,11 @@ public class AlgaeEndEffector extends SubsystemBase {
   private TalonFX wristTalonFX = new TalonFX(22);
   private CANcoder wristAbsoluteEncoder = new CANcoder(24);
   private PositionVoltage wristPositionControl = new PositionVoltage(0).withSlot(0);
-  private DutyCycleOut wristDutyCycle = new DutyCycleOut(0);
 
   private TalonFX intakeTalonFX = new TalonFX(23);
   private DigitalInput intakeAlgaeSensor = new DigitalInput(5);
   private PositionVoltage intakePositionControl = new PositionVoltage(0).withSlot(0);
   private VelocityVoltage intakeVelocityControl = new VelocityVoltage(0).withSlot(1);
-  private DutyCycleOut intakeDutyCycle = new DutyCycleOut(0);
 
   public AlgaeEndEffector() {
     CANcoderConfiguration wristAbsoluteEncoderConfiguration = new CANcoderConfiguration();
@@ -83,8 +81,8 @@ public class AlgaeEndEffector extends SubsystemBase {
 
     TalonFXConfiguration wristTalonFXConfiguration = new TalonFXConfiguration();
     wristTalonFXConfiguration.Slot0 = wristPositionPIDConfigs;
-    wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 20;
-    wristTalonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
+    wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
+    wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -115,9 +113,9 @@ public class AlgaeEndEffector extends SubsystemBase {
     TalonFXConfiguration intakeTalonFXConfiguration = new TalonFXConfiguration();
     intakeTalonFXConfiguration.Slot0 = intakePositionPIDConfigs;
     intakeTalonFXConfiguration.Slot1 = intakeVelocityPIDConfigs;
-    intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 20;
-    intakeTalonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
-    intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
+    intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
+    intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     intakeTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     intakeTalonFX.getConfigurator().apply(intakeTalonFXConfiguration);
 
@@ -139,10 +137,7 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFX.stopMotor();
   }
 
-  public void setWristDutyCycle(double dutyCycleOutputPercent) {
-    wristTalonFX.setControl(wristDutyCycle.withOutput(dutyCycleOutputPercent));
-  }
-
+  @Logged(name = "Wrist position")
   public double getWristPosition() {
     return wristAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
   }
@@ -174,12 +169,13 @@ public class AlgaeEndEffector extends SubsystemBase {
     intakeTalonFX.stopMotor();
   }
 
-  public void setIntakeDutyCycleOut(double dutyCycleOutputPercent) {
-    intakeTalonFX.setControl(intakeDutyCycle.withOutput(dutyCycleOutputPercent));
-  }
-
   public void setIntakeVelocity(IntakeVelocity velocity) {
     intakeTalonFX.setControl(intakeVelocityControl.withVelocity(velocity.rotationsPerSecond));
+  }
+
+  @Logged(name = "Intake velocity")
+  private double getIntakeVelocity() {
+    return intakeTalonFX.getVelocity().getValueAsDouble();
   }
 
   private double getIntakePosition() {
