@@ -533,6 +533,14 @@ public class RobotContainer {
                                 .andThen(new SetElevatorPosition(elevator, ElevatorPosition.HOME)));
 
                 NamedCommands.registerCommand(
+                        "DealgeaLowGoHome", 
+                        new SetElevatorPosition(elevator, ElevatorPosition.LOW_ALGAE)
+                                .andThen(new SetWristPosition(algaeEndEffector, WristPosition.REEF))
+                                .andThen(new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE))
+                                .andThen(new SetWristPosition(algaeEndEffector, WristPosition.HOME))
+                                .andThen(new SetElevatorPosition(elevator, ElevatorPosition.HOME)));
+
+                NamedCommands.registerCommand(
                         "ScoreBargeGoHome", 
                         new SetElevatorPosition(elevator, ElevatorPosition.BARGE)
                                 .andThen(new SetWristPosition(algaeEndEffector, WristPosition.BARGE))
