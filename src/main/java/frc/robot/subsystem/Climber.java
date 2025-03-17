@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
         .addComponent(getName(), "Winch", climber);
   }
 
-  @Logged(name = "Climber torque current")
+  @Logged(name = "Torque current")
   public double getTorque() {
     return climber.getTorqueCurrent().getValueAsDouble();
   }
@@ -47,6 +47,7 @@ public class Climber extends SubsystemBase {
     climber.setControl(torqueControl.withOutput(newCurrent));
   }
 
+  @Logged(name = "Position")
   public double getPosition() {
     return climber.getPosition().getValueAsDouble();
   }
