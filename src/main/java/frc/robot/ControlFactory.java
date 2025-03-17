@@ -89,7 +89,7 @@ public class ControlFactory {
      */
 
     public Command cmdShallowClimb() {
-        return new ShallowClimb(climber, Amps.of(80));
+        return new ShallowClimb(climber, Amps.of(80)).withName("Shallow climb");
     }
 
     /*
@@ -97,27 +97,27 @@ public class ControlFactory {
      */
 
     public Command cmdSetElevatorToStartingConfiguration() {
-        return new SetElevatorPosition(elevator, ElevatorPosition.STARTING_CONFIG);
+        return cmdSetElevatorPosition(ElevatorPosition.STARTING_CONFIG);
     }
 
     public Command cmdSetElevatorToHome() {
-        return new SetElevatorPosition(elevator, ElevatorPosition.HOME);
+        return cmdSetElevatorPosition(ElevatorPosition.HOME);
     }
 
     public Command cmdSetElevatorToBarge() {
-        return new SetElevatorPosition(elevator, ElevatorPosition.BARGE);
+        return cmdSetElevatorPosition(ElevatorPosition.BARGE);
     }
 
     public Command cmdSetElevatorHighAlgae() {
-        return new SetElevatorPosition(elevator, ElevatorPosition.HIGH_ALGAE);
+        return cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE);
     }
 
     public Command cmdSetElevatorLowAlgae() {
-        return new SetElevatorPosition(elevator, ElevatorPosition.LOW_ALGAE);
+        return cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE);
     }
 
     public Command cmdSetElevatorPosition(ElevatorPosition position) {
-        return new SetElevatorPosition(elevator, position);
+        return new SetElevatorPosition(elevator, position).withName(String.format("Elevator: to %s", position.name()));
     }
 
     public Command cmdAddElevatorRotations(double rotations) {
@@ -138,19 +138,22 @@ public class ControlFactory {
     public Command cmdIntakeAlgaeFloor() {
         return Commands.sequence(
                 new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE),
-                new SetWristPosition(algaeEndEffector, WristPosition.FLOOR));
+                new SetWristPosition(algaeEndEffector, WristPosition.FLOOR)
+                .withName("Intake: Floor"));
     }
 
     public Command cmdIntakeAlgaeReef() {
         return Commands.sequence(
                 new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE),
-                new SetWristPosition(algaeEndEffector, WristPosition.REEF));
+                new SetWristPosition(algaeEndEffector, WristPosition.REEF)
+                .withName("Intake: Reef"));
     }
 
     public Command cmdReleaseAlgaeBarge() {
         return Commands.sequence(
                 new SetWristPosition(algaeEndEffector, WristPosition.BARGE),
-                new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE));
+                new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE)
+                .withName("Intake: Barge"));
     }
 
     public Command cmdSetWristHome() {
@@ -174,11 +177,19 @@ public class ControlFactory {
     }
 
     public Command cmdReleaseAlgaeBasedOnElevator() {
-        return new ConditionalCommand(cmdReleaseAlgaeBarge(), cmdReleaseAlgae(), () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5));
+        return new ConditionalCommand(
+                cmdReleaseAlgaeBarge(),
+                cmdReleaseAlgae(),
+                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5))
+                .withName("Intake: Release algae");
     }
 
     public Command cmdIntakeAlgaeBasedOnElevator() {
-        return new ConditionalCommand(cmdIntakeAlgaeFloor(), cmdIntakeAlgaeReef(), () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
+        return new ConditionalCommand(
+                cmdIntakeAlgaeFloor(),
+                cmdIntakeAlgaeReef(),
+                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5))
+                .withName("Intake: Grab algae");
     }
 
     /*

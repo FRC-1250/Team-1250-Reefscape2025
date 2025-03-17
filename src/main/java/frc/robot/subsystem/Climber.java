@@ -13,8 +13,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.TalonHealthChecker;
@@ -44,14 +42,6 @@ public class Climber extends SubsystemBase {
     }
   }
 
-  public Command cmdSetTorque(Current newCurrent) {
-    return Commands.runEnd(
-        () -> setTorque(newCurrent),
-        () -> climber.stopMotor(), this)
-        .until(() -> getPosition() >= requiredRotations)
-        .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
-  }
-
   public HealthStatus getHealthStatus() {
     return healthStatus;
   }
@@ -59,17 +49,6 @@ public class Climber extends SubsystemBase {
   @Logged(name = "Climber torque current")
   public double getTorque() {
     return climber.getTorqueCurrent().getValueAsDouble();
-  }
-
-  @Override
-  public void periodic() {
-    if (healthCheckEnabled) {
-      if (!climberCheck.isDeviceHealthy()) {
-        healthStatus = HealthStatus.ERROR;
-      } else {
-        healthStatus = HealthStatus.IS_OK;
-      }
-    }
   }
 
   public void setTorque(Current newCurrent) {
@@ -88,4 +67,14 @@ public class Climber extends SubsystemBase {
     return getPosition() >= requiredRotations;
   }
 
+  @Override
+  public void periodic() {
+    if (healthCheckEnabled) {
+      if (!climberCheck.isDeviceHealthy()) {
+        healthStatus = HealthStatus.ERROR;
+      } else {
+        healthStatus = HealthStatus.IS_OK;
+      }
+    }
+  }
 }

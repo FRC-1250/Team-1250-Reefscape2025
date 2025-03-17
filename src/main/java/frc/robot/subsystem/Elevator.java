@@ -17,7 +17,6 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -29,7 +28,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthStatus;
@@ -58,7 +56,6 @@ public class Elevator extends SubsystemBase {
   private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
-  private DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(false);
   private boolean homeFound = false;
   private boolean previousHomeSensor = isAtHome();
 
@@ -134,9 +131,6 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // TODO: Verify if notifier command works better
-    // detectSensorTransition();
-
     if (tuningModeEnabled) {
       tunableTalonFX.updateValuesFromSmartNT();
     }
@@ -151,7 +145,7 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  public Command cmdHandleSensorTransition() {
+  private Command cmdHandleSensorTransition() {
     return new NotifierCommand(() -> detectSensorTransition(), 0.002)
         .until(() -> homeFound)
         .unless(() -> homeFound)
@@ -220,14 +214,6 @@ public class Elevator extends SubsystemBase {
   public void resetMotorPositionToPosition(double rotations) {
     leftMotor.setPosition(rotations);
     rightMotor.setPosition(rotations);
-  }
-
-  public void addRotationsToElevatorPosition(double rotationsToAdd) {
-    setPosition(rotationsToAdd + getLeftMotorPosition());
-  }
-
-  public Command cmdResetPos() {
-    return Commands.runOnce(() -> resetMotorPositionToPosition(ElevatorPosition.HOME.rotations), this).ignoringDisable(true);
   }
 
   public boolean isNearPositionAndTolerance(double position, double tolerance) {

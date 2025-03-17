@@ -20,7 +20,7 @@ public class AddElevatorRotations extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    cmdElevator.addRotationsToElevatorPosition(cmdRotations);
+    cmdElevator.setPosition(cmdElevator.getLeftMotorPosition() + cmdRotations);
   }
 
   // Returns true when the command should end.
