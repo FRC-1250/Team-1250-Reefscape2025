@@ -25,6 +25,7 @@ import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
 import frc.robot.commands.AlgaeEndEffector.IntakeAlgae;
 import frc.robot.commands.AlgaeEndEffector.ReleaseAlgae;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
+import frc.robot.commands.Climber.DeepClimb;
 import frc.robot.commands.Climber.ShallowClimb;
 import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
@@ -32,11 +33,13 @@ import frc.robot.commands.Elevator.SetElevatorPosition;
 import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
+import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
 import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
+import frc.robot.subsystem.DeepClimber.DeepClimberPhase;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.HealthMonitor;
@@ -57,6 +60,7 @@ public class ControlFactory {
     private final Climber climber;
     private final Limelight limelight;
     private final AlgaeEndEffector algaeEndEffector;
+    private final DeepClimber deepClimber;
     private final Translation2d blueReef = new Translation2d(4.490, 4);
     private final Translation2d redReef = new Translation2d(13.05, 4);
     private final double[] lowAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
@@ -74,6 +78,7 @@ public class ControlFactory {
             CommandSwerveDrivetrain swerveDrivetrain,
             Elevator elevator,
             Climber climber,
+            DeepClimber deepClimber,
             Limelight limelight,
             AlgaeEndEffector algaeEndEffector,
             SystemLights systemLights) {
@@ -83,6 +88,7 @@ public class ControlFactory {
         this.limelight = limelight;
         this.algaeEndEffector = algaeEndEffector;
         this.systemLights = systemLights;
+        this.deepClimber = deepClimber;
     }
 
     /*
@@ -91,6 +97,21 @@ public class ControlFactory {
 
     public Command cmdShallowClimb() {
         return new ShallowClimb(climber, Amps.of(80)).withName("Shallow climb");
+    }
+
+    public Command cmdDeepClimbPhase1() {
+        return new DeepClimb(deepClimber, DeepClimberPhase.PREP, Amps.of(10));
+    }
+
+    public Command cmdDeepClimbPhase2() {
+        return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(40));
+    }
+
+    public Command cmdDeepClimbPhaseBasedOnPositon() {
+        return new ConditionalCommand(
+                cmdDeepClimbPhase2(),
+                cmdDeepClimbPhase1(),
+                () -> deepClimber.isNearPositionAndTolerance(DeepClimberPhase.PREP.rotations, 5));
     }
 
     /*

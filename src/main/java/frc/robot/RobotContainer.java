@@ -16,7 +16,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +27,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
+import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
@@ -35,8 +35,6 @@ import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.Limelight.LimeLightPipeline;
 
 public class RobotContainer {
-    public Alliance alliance;
-
     // kSpeedAt12Volts desired top speed
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
@@ -67,6 +65,9 @@ public class RobotContainer {
     @Logged(name = "Climber")
     public final Climber climber = new Climber();
 
+    @Logged(name = "Deep climber")
+    public final DeepClimber deepClimber = new DeepClimber();
+
     @Logged(name = "Algae end effector")
     public final AlgaeEndEffector algaeEndEffector = new AlgaeEndEffector();
 
@@ -76,6 +77,7 @@ public class RobotContainer {
             drivetrain,
             elevator,
             climber,
+            deepClimber,
             limelight,
             algaeEndEffector,
             systemLights);
@@ -143,7 +145,7 @@ public class RobotContainer {
         primaryDriverJoystick.leftTrigger().whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevator());
 
         // Climber
-        primaryDriverJoystick.y().onTrue(controlFactory.cmdShallowClimb());
+        primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbPhaseBasedOnPositon());
 
         /*
          * Operator controls
