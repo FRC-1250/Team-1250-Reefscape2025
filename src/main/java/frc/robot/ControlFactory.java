@@ -137,14 +137,14 @@ public class ControlFactory {
      * Algae intake
      */
     public Command cmdIntakeAlgaeFloor() {
-        return Commands.sequence(
+        return Commands.parallel(
                 new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE),
                 new SetWristPosition(algaeEndEffector, WristPosition.FLOOR)
                 .withName("Intake: Floor"));
     }
 
     public Command cmdIntakeAlgaeReef() {
-        return Commands.sequence(
+        return Commands.parallel(
                 new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE),
                 new SetWristPosition(algaeEndEffector, WristPosition.REEF)
                 .withName("Intake: Reef"));
@@ -179,7 +179,7 @@ public class ControlFactory {
 
     public Command cmdReleaseAlgaeBasedOnElevator() {
         return new ConditionalCommand(
-                cmdReleaseAlgaeBarge(),
+                cmdReleaseAlgaeBarge().andThen(cmdSetWristHome()),
                 cmdReleaseAlgae(),
                 () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5))
                 .withName("Intake: Release algae");
@@ -187,8 +187,8 @@ public class ControlFactory {
 
     public Command cmdIntakeAlgaeBasedOnElevator() {
         return new ConditionalCommand(
-                cmdIntakeAlgaeFloor(),
-                cmdIntakeAlgaeReef(),
+                cmdIntakeAlgaeFloor().andThen(cmdSetWristHome()),
+                cmdIntakeAlgaeReef().andThen(cmdSetWristHome()),
                 () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5))
                 .withName("Intake: Grab algae");
     }
