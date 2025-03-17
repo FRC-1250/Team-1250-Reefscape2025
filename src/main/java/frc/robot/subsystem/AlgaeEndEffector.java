@@ -174,7 +174,7 @@ public class AlgaeEndEffector extends SubsystemBase {
   }
 
   @Logged(name = "Intake velocity")
-  private double getIntakeVelocity() {
+  public double getIntakeVelocity() {
     return intakeTalonFX.getVelocity().getValueAsDouble();
   }
 
