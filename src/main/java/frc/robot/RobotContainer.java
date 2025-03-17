@@ -201,6 +201,12 @@ public class RobotContainer {
 
         // Complex
         NamedCommands.registerCommand(
+                "L1Coral",
+                controlFactory.cmdSetElevatorToL1()
+                        .andThen(controlFactory.cmdReleaseCoralL1().withTimeout(releaseTimeoutTime)
+                        .andThen(controlFactory.cmdSetWristHome())));
+
+        NamedCommands.registerCommand(
                 "HighDealgae",
                 controlFactory.cmdSetElevatorHighAlgae()
                         .andThen(controlFactory.cmdIntakeAlgaeReef().withTimeout(intakeTimeoutTime)

@@ -97,10 +97,6 @@ public class ControlFactory {
      * Elevator
      */
 
-    public Command cmdSetElevatorToStartingConfiguration() {
-        return cmdSetElevatorPosition(ElevatorPosition.STARTING_CONFIG);
-    }
-
     public Command cmdSetElevatorToHome() {
         return cmdSetElevatorPosition(ElevatorPosition.HOME);
     }
@@ -111,6 +107,10 @@ public class ControlFactory {
 
     public Command cmdSetElevatorHighAlgae() {
         return cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE);
+    }
+
+    public Command cmdSetElevatorToL1() {
+        return cmdSetElevatorPosition(ElevatorPosition.L1);
     }
 
     public Command cmdSetElevatorLowAlgae() {
@@ -157,6 +157,13 @@ public class ControlFactory {
                 .withName("Intake: Barge"));
     }
 
+    public Command cmdReleaseCoralL1() {
+        return Commands.sequence(
+                new SetWristPosition(algaeEndEffector, WristPosition.AUTO_CORAL),
+                new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE)
+                        .withName("Intake: Release coral"));
+    }
+
     public Command cmdSetWristHome() {
         return new SetWristPosition(algaeEndEffector, WristPosition.HOME);
     }
@@ -167,10 +174,6 @@ public class ControlFactory {
 
     public Command cmdReleaseAlgae() {
         return new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE);
-    }
-
-    public Command cmdSetWristPosition(WristPosition position) {
-        return new SetWristPosition(algaeEndEffector, position);
     }
 
     public Command cmdAddWristRotations(double rotations) {

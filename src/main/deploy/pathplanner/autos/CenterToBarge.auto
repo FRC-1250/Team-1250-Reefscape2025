@@ -13,13 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": "LowDealgae"
+            "name": "L1Coral"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Home"
+            "name": "LowDealgae"
           }
         },
         {
@@ -32,12 +32,6 @@
           "type": "named",
           "data": {
             "name": "ScoreBarge"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Home"
           }
         }
       ]

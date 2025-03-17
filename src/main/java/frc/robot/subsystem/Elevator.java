@@ -35,9 +35,9 @@ import frc.robot.util.TunableTalonFX;
 
 public class Elevator extends SubsystemBase {
   public enum ElevatorPosition {
-    STARTING_CONFIG(0),
     HOME(0.25),
     SENSOR(1.3),
+    L1(6.08),
     LOW_ALGAE(32.1),
     HIGH_ALGAE(46.7),
     BARGE(60),
