@@ -36,8 +36,8 @@ import frc.robot.util.TunableTalonFX;
 public class Elevator extends SubsystemBase {
   public enum ElevatorPosition {
     STARTING_CONFIG(0),
+    HOME(0.25),
     SENSOR(1.3),
-    HOME(8),
     LOW_ALGAE(32.1),
     HIGH_ALGAE(46.7),
     BARGE(60),
@@ -52,7 +52,6 @@ public class Elevator extends SubsystemBase {
 
   private TalonFX leftMotor = new TalonFX(30);
   private TalonFX rightMotor = new TalonFX(31);
-  private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
   private boolean homeFound = false;
@@ -68,14 +67,14 @@ public class Elevator extends SubsystemBase {
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
         .withKS(0.2)
         .withKV(0.25)
-        .withKP(7)
+        .withKP(1)
         .withKI(0)
-        .withKD(0);
+        .withKD(0.05);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
         .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
         .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(175))
-        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(0));
+        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(600));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
     softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
@@ -85,12 +84,11 @@ public class Elevator extends SubsystemBase {
 
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.SupplyCurrentLimit = 25;
+    currentLimitsConfigs.SupplyCurrentLimit = 50;
 
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
     motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
-    motorOutputConfigs.DutyCycleNeutralDeadband = 0.05;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
     voltageConfigs.PeakForwardVoltage = 12;
@@ -109,7 +107,9 @@ public class Elevator extends SubsystemBase {
 
     BaseStatusSignal.setUpdateFrequencyForAll(200,
         leftMotor.getPosition(),
-        rightMotor.getPosition());
+        rightMotor.getPosition(),
+        leftMotor.getVelocity(),
+        rightMotor.getVelocity());
 
     if (tuningModeEnabled) {
       tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs),
@@ -120,8 +120,59 @@ public class Elevator extends SubsystemBase {
     HealthMonitor.getInstance()
         .addComponent(getName(), "Left motor", leftMotor)
         .addComponent(getName(), "Right motor", rightMotor);
-   
+
     cmdHandleSensorTransition().schedule();
+  }
+
+  @Logged(name = "Right rotations")
+  public double getRightMotorPosition() {
+    return rightMotor.getPosition().getValueAsDouble();
+  }
+
+  @Logged(name = "Left rotations")
+  public double getLeftMotorPosition() {
+    return leftMotor.getPosition().getValueAsDouble();
+  }
+
+  @Logged(name = "Left velocity")
+  public double getLeftMotorVelocity() {
+    return leftMotor.getVelocity().getValueAsDouble();
+  }
+
+  @Logged(name = "Right velocity")
+  public double getRightMotorVelocity() {
+    return rightMotor.getVelocity().getValueAsDouble();
+  }
+
+  @Logged(name = "Home found")
+  public boolean getHomeFound() {
+    return homeFound;
+  }
+
+  @Logged(name = "At home")
+  public boolean isAtHome() {
+    return !homeSensor.get();
+  }
+
+  public boolean isAbovePosition(ElevatorPosition position) {
+    var pos = position.rotations - 2; // Apply some buffer
+    return pos <= getLeftMotorPosition() || pos <= getRightMotorPosition();
+  }
+
+  public void setPosition(double position) {
+    motionMagicPostionControl.Position = position;
+    leftMotor.setControl(motionMagicPostionControl);
+    rightMotor.setControl(motionMagicPostionControl);
+  }
+
+  public void resetMotorPositionToPosition(double rotations) {
+    leftMotor.setPosition(rotations);
+    rightMotor.setPosition(rotations);
+  }
+
+  public boolean isNearPositionAndTolerance(double position, double tolerance) {
+    return MathUtil.isNear(position, getLeftMotorPosition(), tolerance)
+        || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
   }
 
   @Override
@@ -147,59 +198,4 @@ public class Elevator extends SubsystemBase {
     }
     previousHomeSensor = isAtHome;
   }
-
-  @Logged(name = "Home found")
-  public boolean getHomeFound() {
-    return homeFound;
-  }
-
-  @Logged(name = "Has coral")
-  public boolean hasCoralInChute() {
-    return !coralSensor.get();
-  }
-
-  @Logged(name = "Right rotations")
-  public double getRightMotorPosition() {
-    return rightMotor.getPosition().getValueAsDouble();
-  }
-
-  @Logged(name = "Left rotations")
-  public double getLeftMotorPosition() {
-    return leftMotor.getPosition().getValueAsDouble();
-  }
-
-  public double getLeftMotorVelocity() {
-    return leftMotor.getVelocity().getValueAsDouble();
-  }
-
-  public double getRightMotorVelocity() {
-    return rightMotor.getVelocity().getValueAsDouble();
-  }
-
-  public boolean isAbovePosition(ElevatorPosition position) {
-    var pos = position.rotations - 2; // Apply some buffer
-    return pos <= getLeftMotorPosition() || pos <= getRightMotorPosition();
-  }
-
-  @Logged(name = "Home")
-  public boolean isAtHome() {
-    return !homeSensor.get();
-  }
-
-  public void setPosition(double position) {
-    motionMagicPostionControl.Position = position;
-    leftMotor.setControl(motionMagicPostionControl);
-    rightMotor.setControl(motionMagicPostionControl);
-  }
-
-  public void resetMotorPositionToPosition(double rotations) {
-    leftMotor.setPosition(rotations);
-    rightMotor.setPosition(rotations);
-  }
-
-  public boolean isNearPositionAndTolerance(double position, double tolerance) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), tolerance)
-        || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
-  }
-
 }
