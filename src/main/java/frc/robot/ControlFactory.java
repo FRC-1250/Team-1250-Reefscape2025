@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
 
+import java.util.Map;
+
 import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -17,7 +19,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
 import frc.robot.commands.AlgaeEndEffector.IntakeAlgae;
 import frc.robot.commands.AlgaeEndEffector.ReleaseAlgae;
@@ -30,7 +33,6 @@ import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.Elevator;
-import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
@@ -38,6 +40,8 @@ import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.util.HealthStatus;
+import frc.robot.util.ReefScoringMap;
+
 
 /**
  * Factory class intended to provide convenience commands that have some general
@@ -48,7 +52,6 @@ public class ControlFactory {
 
     private final CommandSwerveDrivetrain swerveDrivetrain;
     private final Elevator elevator;
-    private final EndEffector endEffector;
     private final SystemLights systemLights;
     private final Climber climber;
     private final Limelight limelight;
@@ -69,14 +72,12 @@ public class ControlFactory {
     public ControlFactory(
             CommandSwerveDrivetrain swerveDrivetrain,
             Elevator elevator,
-            EndEffector endEffector,
             Climber climber,
             Limelight limelight,
             AlgaeEndEffector algaeEndEffector,
             SystemLights systemLights) {
         this.swerveDrivetrain = swerveDrivetrain;
         this.elevator = elevator;
-        this.endEffector = endEffector;
         this.climber = climber;
         this.limelight = limelight;
         this.algaeEndEffector = algaeEndEffector;
@@ -94,11 +95,16 @@ public class ControlFactory {
     /*
      * Elevator
      */
-    public Command cmdSetElevatorHome() {
+
+    public Command cmdSetElevatorToStartingConfiguration() {
+        return new SetElevatorPosition(elevator, ElevatorPosition.STARTING_CONFIG);
+    }
+
+    public Command cmdSetElevatorToHome() {
         return new SetElevatorPosition(elevator, ElevatorPosition.HOME);
     }
 
-    public Command cmdSetElevatorBarge() {
+    public Command cmdSetElevatorToBarge() {
         return new SetElevatorPosition(elevator, ElevatorPosition.BARGE);
     }
 
@@ -120,6 +126,10 @@ public class ControlFactory {
 
     public Command cmdResetElevatorPosition() {
         return new ResetElevatorPosition(elevator);
+    }
+
+    public Command cmdSetElevatorToReefAlgae() {
+        return new ConditionalCommand(cmdSetElevatorHighAlgae(), cmdSetElevatorLowAlgae(), () -> hasHighAlgae());
     }
 
     /*
@@ -163,6 +173,14 @@ public class ControlFactory {
         return new AddWristRotations(algaeEndEffector, rotations);
     }
 
+    public Command cmdReleaseAlgaeBasedOnElevator() {
+        return new ConditionalCommand(cmdReleaseAlgaeBarge(), cmdReleaseAlgae(), () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5));
+    }
+
+    public Command cmdIntakeAlgaeBasedOnElevator() {
+        return new ConditionalCommand(cmdIntakeAlgaeFloor(), cmdIntakeAlgaeReef(), () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
+    }
+
     /*
      * Diag lights
      */
@@ -174,10 +192,6 @@ public class ControlFactory {
                             systemLights.diagnosticColors.clear();
                             if (elevator.getHealthStatus() == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.PURPLE);
-                            }
-
-                            if (endEffector.getHealthStatus() == HealthStatus.ERROR) {
-                                systemLights.diagnosticColors.add(PresetColor.WHITE);
                             }
 
                             if (swerveDrivetrain.getHealthStatus() == HealthStatus.ERROR) {
@@ -205,12 +219,36 @@ public class ControlFactory {
      * Drive
      */
 
-    public Command cmdPathfindToPose(Pose2d targetPose, double goalVelocity) {
+    public Command cmdPathfindToPose(Pose2d targetPose) {
         return AutoBuilder.pathfindToPose(
                 targetPose,
                 adamsSmoothPathConstraints,
-                goalVelocity // Goal end velocity in meters/sec
+                0 // Goal end velocity in meters/sec
         ).withName("Pathfind to pose");
+    }
+
+    public Command cmdPathfindToBlueReefTag() {
+        return new SelectCommand<>(
+                Map.ofEntries(
+                        Map.entry(6, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6))),
+                        Map.entry(7, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(7))),
+                        Map.entry(8, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(8))),
+                        Map.entry(9, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9))),
+                        Map.entry(10, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10))),
+                        Map.entry(11, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11)))),
+                () -> limelight.getFid()).withName("Pathfind to blue reef");
+    }
+
+    public Command cmdPathfindToRedReefTag() {
+        return new SelectCommand<>(
+                Map.ofEntries(
+                        Map.entry(17, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(17))),
+                        Map.entry(18, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18))),
+                        Map.entry(19, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(19))),
+                        Map.entry(20, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20))),
+                        Map.entry(21, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21))),
+                        Map.entry(22, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22)))),
+                () -> limelight.getFid()).withName("Pathfind to red reef");
     }
 
     public Rotation2d determineHeadingToReef() {
@@ -260,92 +298,4 @@ public class ControlFactory {
         }
         return false;
     }
-
-    /*
-     * To be removed
-     */
-
-    public Command lockElevator(double lockDurationInSeconds) {
-        return Commands.idle(
-                elevator)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-                .until(() -> endEffector.hasCoral())
-                .withTimeout(lockDurationInSeconds);
-    }
-
-    public Command reefHighDealgaePrep() {
-        return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.ElevatorPosition.HIGH_ALGAE_PREP),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED))
-                .withName("High dealgae prep");
-    }
-
-    public Command reefHighDealgae() {
-        return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.ElevatorPosition.HIGH_ALGAE),
-                endEffector.cmdDealgae()).withName("High dealgae");
-    }
-
-    public Command reefHighDealgaeUndo(ElevatorPosition pos) {
-        return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.ElevatorPosition.HIGH_ALGAE_PREP),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-                elevator.cmdSetPosition(pos).withName("High dealgae undo prep"));
-    }
-
-    public Command reefLowDealgaePrep() {
-        return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.ElevatorPosition.LOW_ALGAE_PREP),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED))
-                .withName("Low dealgae prep");
-    }
-
-    public Command reefLowDealgae() {
-        return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.ElevatorPosition.LOW_ALGAE),
-                endEffector.cmdDealgae().withName("Low dealgae"));
-    }
-
-    public Command reefLowDealgaeUndo(ElevatorPosition pos) {
-        return Commands.sequence(
-                elevator.cmdSetPosition(Elevator.ElevatorPosition.LOW_ALGAE_PREP),
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-                elevator.cmdSetPosition(pos).withName("Low dealgae undo prep"));
-    }
-
-    public Command homeEndEffectorAndSetElevatorPosition(ElevatorPosition pos) {
-        return Commands.sequence(
-                endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME),
-                endEffector.cmdStopAlgaeMotor(),
-                endEffector.cmdStopCoralMotor(),
-                Commands.waitSeconds(0.5),
-                elevator.cmdSetPosition(pos)).withName("Home");
-
-    }
-
-    public Command dynamicElevatorPosition(ElevatorPosition position) {
-        return Commands.run(() -> {
-            double rotationOffset = 0;
-
-            // 0.43 meters is the min distance to the apriltag with bumpers to the reef..
-            double distanceToTarget = limelight.getDistanceFromTarget() - 0.43;
-
-            // 0.1016 meters is ~ 1 coral...
-            if (distanceToTarget <= 0.125) {
-                // Assume every 0.125 meters produced 2.5 rotations
-                rotationOffset = distanceToTarget * 20.0;
-            }
-
-            // Set the position with the offset applied, if one exists
-            elevator.setPosition(position.rotations + rotationOffset);
-
-            if (elevator.isNearPositionAndTolerance(position.rotations, rotationOffset + 0.5)) {
-                elevator.previousElevatorPosition = elevator.elevatorPosition;
-                elevator.elevatorPosition = position;
-            }
-        },
-                elevator)
-                .withName(String.format("Elevator dynamic position - %s", position.name()));
-    }
-
 }

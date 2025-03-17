@@ -30,7 +30,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthStatus;
@@ -39,17 +38,11 @@ import frc.robot.util.TunableTalonFX;
 
 public class Elevator extends SubsystemBase {
   public enum ElevatorPosition {
-    HOME(0),
+    STARTING_CONFIG(0),
     SENSOR(1.3),
-    CONTAIN_ALGAE(17.65),
-    L1(6.08),
-    L2(17.7),
+    HOME(8),
     LOW_ALGAE(32.1),
-    LOW_ALGAE_PREP(37.9),
-    L3(33.6),
     HIGH_ALGAE(46.7),
-    HIGH_ALGAE_PREP(52.7),
-    L4(58.3),
     BARGE(60),
     PEAK(61.5);
 
@@ -75,9 +68,6 @@ public class Elevator extends SubsystemBase {
   private TalonHealthChecker leftMotorCheck;
   private TalonHealthChecker rightMotorCheck;
   private HealthStatus healthStatus = HealthStatus.IS_OK;
-  public ElevatorPosition elevatorPosition = ElevatorPosition.HOME;
-  public ElevatorPosition previousElevatorPosition = ElevatorPosition.HOME;
-  private double leftMotorPosition = 0;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -140,48 +130,6 @@ public class Elevator extends SubsystemBase {
       rightMotorCheck = new TalonHealthChecker(rightMotor, getName());
     }
     cmdHandleSensorTransition().schedule();
-  }
-
-  public Command cmdManualHome() {
-    return cmdSetDutyCycleOut(-0.05).until(() -> homeFound).withName("Elevator force home");
-  }
-
-  public Command cmdSetPosition(ElevatorPosition position) {
-    return new FunctionalCommand(
-        () -> {
-        },
-        () -> setPosition(position.rotations),
-        interrupted -> {
-          if (!interrupted) {
-            previousElevatorPosition = elevatorPosition;
-            elevatorPosition = position;
-          }
-        },
-        () -> isNearPosition(position.rotations),
-        this).withName(String.format("Elevator new position %s", position.name()));
-  }
-
-  public Command cmdAddRotations(double rotations) {
-    return new FunctionalCommand(
-        () -> leftMotorPosition = getLeftMotorPosition(),
-        () -> {
-          setPosition(leftMotorPosition + rotations);
-        },
-        interrupted -> {
-        },
-        () -> isNearPosition(leftMotorPosition + rotations),
-        this).withName(String.format("Elevator pos add %f", rotations));
-  }
-
-  public Command cmdSetDutyCycleOut(double output) {
-    return Commands.runEnd(
-        () -> setDutyCycleOut(output),
-        () -> holdPosition(),
-        this).withName(String.format("Elevator duty cycle %f", output));
-  }
-
-  public Command cmdStop() {
-    return Commands.runOnce(() -> stopMotors(), this).withName("Elevator stop");
   }
 
   @Override
@@ -254,22 +202,8 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean isAbovePosition(ElevatorPosition position) {
-    return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();
-  }
-
-  public boolean isAtCoralScoringPosition() {
-    return (isAtPosition(Elevator.ElevatorPosition.L1)
-        || isAtPosition(Elevator.ElevatorPosition.L2)
-        || isAtPosition(Elevator.ElevatorPosition.L3)
-        || isAtPosition(Elevator.ElevatorPosition.L4));
-  }
-
-  public boolean isAtPosition(ElevatorPosition position) {
-    return elevatorPosition == position;
-  }
-
-  public boolean wasPreviouslyAtPosition(ElevatorPosition position) {
-    return previousElevatorPosition == position;
+    var pos = position.rotations - 2; // Apply some buffer
+    return pos <= getLeftMotorPosition() || pos <= getRightMotorPosition();
   }
 
   @Logged(name = "Home")
@@ -281,21 +215,6 @@ public class Elevator extends SubsystemBase {
     motionMagicPostionControl.Position = position;
     leftMotor.setControl(motionMagicPostionControl);
     rightMotor.setControl(motionMagicPostionControl);
-  }
-
-  private void holdPosition() {
-    setPosition(getLeftMotorPosition());
-  }
-
-  private void setDutyCycleOut(double output) {
-    dutyCycleOut.Output = output;
-    leftMotor.setControl(dutyCycleOut);
-    rightMotor.setControl(dutyCycleOut);
-  }
-
-  private void stopMotors() {
-    leftMotor.stopMotor();
-    rightMotor.stopMotor();
   }
 
   public void resetMotorPositionToPosition(double rotations) {
@@ -311,23 +230,9 @@ public class Elevator extends SubsystemBase {
     return Commands.runOnce(() -> resetMotorPositionToPosition(ElevatorPosition.HOME.rotations), this).ignoringDisable(true);
   }
 
-  private boolean isNearPosition(double position) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), 0.25)
-        || MathUtil.isNear(position, getRightMotorPosition(), 0.25);
-  }
-
   public boolean isNearPositionAndTolerance(double position, double tolerance) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
-        || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
-  }
-
-  private boolean isNearPosition(ElevatorPosition position) {
-    return isNearPosition(position.rotations);
-  }
-
-  @Logged
-  public ElevatorPosition getElevatorState() {
-    return elevatorPosition;
+    return MathUtil.isNear(position, getLeftMotorPosition(), tolerance)
+        || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
   }
 
 }

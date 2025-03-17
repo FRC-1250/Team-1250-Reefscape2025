@@ -25,12 +25,6 @@ public class SetElevatorPosition extends Command {
     cmdElevator.setPosition(cmdPosition.rotations);
   }
 
-  @Override
-  public void end(boolean interrupted) {
-    cmdElevator.previousElevatorPosition = cmdElevator.elevatorPosition;
-    cmdElevator.elevatorPosition = cmdPosition;
-  }
-
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
