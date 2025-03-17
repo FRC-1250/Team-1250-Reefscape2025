@@ -14,15 +14,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.HealthStatus;
-import frc.robot.util.TalonHealthChecker;
 
 public class DeepClimber extends SubsystemBase {
 
   private TalonFX deepClimber = new TalonFX(41);
-   private final boolean healthCheckEnabled = true; 
-  private HealthStatus healthStatus = HealthStatus.IS_OK;
-  private TalonHealthChecker deepClimberCheck;
   private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
   private final double requiredRotations = 0; // 235 ~= 13 inches of travel on the deepClimber
 
@@ -39,14 +34,6 @@ public class DeepClimber extends SubsystemBase {
     deepClimber.getConfigurator().apply(talonFXConfiguration);
     deepClimber.setPosition(0);
     deepClimber.getPosition().setUpdateFrequency(200);
-    if (healthCheckEnabled) {
-      deepClimberCheck = new TalonHealthChecker(deepClimber, getName());
-    }
-  }
-
-  @Logged
-  public HealthStatus getHealthStatus() {
-    return healthStatus;
   }
   
   @Override
@@ -62,7 +49,5 @@ public class DeepClimber extends SubsystemBase {
   public double getRotations(){
     return deepClimber.getPosition().getValueAsDouble();
   }
-  
-
 
 }

@@ -6,16 +6,12 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 
 public abstract class PhoenixHealthChecker {
     private final ParentDevice device;
     private final int deviceID;
-    private final String subsystemName;
+    public final String subsystemName;
     private final Alert alert;
-    private final Timer timer;
-    private final double minSecondsBetweenCheckups;
     private boolean healthy;
 
     public PhoenixHealthChecker(final ParentDevice device, final String subsystemName) {
@@ -23,23 +19,11 @@ public abstract class PhoenixHealthChecker {
         this.deviceID = device.getDeviceID();
         this.subsystemName = subsystemName;
         alert = new Alert("", AlertType.kError);
-        timer = new Timer();
-        timer.start();
-        minSecondsBetweenCheckups = 2;
     }
 
     public boolean isDeviceHealthy() {
-        if (!DriverStation.isDisabled()) {
-            // If DS is enabled, assume it is healthy...
-            healthy = true;
-        } else {
-            // ... until another check can be conducted
-            healthy = checkUp();
-            if (timer.hasElapsed(minSecondsBetweenCheckups)) {
-                alert.set(!healthy);
-                timer.reset();
-            }
-        }
+        healthy = checkUp();
+        alert.set(!healthy);
         return healthy;
     }
 

@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.HealthMonitor;
 
 public class AlgaeEndEffector extends SubsystemBase {
 
@@ -119,6 +120,11 @@ public class AlgaeEndEffector extends SubsystemBase {
     intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     intakeTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     intakeTalonFX.getConfigurator().apply(intakeTalonFXConfiguration);
+
+    HealthMonitor.getInstance()
+        .addComponent(getName(), "Wrist", wristTalonFX)
+        .addComponent(getName(), "Intake", intakeTalonFX)
+        .addComponent(getName(), "Wrist encoder", wristAbsoluteEncoder);
   }
 
   @Override

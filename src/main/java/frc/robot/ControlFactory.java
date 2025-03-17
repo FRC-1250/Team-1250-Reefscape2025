@@ -39,6 +39,7 @@ import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
 import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.SystemLights.PresetColor;
+import frc.robot.util.HealthMonitor;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.ReefScoringMap;
 
@@ -200,17 +201,22 @@ public class ControlFactory {
         return Commands.repeatingSequence(
                 Commands.runOnce(
                         () -> {
+                            HealthMonitor hm = HealthMonitor.getInstance();
                             systemLights.diagnosticColors.clear();
-                            if (elevator.getHealthStatus() == HealthStatus.ERROR) {
+                            if (hm.getSubsystemStatus("Elevator") == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.PURPLE);
                             }
 
-                            if (swerveDrivetrain.getHealthStatus() == HealthStatus.ERROR) {
+                            if (hm.getSubsystemStatus("Drivetrain") == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.RED);
                             }
 
-                            if (climber.getHealthStatus() == HealthStatus.ERROR) {
+                            if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.BLUE);
+                            }
+
+                            if (hm.getSubsystemStatus("AlgaeEndEffector") == HealthStatus.ERROR) {
+                                systemLights.diagnosticColors.add(PresetColor.WHITE);
                             }
 
                             if (systemLights.diagnosticColors.size() == 0) {

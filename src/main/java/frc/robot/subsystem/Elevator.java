@@ -30,8 +30,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.HealthStatus;
-import frc.robot.util.TalonHealthChecker;
+import frc.robot.util.HealthMonitor;
 import frc.robot.util.TunableTalonFX;
 
 public class Elevator extends SubsystemBase {
@@ -60,11 +59,7 @@ public class Elevator extends SubsystemBase {
   private boolean previousHomeSensor = isAtHome();
 
   private final boolean tuningModeEnabled = false;
-  private final boolean healthCheckEnabled = true;
   private TunableTalonFX tunableTalonFX;
-  private TalonHealthChecker leftMotorCheck;
-  private TalonHealthChecker rightMotorCheck;
-  private HealthStatus healthStatus = HealthStatus.IS_OK;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -122,10 +117,10 @@ public class Elevator extends SubsystemBase {
           rightMotor);
     }
 
-    if (healthCheckEnabled) {
-      leftMotorCheck = new TalonHealthChecker(leftMotor, getName());
-      rightMotorCheck = new TalonHealthChecker(rightMotor, getName());
-    }
+    HealthMonitor.getInstance()
+        .addComponent(getName(), "Left motor", leftMotor)
+        .addComponent(getName(), "Right motor", rightMotor);
+   
     cmdHandleSensorTransition().schedule();
   }
 
@@ -133,15 +128,6 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     if (tuningModeEnabled) {
       tunableTalonFX.updateValuesFromSmartNT();
-    }
-
-    if (healthCheckEnabled) {
-      if (!leftMotorCheck.isDeviceHealthy() |
-          !rightMotorCheck.isDeviceHealthy()) {
-        healthStatus = HealthStatus.ERROR;
-      } else {
-        healthStatus = HealthStatus.IS_OK;
-      }
     }
   }
 
@@ -188,11 +174,6 @@ public class Elevator extends SubsystemBase {
 
   public double getRightMotorVelocity() {
     return rightMotor.getVelocity().getValueAsDouble();
-  }
-
-  @Logged(name = "Health status")
-  public HealthStatus getHealthStatus() {
-    return healthStatus;
   }
 
   public boolean isAbovePosition(ElevatorPosition position) {
