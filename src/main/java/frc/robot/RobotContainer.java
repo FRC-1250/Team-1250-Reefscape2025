@@ -204,7 +204,9 @@ public class RobotContainer {
 
                 joystick.rightTrigger()
                 .and(hasAlgae)
-                .and()
+                .and(isAtBarge)
+                .onTrue(new SetWristPosition(algaeEndEffector, WristPosition.BARGE)
+                .andThen(new ReleaseAlgae(algaeEndEffector, IntakeVelocity.YEET)));
 
                 joystick.leftTrigger()
                                 .and(reefHasHighAlgae)
