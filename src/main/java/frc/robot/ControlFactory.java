@@ -189,6 +189,18 @@ public class ControlFactory {
         return new SetWristPosition(algaeEndEffector, WristPosition.HOME);
     }
 
+    public Command cmdSetWristFloor() {
+        return new SetWristPosition(algaeEndEffector, WristPosition.FLOOR);
+    }
+
+    public Command cmdSetWristReef() {
+        return new SetWristPosition(algaeEndEffector, WristPosition.REEF);
+    }
+
+    public Command cmdSetWristL1() {
+        return new SetWristPosition(algaeEndEffector, WristPosition.AUTO_CORAL);
+    }
+
     public Command cmdIntakeAlgae() {
         return new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE);
     }
