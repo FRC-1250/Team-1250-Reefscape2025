@@ -41,10 +41,10 @@ public class AlgaeEndEffector extends SubsystemBase {
   }
 
   public enum WristPosition {
-    HOME(0.33),
+    HOME(0.31),
     AUTO_CORAL(0.43),
     REEF(0.51),
-    FLOOR(0.69),
+    FLOOR(0.63),
     BARGE(0.25);
 
     public final double rotations;
@@ -57,7 +57,7 @@ public class AlgaeEndEffector extends SubsystemBase {
   private TalonFX wristTalonFX = new TalonFX(22);
   private CANcoder wristAbsoluteEncoder = new CANcoder(24);
   private PositionVoltage wristPositionControl = new PositionVoltage(0).withSlot(0);
-  private final double encoderOffset = 0;
+  private final double encoderOffset = 0.95888671875;
 
   private TalonFX intakeTalonFX = new TalonFX(23);
   private DigitalInput intakeAlgaeSensor = new DigitalInput(5);
@@ -76,7 +76,7 @@ public class AlgaeEndEffector extends SubsystemBase {
     Slot0Configs wristPositionPIDConfigs = new Slot0Configs()
         .withKG(0)
         .withKS(0)
-        .withKP(1)
+        .withKP(30)
         .withKI(0)
         .withKD(0)
         .withKV(0);
@@ -88,7 +88,7 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.68;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.63;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.34;
     wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();

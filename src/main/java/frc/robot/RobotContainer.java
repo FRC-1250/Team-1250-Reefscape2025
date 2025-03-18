@@ -162,6 +162,10 @@ public class RobotContainer {
         operatorJoystick.cross().onTrue(controlFactory.cmdAddWristRotations(-0.1));
         operatorJoystick.square().onTrue(controlFactory.cmdAddWristRotations(0.05));
         operatorJoystick.circle().onTrue(controlFactory.cmdAddWristRotations(-0.05));
+
+        operatorJoystick.L1().onTrue(controlFactory.cmdSetWristHome());
+        operatorJoystick.L2().onTrue(controlFactory.cmdSetWristFloor());
+
     }
 
     private void configureSmartDashboardBindings() {

@@ -183,7 +183,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private Command cmdHandleSensorTransition() {
-    return new NotifierCommand(() -> detectSensorTransition(), 0.002)
+    return new NotifierCommand(() -> detectSensorTransition(), 0.01)
         .until(() -> homeFound)
         .unless(() -> homeFound)
         .withName("Elevator find home")

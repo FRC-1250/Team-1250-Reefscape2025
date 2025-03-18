@@ -10,6 +10,7 @@ import frc.robot.subsystem.Elevator;
 public class AddElevatorRotations extends Command {
   private final Elevator cmdElevator;
   private final double cmdRotations;
+  private double currentPosition;
 
   public AddElevatorRotations(Elevator elevator, double rotations) {
     cmdElevator = elevator;
@@ -20,12 +21,13 @@ public class AddElevatorRotations extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    cmdElevator.setPosition(cmdElevator.getLeftMotorPosition() + cmdRotations);
+    currentPosition = cmdElevator.getLeftMotorPosition();
+    cmdElevator.setPosition(currentPosition + cmdRotations);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return cmdElevator.isNearPositionAndTolerance(cmdElevator.getLeftMotorPosition() + cmdRotations, 0.25);
+    return cmdElevator.isNearPositionAndTolerance(currentPosition + cmdRotations, 0.25);
   }
 }

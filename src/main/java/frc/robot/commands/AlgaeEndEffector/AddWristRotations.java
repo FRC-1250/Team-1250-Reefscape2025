@@ -11,6 +11,7 @@ import frc.robot.subsystem.AlgaeEndEffector;
 public class AddWristRotations extends Command {
   private final AlgaeEndEffector cmdAlgaeEndEffector;
   private final double cmdRotations;
+  private double currentPosition;
 
   public AddWristRotations(AlgaeEndEffector algaeEndEffector, double rotations) {
     addRequirements(algaeEndEffector);
@@ -21,12 +22,13 @@ public class AddWristRotations extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    currentPosition = cmdAlgaeEndEffector.getWristPosition();
     cmdAlgaeEndEffector.addRotationsToWristPosition(cmdRotations);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return cmdAlgaeEndEffector.isWristNearPosition(cmdAlgaeEndEffector.getWristPosition() + cmdRotations);
+    return cmdAlgaeEndEffector.isWristNearPosition(currentPosition + cmdRotations);
   }
 }
