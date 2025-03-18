@@ -26,12 +26,12 @@ import frc.robot.util.HealthMonitor;
 public class AlgaeEndEffector extends SubsystemBase {
 
   public enum IntakeVelocity {
-    SLOW_INTAKE(-10),
-    INTAKE(-20),
-    YOINK(-20),
-    SLOW_RELEASE(10),
-    RELEASE(20),
-    YEET(20);
+    SLOW_INTAKE(-50),
+    INTAKE(-75),
+    YOINK(-100),
+    SLOW_RELEASE(50),
+    RELEASE(75),
+    YEET(100);
 
     public final double rotationsPerSecond;
 
@@ -57,6 +57,7 @@ public class AlgaeEndEffector extends SubsystemBase {
   private TalonFX wristTalonFX = new TalonFX(22);
   private CANcoder wristAbsoluteEncoder = new CANcoder(24);
   private PositionVoltage wristPositionControl = new PositionVoltage(0).withSlot(0);
+  private final double encoderOffset = 0;
 
   private TalonFX intakeTalonFX = new TalonFX(23);
   private DigitalInput intakeAlgaeSensor = new DigitalInput(5);
@@ -67,8 +68,8 @@ public class AlgaeEndEffector extends SubsystemBase {
     CANcoderConfiguration wristAbsoluteEncoderConfiguration = new CANcoderConfiguration();
     // Set encoder to provide a value between 0 and 1
     wristAbsoluteEncoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-    wristAbsoluteEncoderConfiguration.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    wristAbsoluteEncoderConfiguration.MagnetSensor.MagnetOffset = 0;
+    wristAbsoluteEncoderConfiguration.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    wristAbsoluteEncoderConfiguration.MagnetSensor.MagnetOffset = encoderOffset;
     wristAbsoluteEncoder.getConfigurator().apply(wristAbsoluteEncoderConfiguration);
     wristAbsoluteEncoder.getAbsolutePosition().setUpdateFrequency(200);
 
@@ -85,14 +86,13 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
     wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.69;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.68;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.33;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.34;
     wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();
     wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-    wristTalonFXConfiguration.Feedback.RotorToSensorRatio = 1;
     wristTalonFX.getConfigurator().apply(wristTalonFXConfiguration);
 
     Slot0Configs intakePositionPIDConfigs = new Slot0Configs()
@@ -105,11 +105,11 @@ public class AlgaeEndEffector extends SubsystemBase {
 
     Slot1Configs intakeVelocityPIDConfigs = new Slot1Configs()
         .withKG(0)
-        .withKS(0)
-        .withKP(1)
+        .withKS(0.1)
+        .withKP(0.11)
         .withKI(0)
         .withKD(0)
-        .withKV(0);
+        .withKV(0.12);
 
     TalonFXConfiguration intakeTalonFXConfiguration = new TalonFXConfiguration();
     intakeTalonFXConfiguration.Slot0 = intakePositionPIDConfigs;
@@ -117,7 +117,7 @@ public class AlgaeEndEffector extends SubsystemBase {
     intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
     intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
     intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    intakeTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    intakeTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     intakeTalonFX.getConfigurator().apply(intakeTalonFXConfiguration);
 
     HealthMonitor.getInstance()
@@ -140,7 +140,7 @@ public class AlgaeEndEffector extends SubsystemBase {
 
   @Logged(name = "Wrist position")
   public double getWristPosition() {
-    return wristAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
+    return wristAbsoluteEncoder.getPosition().getValueAsDouble();
   }
 
   private void setWristPosition(double rotations) {
