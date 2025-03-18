@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -48,13 +49,16 @@ public class DeepClimber extends SubsystemBase {
     motionMagicConfigs.MotionMagicAcceleration = 150;
     motionMagicConfigs.MotionMagicJerk = 0;
 
+    TorqueCurrentConfigs torqueCurrentConfigs = new TorqueCurrentConfigs();
+    torqueCurrentConfigs.PeakForwardTorqueCurrent = 100;
+
     Slot0Configs positionConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Arm_Cosine)
         .withKG(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
-        .withKS(0.2)
+        .withKS(2.5)
         .withKV(0.25)
-        .withKP(1)
+        .withKP(5)
         .withKI(0)
         .withKD(0.0);
 
@@ -62,6 +66,7 @@ public class DeepClimber extends SubsystemBase {
     talonFXConfiguration.MotorOutput = motorOutputConfigs;
     talonFXConfiguration.MotionMagic = motionMagicConfigs;
     talonFXConfiguration.Slot0 = positionConfigs;
+    talonFXConfiguration.TorqueCurrent = torqueCurrentConfigs;
 
     deepClimber.getConfigurator().apply(talonFXConfiguration);
     deepClimber.setPosition(0);
