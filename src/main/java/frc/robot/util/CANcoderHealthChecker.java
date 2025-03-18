@@ -17,9 +17,9 @@ public class CANcoderHealthChecker extends PhoenixHealthChecker {
     @Override
     protected List<Boolean> faultsToBooleanList() {
         return Arrays.asList(
-                cancoder.getStickyFault_BootDuringEnable().getValue(),
-                cancoder.getStickyFault_BadMagnet().getValue(),
+                cancoder.getFault_BootDuringEnable().getValue(),
+                cancoder.getFault_BadMagnet().getValue(),
                 // cancoder.getStickyFault_Hardware().getValue(),
-                cancoder.getStickyFault_Undervoltage().getValue());
+                cancoder.getFault_Undervoltage().getValue());
     }
 }

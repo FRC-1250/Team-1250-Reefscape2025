@@ -36,7 +36,7 @@ public abstract class PhoenixHealthChecker {
         }
 
         if (!areBooleanStatusSignalsHealthy(faultsToBooleanList())) {
-            setAlertMessage("sticky faults detected. Check phoenix tuner.");
+            setAlertMessage("faults detected. Check phoenix tuner.");
             return false;
         }
         return true;
