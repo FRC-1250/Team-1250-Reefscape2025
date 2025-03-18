@@ -141,8 +141,8 @@ public class RobotContainer {
         primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetElevatorToReefAlgae());
 
         // Intake
-        primaryDriverJoystick.rightTrigger().whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevator());
-        primaryDriverJoystick.leftTrigger().whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevator());
+        primaryDriverJoystick.rightTrigger().whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition());
+        primaryDriverJoystick.leftTrigger().whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition());
 
         // Climber
         primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbPhaseBasedOnPositon());
@@ -150,14 +150,18 @@ public class RobotContainer {
         /*
          * Operator controls
          */
-        operatorJoystick.R1().whileTrue(controlFactory.cmdIntakeAlgae());
-        operatorJoystick.L1().whileTrue(controlFactory.cmdReleaseAlgae());
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdReleaseAlgae());
+        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdIntakeAlgae());
 
         operatorJoystick.povUp().onTrue(controlFactory.cmdAddElevatorRotations(5));
+        operatorJoystick.povLeft().onTrue(controlFactory.cmdAddElevatorRotations(1));
         operatorJoystick.povDown().onTrue(controlFactory.cmdAddElevatorRotations(-5));
+        operatorJoystick.povRight().onTrue(controlFactory.cmdAddElevatorRotations(-1));
 
-        operatorJoystick.triangle().onTrue(controlFactory.cmdAddWristRotations(0.2));
-        operatorJoystick.cross().onTrue(controlFactory.cmdAddWristRotations(-0.2));
+        operatorJoystick.triangle().onTrue(controlFactory.cmdAddWristRotations(0.1));
+        operatorJoystick.cross().onTrue(controlFactory.cmdAddWristRotations(-0.1));
+        operatorJoystick.square().onTrue(controlFactory.cmdAddWristRotations(0.05));
+        operatorJoystick.circle().onTrue(controlFactory.cmdAddWristRotations(-0.05));
     }
 
     private void configureSmartDashboardBindings() {
