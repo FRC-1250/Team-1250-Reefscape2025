@@ -97,19 +97,16 @@ public class AlgaeEndEffector extends SubsystemBase {
 
     Slot0Configs intakePositionPIDConfigs = new Slot0Configs()
         .withKG(0)
-        .withKS(0)
         .withKP(1)
         .withKI(0)
-        .withKD(0)
-        .withKV(0);
+        .withKD(0);
 
     Slot1Configs intakeVelocityPIDConfigs = new Slot1Configs()
-        .withKG(0)
         .withKS(0.1)
+        .withKV(0.12)
         .withKP(0.11)
         .withKI(0)
-        .withKD(0)
-        .withKV(0.12);
+        .withKD(0);
 
     TalonFXConfiguration intakeTalonFXConfiguration = new TalonFXConfiguration();
     intakeTalonFXConfiguration.Slot0 = intakePositionPIDConfigs;
