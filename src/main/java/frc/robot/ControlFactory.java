@@ -158,17 +158,17 @@ public class ControlFactory {
      * Algae intake
      */
     public Command cmdIntakeAlgaeFloor() {
-        return Commands.parallel(
-                new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE),
-                new SetWristPosition(algaeEndEffector, WristPosition.FLOOR)
+        return Commands.sequence(
+                new SetWristPosition(algaeEndEffector, WristPosition.FLOOR),
+                new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE)
                 .withName("Intake: Floor"));
     }
 
     public Command cmdIntakeAlgaeReef() {
-        return Commands.parallel(
-                new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE),
-                new SetWristPosition(algaeEndEffector, WristPosition.REEF)
-                .withName("Intake: Reef"));
+        return Commands.sequence(
+                new SetWristPosition(algaeEndEffector, WristPosition.REEF),
+                new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE)
+                        .withName("Intake: Reef"));
     }
 
     public Command cmdReleaseAlgaeBarge() {
@@ -201,7 +201,7 @@ public class ControlFactory {
         return new AddWristRotations(algaeEndEffector, rotations);
     }
 
-    public Command cmdReleaseAlgaeBasedOnElevator() {
+    public Command cmdReleaseAlgaeBasedOnElevatorPosition() {
         return new ConditionalCommand(
                 cmdReleaseAlgaeBarge().andThen(cmdSetWristHome()),
                 cmdReleaseAlgae(),
@@ -209,7 +209,7 @@ public class ControlFactory {
                 .withName("Intake: Release algae");
     }
 
-    public Command cmdIntakeAlgaeBasedOnElevator() {
+    public Command cmdIntakeAlgaeBasedOnElevatorPosition() {
         return new ConditionalCommand(
                 cmdIntakeAlgaeFloor().andThen(cmdSetWristHome()),
                 cmdIntakeAlgaeReef().andThen(cmdSetWristHome()),
