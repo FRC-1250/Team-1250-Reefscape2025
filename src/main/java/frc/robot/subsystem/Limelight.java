@@ -13,7 +13,6 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 public class Limelight extends SubsystemBase {
 
   private final String name;
-  private double fid = -1;
 
   public enum LimeLightPipeline {
     MORNING(0),
@@ -35,11 +34,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getFid() {
-    return fid;
-  }
-
-  public boolean isBestTagSeen(double fid) {
-    return Double.compare(this.fid, fid) == 0;
+    return LimelightHelpers.getFiducialID(name);
   }
 
   public void setRobotOrientation(double headingDeg) {
@@ -62,6 +57,5 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    fid = LimelightHelpers.getFiducialID(name);
   }
 }

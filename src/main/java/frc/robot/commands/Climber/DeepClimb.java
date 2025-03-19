@@ -5,45 +5,40 @@
 
 package frc.robot.commands.Climber;
 
-import static edu.wpi.first.units.Units.Amps;
-
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystem.DeepClimber;
+import frc.robot.subsystem.DeepClimber.DeepClimberPhase;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DeepClimbPt2 extends Command {
- 
-   private final DeepClimber cmdDeepClimber;
+public class DeepClimb extends Command {
 
-   public DeepClimbPt2(DeepClimber deepClimber){
-      addRequirements(deepClimber);
-      cmdDeepClimber = deepClimber;
-   }
-    // Use addRequirements() here to declare subsystem dependencies.
-  
+  private final DeepClimber cmdDeepClimber;
+  private final DeepClimberPhase cmdDeepClimberPhase;
+  private final Current cmdFeedforward;
+
+  public DeepClimb(DeepClimber deepClimber, DeepClimberPhase deepClimberPhase, Current feedforward) {
+    addRequirements(deepClimber);
+    cmdDeepClimber = deepClimber;
+    cmdDeepClimberPhase = deepClimberPhase;
+    cmdFeedforward = feedforward;
+  }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    cmdDeepClimber.setTorque(Amps.of(40));
+    cmdDeepClimber.setPosition(cmdDeepClimberPhase, cmdFeedforward);
   }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    cmdDeepClimber.setTorque(Amps.of(0));
+    cmdDeepClimber.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return
-    cmdDeepClimber.getRotations()>=20;
+    return cmdDeepClimber.isNearPositionAndTolerance(cmdDeepClimberPhase.rotations, 1);
   }
 }

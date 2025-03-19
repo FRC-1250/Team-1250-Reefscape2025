@@ -52,7 +52,7 @@ public class SystemLights extends SubsystemBase {
 
   public SystemLights() {
     CANdleConfiguration configAll = new CANdleConfiguration();
-    configAll.brightnessScalar = 1;
+    configAll.brightnessScalar = 0.6;
     configAll.disableWhenLOS = true;
     configAll.enableOptimizations = true;
     configAll.statusLedOffWhenActive = true;

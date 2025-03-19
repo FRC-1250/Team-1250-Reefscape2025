@@ -14,18 +14,28 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.HealthMonitor;
 
-@Logged
 public class Robot extends TimedRobot {
+
   private Command m_autonomousCommand;
 
   @Logged(name = "RobotContainer")
   private final RobotContainer m_robotContainer;
 
+  private final Timer m_gcTimer;
+  private final HealthMonitor hm;
+  
+
   public Robot() {
     m_robotContainer = new RobotContainer();
+
+    hm = HealthMonitor.getInstance();
+    hm.start();
+
     DriverStation.startDataLog(DataLogManager.getLog());
     Epilogue.bind(this);
     DriverStation.silenceJoystickConnectionWarning(true);
@@ -39,6 +49,9 @@ public class Robot extends TimedRobot {
 
     CommandScheduler.getInstance().onCommandInterrupt(
         command -> DataLogManager.log(String.format("Command interrupted: %s", command.getName())));
+
+    m_gcTimer = new Timer();
+    m_gcTimer.start();
   }
 
   @Override
@@ -55,10 +68,15 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     m_robotContainer.determineMaxSpeed();
     m_robotContainer.controlFactory.addLimelightVisionMeasurements();
+
+    if (m_gcTimer.advanceIfElapsed(15)) {
+      System.gc();
+    }
   }
 
   @Override
   public void disabledInit() {
+    hm.unpause();
     m_robotContainer.controlFactory.cmdDisplaySubsystemErrorState().schedule();
   }
 
@@ -66,7 +84,9 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {}
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    hm.pause();
+  }
 
   @Override
   public void autonomousInit() {

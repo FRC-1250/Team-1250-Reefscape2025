@@ -26,9 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.util.HealthStatus;
-import frc.robot.util.PigeonHealthChecker;
-import frc.robot.util.SwerveModuleHealthChecker;
+import frc.robot.util.HealthMonitor;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -52,26 +50,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-    // Custom
-    private final boolean healthCheckEnabled = true;
-    private SwerveModuleHealthChecker frontLeftCheck;
-    private SwerveModuleHealthChecker frontRightCheck;
-    private SwerveModuleHealthChecker backLeftCheck;
-    private SwerveModuleHealthChecker backRightCheck;
-    private PigeonHealthChecker pigeonCheck;
-    private HealthStatus healthStatus = HealthStatus.IS_OK;
-
     private void configureHealthCheck() {
         var modules = getModules();
-        frontLeftCheck = new SwerveModuleHealthChecker(modules[0]);
-        frontRightCheck = new SwerveModuleHealthChecker(modules[1]);
-        backLeftCheck = new SwerveModuleHealthChecker(modules[2]);
-        backRightCheck = new SwerveModuleHealthChecker(modules[3]);
-        pigeonCheck = new PigeonHealthChecker(getPigeon2(), "Drivetrain");
-    }
-
-    public HealthStatus getHealthStatus() {
-        return healthStatus;
+        HealthMonitor.getInstance()
+                .addComponent("Drivetrain", "Gyro", getPigeon2())
+                .addComponent("Drivetrain", "FL Drive", modules[0].getDriveMotor())
+                .addComponent("Drivetrain", "FL Steer", modules[0].getSteerMotor())
+                .addComponent("Drivetrain", "FL Encoder", modules[0].getEncoder())
+                .addComponent("Drivetrain", "FR Drive", modules[1].getDriveMotor())
+                .addComponent("Drivetrain", "FR Steer", modules[1].getSteerMotor())
+                .addComponent("Drivetrain", "FR Encoder", modules[1].getEncoder())
+                .addComponent("Drivetrain", "BL Drive", modules[2].getDriveMotor())
+                .addComponent("Drivetrain", "BL Steer", modules[2].getSteerMotor())
+                .addComponent("Drivetrain", "BL Encoder", modules[2].getEncoder())
+                .addComponent("Drivetrain", "BR Drive", modules[3].getDriveMotor())
+                .addComponent("Drivetrain", "BR Steer", modules[3].getSteerMotor())
+                .addComponent("Drivetrain", "BR Encoder", modules[3].getEncoder());
     }
 
     /*
@@ -155,10 +149,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
-
-        if (healthCheckEnabled) {
-            configureHealthCheck();
-        }
+        configureHealthCheck();
     }
 
     /**
@@ -311,18 +302,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                 : kBlueAlliancePerspectiveRotation);
                 m_hasAppliedOperatorPerspective = true;
             });
-        }
-
-        if (healthCheckEnabled) {
-            if (!frontLeftCheck.isModuleHealthy() |
-                    !frontRightCheck.isModuleHealthy() |
-                    !backLeftCheck.isModuleHealthy() |
-                    !backRightCheck.isModuleHealthy() |
-                    !pigeonCheck.isDeviceHealthy()) {
-                healthStatus = HealthStatus.ERROR;
-            } else {
-                healthStatus = HealthStatus.IS_OK;
-            }
         }
     }
 
