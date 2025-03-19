@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.03513919987311,
-        "y": 4.452656224602741
+        "x": 6.061952602895741,
+        "y": 4.3244225980439035
       },
       "isLocked": false,
       "linkedName": "HG"
     },
     {
       "anchor": {
-        "x": 7.574137931034484,
-        "y": 4.688793103448276
+        "x": 7.4084016393442615,
+        "y": 6.128842213114754
       },
       "prevControl": {
-        "x": 6.376149152168709,
-        "y": 4.646927180476495
+        "x": 6.203955825747246,
+        "y": 5.589891755454079
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BARGE"
     }
   ],
   "rotationTargets": [],
@@ -33,10 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.5,
-    "maxAcceleration": 1.5,
-    "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 540.0,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

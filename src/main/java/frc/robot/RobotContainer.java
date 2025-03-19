@@ -31,6 +31,8 @@ import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
+import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
+import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.Limelight.LimeLightPipeline;
 
@@ -236,6 +238,5 @@ public class RobotContainer {
                         .andThen(controlFactory.cmdReleaseAlgaeBarge().withTimeout(releaseTimeoutTime)
                         .andThen(controlFactory.cmdSetWristHome()
                         .andThen(controlFactory.cmdSetElevatorToHome()))));
-
     }
 }
