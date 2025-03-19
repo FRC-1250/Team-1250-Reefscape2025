@@ -4,6 +4,8 @@
 
 package frc.robot.subsystem;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -75,11 +77,10 @@ public class AlgaeEndEffector extends SubsystemBase {
 
     Slot0Configs wristPositionPIDConfigs = new Slot0Configs()
         .withKG(0)
-        .withKS(0)
-        .withKP(30)
+        .withKS(0.5)
+        .withKP(25)
         .withKI(0)
-        .withKD(0)
-        .withKV(0);
+        .withKD(0.01);
 
     TalonFXConfiguration wristTalonFXConfiguration = new TalonFXConfiguration();
     wristTalonFXConfiguration.Slot0 = wristPositionPIDConfigs;
@@ -141,7 +142,11 @@ public class AlgaeEndEffector extends SubsystemBase {
   }
 
   private void setWristPosition(double rotations) {
-    wristTalonFX.setControl(wristPositionControl.withPosition(rotations));
+    wristTalonFX.setControl(
+        wristPositionControl
+            .withPosition(rotations)
+            .withFeedForward(Volts.of(4))
+            .withEnableFOC(true));
   }
 
   public void setWristPosition(WristPosition postion) {
