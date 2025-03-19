@@ -247,7 +247,8 @@ public class ControlFactory {
                                 systemLights.diagnosticColors.add(PresetColor.RED);
                             }
 
-                            if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR) {
+                            if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR
+                                    || hm.getSubsystemStatus("DeepClimber") == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.BLUE);
                             }
 
