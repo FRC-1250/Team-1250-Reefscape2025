@@ -19,7 +19,13 @@
         {
           "type": "named",
           "data": {
-            "name": "DealgeaHighGoHome"
+            "name": "L1Coral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DealgaeLowGoHome"
           }
         },
         {

@@ -31,8 +31,6 @@ import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
-import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
-import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.Limelight.LimeLightPipeline;
 
@@ -192,7 +190,7 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("CenterToBarge", "CenterToBarge");
+        addPathAuto("CenterAlgae", "CenterAlgae");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -219,21 +217,21 @@ public class RobotContainer {
                         .andThen(controlFactory.cmdSetWristHome())));
 
         NamedCommands.registerCommand(
-                "HighDealgae",
+                "DealgaeHighGoHome",
                 controlFactory.cmdSetElevatorHighAlgae()
                         .andThen(controlFactory.cmdIntakeAlgaeReef().withTimeout(intakeTimeoutTime)
                         .andThen(controlFactory.cmdSetWristHome()
                         .andThen(controlFactory.cmdSetElevatorToHome()))));
 
         NamedCommands.registerCommand(
-                "LowDealgae",
+                "DealgaeLowGoHome",
                 controlFactory.cmdSetElevatorLowAlgae()
                         .andThen(controlFactory.cmdIntakeAlgaeReef().withTimeout(intakeTimeoutTime)
                         .andThen(controlFactory.cmdSetWristHome()
                         .andThen(controlFactory.cmdSetElevatorToHome()))));
 
         NamedCommands.registerCommand(
-                "ScoreBarge",
+                "ScoreBargeGoHome",
                 controlFactory.cmdSetElevatorToBarge()
                         .andThen(controlFactory.cmdReleaseAlgaeBarge().withTimeout(releaseTimeoutTime)
                         .andThen(controlFactory.cmdSetWristHome()
