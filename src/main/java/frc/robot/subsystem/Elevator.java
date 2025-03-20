@@ -64,17 +64,18 @@ public class Elevator extends SubsystemBase {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withKG(0.3)
-        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
         .withKS(0.2)
-        .withKV(0.25)
-        .withKP(1)
+        .withKV(0.3)
+        .withKA(0.01)
+        .withKP(2)
         .withKI(0)
-        .withKD(0.05);
+        .withKD(0.1);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
         .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
-        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(175))
-        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(600));
+        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
+        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
     softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
@@ -91,7 +92,6 @@ public class Elevator extends SubsystemBase {
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
-    voltageConfigs.PeakForwardVoltage = 12;
     voltageConfigs.PeakReverseVoltage = -4;
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
