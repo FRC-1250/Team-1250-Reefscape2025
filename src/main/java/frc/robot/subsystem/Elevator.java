@@ -38,10 +38,10 @@ public class Elevator extends SubsystemBase {
     HOME(0.25),
     SENSOR(1.3),
     L1(6.08),
-    LOW_ALGAE(15),
-    HIGH_ALGAE(30),
-    BARGE(45),
-    PEAK(47);
+    LOW_ALGAE(18),
+    HIGH_ALGAE(32),
+    BARGE(73),
+    PEAK(74);
 
     public final double rotations;
 

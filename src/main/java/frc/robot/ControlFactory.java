@@ -164,16 +164,18 @@ public class ControlFactory {
     public Command cmdIntakeAlgae(IntakeVelocity velocity, WristPosition position) {
         return Commands.sequence(
                 cmdSetIntakeVelocity(velocity),
-                cmdSetWristPosition(position))
-                .until(() -> algaeEndEffector.hasAlgae())
+                cmdSetWristPosition(position),
+                Commands.waitUntil(() -> algaeEndEffector.hasAlgae()),
+                cmdSetIntakeVelocity(IntakeVelocity.STOP),
+                cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT))
                 .unless(() -> algaeEndEffector.hasAlgae())
                 .withName(String.format("Intake: %s", position.toString()));
     }
 
     public Command cmdIntakeAlgaeBasedOnElevatorPosition() {
         return new ConditionalCommand(
-                cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.FLOOR),
-                cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.FLOOR),
+                cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.REEF),
                 () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
     }
 

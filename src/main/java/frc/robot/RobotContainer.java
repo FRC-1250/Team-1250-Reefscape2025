@@ -144,10 +144,12 @@ public class RobotContainer {
         primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetElevatorToReefAlgae());
 
         // Intake
-        primaryDriverJoystick.rightTrigger().whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition())
-                .onFalse(controlFactory.cmdHomeIntake());
-        primaryDriverJoystick.leftTrigger().whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition())
-                .onFalse(controlFactory.cmdHomeIntake());
+        primaryDriverJoystick.rightTrigger()
+                .whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition())
+                .whileFalse(controlFactory.cmdHomeIntake());
+        primaryDriverJoystick.leftTrigger()
+                .whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition())
+                .whileFalse(controlFactory.cmdHomeIntake());
 
         // Climber
         primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbPhaseBasedOnPositon());
@@ -155,8 +157,8 @@ public class RobotContainer {
         /*
          * Operator controls
          */
-        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE));
-        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.INTAKE));
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE)).onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
+        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK)).onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
 
         operatorJoystick.povUp().onTrue(controlFactory.cmdAddElevatorRotations(5));
         operatorJoystick.povLeft().onTrue(controlFactory.cmdAddElevatorRotations(1));
@@ -168,8 +170,12 @@ public class RobotContainer {
         operatorJoystick.square().onTrue(controlFactory.cmdAddWristRotations(0.05));
         operatorJoystick.circle().onTrue(controlFactory.cmdAddWristRotations(-0.05));
 
-        operatorJoystick.L1().onTrue(controlFactory.cmdSetWristPosition(WristPosition.HOME));
-        operatorJoystick.L2().onTrue(controlFactory.cmdSetWristPosition(WristPosition.FLOOR));
+        operatorJoystick.L1().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+        operatorJoystick.L2().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
+
+        operatorJoystick.R1().onTrue(controlFactory.cmdSetWristPosition(WristPosition.REEF));
+        operatorJoystick.R2().onTrue(controlFactory.cmdSetWristPosition(WristPosition.HOME));
+
 
     }
 

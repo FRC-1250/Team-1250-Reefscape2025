@@ -47,10 +47,12 @@ public class AlgaeEndEffector extends SubsystemBase {
 
   public enum WristPosition {
     HOME(0.31),
+    ALGEA_CONTAINMENT(.34),
+    SCORE(.41),
     L1(0.43),
     REEF(0.51),
-    FLOOR(0.63),
-    BARGE(0.25);
+    FLOOR(0.67),
+    BARGE(0.31);
 
     public final double rotations;
 
@@ -93,11 +95,11 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.63;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.7;
     wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.34;
+    wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.30;
     wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();
-    wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     wristTalonFX.getConfigurator().apply(wristTalonFXConfiguration);
 
     Slot1Configs intakeVelocityPIDConfigs = new Slot1Configs()
@@ -139,7 +141,7 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFX.setControl(
         wristPositionControl
             .withPosition(rotations)
-            .withFeedForward(Volts.of(4))
+            .withFeedForward(Volts.of(0))
             .withEnableFOC(true));
   }
 
@@ -171,7 +173,7 @@ public class AlgaeEndEffector extends SubsystemBase {
   public void setIntakeVelocity(IntakeVelocity velocity) {
     intakeTalonFX.setControl(intakeVelocityControl.withVelocity(velocity.rotationsPerSecond));
   }
-
+@Logged
   public boolean hasAlgae() {
     return !intakeAlgaeSensor.get();
   }
