@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -31,6 +32,8 @@ import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
+import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
+import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.Limelight.LimeLightPipeline;
 
@@ -136,13 +139,15 @@ public class RobotContainer {
                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
 
         // Elevator
-        primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorToHome());
-        primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorToBarge());
+        primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+        primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetElevatorToReefAlgae());
 
         // Intake
-        primaryDriverJoystick.rightTrigger().whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition());
-        primaryDriverJoystick.leftTrigger().whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition());
+        primaryDriverJoystick.rightTrigger().whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition())
+                .onFalse(controlFactory.cmdHomeIntake());
+        primaryDriverJoystick.leftTrigger().whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition())
+                .onFalse(controlFactory.cmdHomeIntake());
 
         // Climber
         primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbPhaseBasedOnPositon());
@@ -150,8 +155,8 @@ public class RobotContainer {
         /*
          * Operator controls
          */
-        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdReleaseAlgae());
-        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdIntakeAlgae());
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE));
+        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.INTAKE));
 
         operatorJoystick.povUp().onTrue(controlFactory.cmdAddElevatorRotations(5));
         operatorJoystick.povLeft().onTrue(controlFactory.cmdAddElevatorRotations(1));
@@ -163,8 +168,8 @@ public class RobotContainer {
         operatorJoystick.square().onTrue(controlFactory.cmdAddWristRotations(0.05));
         operatorJoystick.circle().onTrue(controlFactory.cmdAddWristRotations(-0.05));
 
-        operatorJoystick.L1().onTrue(controlFactory.cmdSetWristHome());
-        operatorJoystick.L2().onTrue(controlFactory.cmdSetWristFloor());
+        operatorJoystick.L1().onTrue(controlFactory.cmdSetWristPosition(WristPosition.HOME));
+        operatorJoystick.L2().onTrue(controlFactory.cmdSetWristPosition(WristPosition.FLOOR));
 
     }
 
@@ -195,46 +200,38 @@ public class RobotContainer {
     }
 
     private void configureNamedCommands() {
-        double intakeTimeoutTime = 0.5;
         double releaseTimeoutTime = 1;
-
-        // Elevator
-        NamedCommands.registerCommand("Home", controlFactory.cmdSetElevatorToHome());
-        NamedCommands.registerCommand("HighAlgae", controlFactory.cmdSetElevatorHighAlgae());
-        NamedCommands.registerCommand("LowAlgae", controlFactory.cmdSetElevatorLowAlgae());
-        NamedCommands.registerCommand("Barge", controlFactory.cmdSetElevatorToBarge());
-
-        // Intake
-        NamedCommands.registerCommand("IntakeReef", controlFactory.cmdIntakeAlgaeReef());
-        NamedCommands.registerCommand("ReleaseBarge", controlFactory.cmdReleaseAlgaeBarge());
-        NamedCommands.registerCommand("Release",controlFactory.cmdReleaseAlgae());
 
         // Complex
         NamedCommands.registerCommand(
-                "L1Coral",
-                controlFactory.cmdSetElevatorToL1()
-                        .andThen(controlFactory.cmdReleaseCoralL1().withTimeout(releaseTimeoutTime)
-                        .andThen(controlFactory.cmdSetWristHome())));
-
-        NamedCommands.registerCommand(
                 "DealgaeHighGoHome",
-                controlFactory.cmdSetElevatorHighAlgae()
-                        .andThen(controlFactory.cmdIntakeAlgaeReef().withTimeout(intakeTimeoutTime)
-                        .andThen(controlFactory.cmdSetWristHome()
-                        .andThen(controlFactory.cmdSetElevatorToHome()))));
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
+                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(
                 "DealgaeLowGoHome",
-                controlFactory.cmdSetElevatorLowAlgae()
-                        .andThen(controlFactory.cmdIntakeAlgaeReef().withTimeout(intakeTimeoutTime)
-                        .andThen(controlFactory.cmdSetWristHome()
-                        .andThen(controlFactory.cmdSetElevatorToHome()))));
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
+                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
+
+        NamedCommands.registerCommand(
+                "L1Coral",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1),
+                        controlFactory.cmdReleaseAlgae(WristPosition.L1).withTimeout(releaseTimeoutTime),
+                        controlFactory.cmdSetWristPosition(WristPosition.HOME)));
 
         NamedCommands.registerCommand(
                 "ScoreBargeGoHome",
-                controlFactory.cmdSetElevatorToBarge()
-                        .andThen(controlFactory.cmdReleaseAlgaeBarge().withTimeout(releaseTimeoutTime)
-                        .andThen(controlFactory.cmdSetWristHome()
-                        .andThen(controlFactory.cmdSetElevatorToHome()))));
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE),
+                        controlFactory.cmdReleaseAlgae(WristPosition.BARGE).withTimeout(releaseTimeoutTime),
+                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
     }
 }

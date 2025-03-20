@@ -4,16 +4,15 @@
 
 package frc.robot.commands.AlgaeEndEffector;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
 
-public class IntakeAlgae extends Command {
-
+public class SetIntakeVelocity extends InstantCommand {
   private final AlgaeEndEffector cmdAlgaeEndEffector;
   private final IntakeVelocity cmdIntakeVelocity;
 
-  public IntakeAlgae(AlgaeEndEffector algaeEndEffector, IntakeVelocity intakeVelocity) {
+  public SetIntakeVelocity(AlgaeEndEffector algaeEndEffector, IntakeVelocity intakeVelocity) {
     addRequirements(algaeEndEffector);
     cmdAlgaeEndEffector = algaeEndEffector;
     cmdIntakeVelocity = intakeVelocity;
@@ -25,15 +24,4 @@ public class IntakeAlgae extends Command {
     cmdAlgaeEndEffector.setIntakeVelocity(cmdIntakeVelocity);
   }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    cmdAlgaeEndEffector.holdPosition();
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return cmdAlgaeEndEffector.hasAlgae();
-  }
 }

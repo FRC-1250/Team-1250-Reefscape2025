@@ -22,8 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
-import frc.robot.commands.AlgaeEndEffector.IntakeAlgae;
-import frc.robot.commands.AlgaeEndEffector.ReleaseAlgae;
+import frc.robot.commands.AlgaeEndEffector.SetIntakeVelocity;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
 import frc.robot.commands.Climber.DeepClimb;
 import frc.robot.commands.Climber.ShallowClimb;
@@ -96,15 +95,18 @@ public class ControlFactory {
      */
 
     public Command cmdShallowClimb() {
-        return new ShallowClimb(climber, Amps.of(80)).withName("Shallow climb");
+        return new ShallowClimb(climber, Amps.of(80))
+                .withName("Climber: Shallow climb");
     }
 
     public Command cmdDeepClimbPhase1() {
-        return new DeepClimb(deepClimber, DeepClimberPhase.PREP, Amps.of(10));
+        return new DeepClimb(deepClimber, DeepClimberPhase.PREP, Amps.of(10))
+                .withName("Climber: Deep prep");
     }
 
     public Command cmdDeepClimbPhase2() {
-        return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(40));
+        return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(40))
+                .withName("Climber: Deep climb");
     }
 
     public Command cmdDeepClimbPhaseBasedOnPositon() {
@@ -118,28 +120,9 @@ public class ControlFactory {
      * Elevator
      */
 
-    public Command cmdSetElevatorToHome() {
-        return cmdSetElevatorPosition(ElevatorPosition.HOME);
-    }
-
-    public Command cmdSetElevatorToBarge() {
-        return cmdSetElevatorPosition(ElevatorPosition.BARGE);
-    }
-
-    public Command cmdSetElevatorHighAlgae() {
-        return cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE);
-    }
-
-    public Command cmdSetElevatorToL1() {
-        return cmdSetElevatorPosition(ElevatorPosition.L1);
-    }
-
-    public Command cmdSetElevatorLowAlgae() {
-        return cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE);
-    }
-
     public Command cmdSetElevatorPosition(ElevatorPosition position) {
-        return new SetElevatorPosition(elevator, position).withName(String.format("Elevator: to %s", position.name()));
+        return new SetElevatorPosition(elevator, position)
+                .withName(String.format("Elevator: %s", position.name()));
     }
 
     public Command cmdAddElevatorRotations(double rotations) {
@@ -151,82 +134,61 @@ public class ControlFactory {
     }
 
     public Command cmdSetElevatorToReefAlgae() {
-        return new ConditionalCommand(cmdSetElevatorHighAlgae(), cmdSetElevatorLowAlgae(), () -> hasHighAlgae());
+        return new ConditionalCommand(
+                cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
+                cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
+                () -> hasHighAlgae());
     }
 
     /*
      * Algae intake
      */
-    public Command cmdIntakeAlgaeFloor() {
-        return Commands.sequence(
-                new SetWristPosition(algaeEndEffector, WristPosition.FLOOR),
-                new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE)
-                .withName("Intake: Floor"));
-    }
-
-    public Command cmdIntakeAlgaeReef() {
-        return Commands.sequence(
-                new SetWristPosition(algaeEndEffector, WristPosition.REEF),
-                new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE)
-                        .withName("Intake: Reef"));
-    }
-
-    public Command cmdReleaseAlgaeBarge() {
-        return Commands.sequence(
-                new SetWristPosition(algaeEndEffector, WristPosition.BARGE),
-                new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE)
-                .withName("Intake: Barge"));
-    }
-
-    public Command cmdReleaseCoralL1() {
-        return Commands.sequence(
-                new SetWristPosition(algaeEndEffector, WristPosition.AUTO_CORAL),
-                new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE)
-                        .withName("Intake: Release coral"));
-    }
-
-    public Command cmdSetWristHome() {
-        return new SetWristPosition(algaeEndEffector, WristPosition.HOME);
-    }
-
-    public Command cmdSetWristFloor() {
-        return new SetWristPosition(algaeEndEffector, WristPosition.FLOOR);
-    }
-
-    public Command cmdSetWristReef() {
-        return new SetWristPosition(algaeEndEffector, WristPosition.REEF);
-    }
-
-    public Command cmdSetWristL1() {
-        return new SetWristPosition(algaeEndEffector, WristPosition.AUTO_CORAL);
-    }
-
-    public Command cmdIntakeAlgae() {
-        return new IntakeAlgae(algaeEndEffector, IntakeVelocity.INTAKE);
-    }
-
-    public Command cmdReleaseAlgae() {
-        return new ReleaseAlgae(algaeEndEffector, IntakeVelocity.RELEASE);
+    public Command cmdSetWristPosition(WristPosition position) {
+        return new SetWristPosition(algaeEndEffector, position);
     }
 
     public Command cmdAddWristRotations(double rotations) {
         return new AddWristRotations(algaeEndEffector, rotations);
     }
 
-    public Command cmdReleaseAlgaeBasedOnElevatorPosition() {
-        return new ConditionalCommand(
-                cmdReleaseAlgaeBarge().andThen(cmdSetWristHome()),
-                cmdReleaseAlgae(),
-                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5))
-                .withName("Intake: Release algae");
+    public Command cmdSetIntakeVelocity(IntakeVelocity velocity) {
+        return new SetIntakeVelocity(algaeEndEffector, velocity);
+    }
+
+    public Command cmdHomeIntake() {
+        return Commands.sequence(
+                cmdSetWristPosition(WristPosition.HOME),
+                cmdSetIntakeVelocity(IntakeVelocity.STOP));
+    }
+
+    public Command cmdIntakeAlgae(IntakeVelocity velocity, WristPosition position) {
+        return Commands.sequence(
+                cmdSetIntakeVelocity(velocity),
+                cmdSetWristPosition(position))
+                .until(() -> algaeEndEffector.hasAlgae())
+                .unless(() -> algaeEndEffector.hasAlgae())
+                .withName(String.format("Intake: %s", position.toString()));
     }
 
     public Command cmdIntakeAlgaeBasedOnElevatorPosition() {
         return new ConditionalCommand(
-                cmdIntakeAlgaeFloor().andThen(cmdSetWristHome()),
-                cmdIntakeAlgaeReef().andThen(cmdSetWristHome()),
-                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5))
-                .withName("Intake: Grab algae");
+                cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.FLOOR),
+                cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
+    }
+
+    public Command cmdReleaseAlgae(WristPosition position) {
+        return Commands.sequence(
+                cmdSetWristPosition(position),
+                cmdSetIntakeVelocity(IntakeVelocity.YEET))
+                .withName(String.format("Intake: %s", position.toString()));
+    }
+
+    public Command cmdReleaseAlgaeBasedOnElevatorPosition() {
+        return new ConditionalCommand(
+                cmdReleaseAlgae(WristPosition.BARGE),
+                cmdReleaseAlgae(WristPosition.HOME),
+                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5));
     }
 
     /*
@@ -290,7 +252,7 @@ public class ControlFactory {
                         Map.entry(9, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9))),
                         Map.entry(10, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10))),
                         Map.entry(11, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11)))),
-                () -> limelight.getFid()).withName("Pathfind to blue reef");
+                () -> limelight.getFid());
     }
 
     public Command cmdPathfindToRedReefTag() {
@@ -302,7 +264,7 @@ public class ControlFactory {
                         Map.entry(20, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20))),
                         Map.entry(21, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21))),
                         Map.entry(22, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22)))),
-                () -> limelight.getFid()).withName("Pathfind to red reef");
+                () -> limelight.getFid());
     }
 
     public Rotation2d determineHeadingToReef() {

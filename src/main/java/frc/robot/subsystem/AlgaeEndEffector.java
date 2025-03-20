@@ -30,6 +30,7 @@ import frc.robot.util.HealthMonitor;
 public class AlgaeEndEffector extends SubsystemBase {
 
   public enum IntakeVelocity {
+    STOP(0),
     SLOW_INTAKE(-50),
     INTAKE(-75),
     YOINK(-100),
@@ -46,7 +47,7 @@ public class AlgaeEndEffector extends SubsystemBase {
 
   public enum WristPosition {
     HOME(0.31),
-    AUTO_CORAL(0.43),
+    L1(0.43),
     REEF(0.51),
     FLOOR(0.63),
     BARGE(0.25);
@@ -65,7 +66,6 @@ public class AlgaeEndEffector extends SubsystemBase {
 
   private TalonFX intakeTalonFX = new TalonFX(23);
   private DigitalInput intakeAlgaeSensor = new DigitalInput(5);
-  private PositionVoltage intakePositionControl = new PositionVoltage(0).withSlot(0);
   private VelocityVoltage intakeVelocityControl = new VelocityVoltage(0).withSlot(1);
 
   public AlgaeEndEffector() {
@@ -100,12 +100,6 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     wristTalonFX.getConfigurator().apply(wristTalonFXConfiguration);
 
-    Slot0Configs intakePositionPIDConfigs = new Slot0Configs()
-        .withKG(0)
-        .withKP(1)
-        .withKI(0)
-        .withKD(0);
-
     Slot1Configs intakeVelocityPIDConfigs = new Slot1Configs()
         .withKS(0.1)
         .withKV(0.12)
@@ -114,7 +108,6 @@ public class AlgaeEndEffector extends SubsystemBase {
         .withKD(0);
 
     TalonFXConfiguration intakeTalonFXConfiguration = new TalonFXConfiguration();
-    intakeTalonFXConfiguration.Slot0 = intakePositionPIDConfigs;
     intakeTalonFXConfiguration.Slot1 = intakeVelocityPIDConfigs;
     intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
     intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -136,9 +129,6 @@ public class AlgaeEndEffector extends SubsystemBase {
   /*
    * Wrist
    */
-  public void stopWrist() {
-    wristTalonFX.stopMotor();
-  }
 
   @Logged(name = "Wrist position")
   public double getWristPosition() {
@@ -172,25 +162,14 @@ public class AlgaeEndEffector extends SubsystemBase {
   /*
    * Intake
    */
-  public void stopIntake() {
-    intakeTalonFX.stopMotor();
-  }
-
-  public void setIntakeVelocity(IntakeVelocity velocity) {
-    intakeTalonFX.setControl(intakeVelocityControl.withVelocity(velocity.rotationsPerSecond));
-  }
 
   @Logged(name = "Intake velocity")
   public double getIntakeVelocity() {
     return intakeTalonFX.getVelocity().getValueAsDouble();
   }
 
-  private double getIntakePosition() {
-    return intakeTalonFX.getPosition().getValueAsDouble();
-  }
-
-  public void holdPosition() {
-    intakeTalonFX.setControl(intakePositionControl.withPosition(getIntakePosition()));
+  public void setIntakeVelocity(IntakeVelocity velocity) {
+    intakeTalonFX.setControl(intakeVelocityControl.withVelocity(velocity.rotationsPerSecond));
   }
 
   public boolean hasAlgae() {
