@@ -15,9 +15,11 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
@@ -76,8 +78,10 @@ public class AlgaeEndEffector extends SubsystemBase {
     wristAbsoluteEncoder.getAbsolutePosition().setUpdateFrequency(200);
 
     Slot0Configs wristPositionPIDConfigs = new Slot0Configs()
+        .withGravityType(GravityTypeValue.Arm_Cosine)
         .withKG(0)
-        .withKS(0.5)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+        .withKS(0.25)
         .withKP(25)
         .withKI(0)
         .withKD(0.01);
