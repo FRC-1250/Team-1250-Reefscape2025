@@ -30,6 +30,7 @@ import frc.robot.commands.Climber.ShallowClimb;
 import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
 import frc.robot.commands.Elevator.SetElevatorPosition;
+import frc.robot.commands.Elevator.StopElevator;
 import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
@@ -124,6 +125,10 @@ public class ControlFactory {
     /*
      * Elevator
      */
+
+    public Command cmdStopElevatorMotors() {
+        return new StopElevator(elevator);
+    }
 
     public Command cmdSetElevatorPosition(ElevatorPosition position) {
         return new SetElevatorPosition(elevator, position)

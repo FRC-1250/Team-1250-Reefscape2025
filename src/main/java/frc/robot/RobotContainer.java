@@ -142,6 +142,8 @@ public class RobotContainer {
                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
 
         // Elevator
+        // Allow elevator to free fall against brake mode
+        primaryDriverJoystick.back().onTrue(controlFactory.cmdStopElevatorMotors());
         primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
         primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetElevatorToReefAlgae());
