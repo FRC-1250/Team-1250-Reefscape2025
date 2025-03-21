@@ -11,12 +11,14 @@ import java.util.Map;
 import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -247,6 +249,39 @@ public class ControlFactory {
      * Drive
      */
 
+    public Command cmdFollowPath(String pathName) {
+        try {
+            return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathName));
+        } catch (Exception e) {
+            DataLogManager.log(String.format("GatorBot: Not able to build path command, %s", e.getMessage()));
+            return Commands.none();
+        }
+    }
+
+    public Command cmdFollowPathToRedReefTag() {
+        return new SelectCommand<>(
+                Map.ofEntries(
+                        Map.entry(6, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(6))),
+                        Map.entry(7, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(7))),
+                        Map.entry(8, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(8))),
+                        Map.entry(9, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(9))),
+                        Map.entry(10, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(10))),
+                        Map.entry(11, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(11)))),
+                () -> limelight.getFid()).withName("Drivetain: Follow path to red reef");
+    }
+
+    public Command cmdFollowPathToBlueReefTag() {
+        return new SelectCommand<>(
+                Map.ofEntries(
+                        Map.entry(17, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(17))),
+                        Map.entry(18, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(18))),
+                        Map.entry(19, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(19))),
+                        Map.entry(20, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(20))),
+                        Map.entry(21, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(21))),
+                        Map.entry(22, cmdFollowPath(ReefScoringMap.getReefPathFromLimelightID(22)))),
+                () -> limelight.getFid()).withName("Drivetain: Follow path to blue reef");
+    }
+
     public Command cmdPathfindToPose(Pose2d targetPose) {
         return AutoBuilder.pathfindToPose(
                 targetPose,
@@ -255,7 +290,7 @@ public class ControlFactory {
         ).withName("Pathfind to pose");
     }
 
-    public Command cmdPathfindToBlueReefTag() {
+    public Command cmdPathfindToRedReefTag() {
         return new SelectCommand<>(
                 Map.ofEntries(
                         Map.entry(6, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6))),
@@ -264,10 +299,10 @@ public class ControlFactory {
                         Map.entry(9, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9))),
                         Map.entry(10, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10))),
                         Map.entry(11, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11)))),
-                () -> limelight.getFid());
+                () -> limelight.getFid()).withName("Drivetain: Pathfind to red reef");
     }
 
-    public Command cmdPathfindToRedReefTag() {
+    public Command cmdPathfindToBlueReefTag() {
         return new SelectCommand<>(
                 Map.ofEntries(
                         Map.entry(17, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(17))),
@@ -276,7 +311,7 @@ public class ControlFactory {
                         Map.entry(20, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20))),
                         Map.entry(21, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21))),
                         Map.entry(22, cmdPathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22)))),
-                () -> limelight.getFid());
+                () -> limelight.getFid()).withName("Drivetain: Pathfind to blue reef");
     }
 
     public Rotation2d determineHeadingToReef() {

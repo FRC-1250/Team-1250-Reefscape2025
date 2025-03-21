@@ -88,7 +88,7 @@ public class RobotContainer {
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);
 
-    private final Trigger isBlue = new Trigger(() -> drivetrain.getOperatorForwardDirection().getDegrees() == 0);
+    private final Trigger isBlue = new Trigger(() -> Double.compare(drivetrain.getOperatorForwardDirection().getDegrees(), 0) == 0);
 
     public RobotContainer() {
         configureBindings();
@@ -136,8 +136,8 @@ public class RobotContainer {
                                 drivetrain.getOperatorForwardDirection().getDegrees())))
                 .withName("Forward and strafe"));
 
-        primaryDriverJoystick.a().and(isBlue).whileTrue(controlFactory.cmdPathfindToBlueReefTag());
-        primaryDriverJoystick.a().and(isBlue).negate().whileTrue(controlFactory.cmdPathfindToRedReefTag());
+        primaryDriverJoystick.a().and(isBlue).whileTrue(controlFactory.cmdFollowPathToBlueReefTag());
+        primaryDriverJoystick.a().and(isBlue.negate()).whileTrue(controlFactory.cmdFollowPathToRedReefTag());
         primaryDriverJoystick.start()
                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
 

@@ -5,8 +5,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.pathfinding.LocalADStar;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
@@ -57,7 +55,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     FollowPathCommand.warmupCommand().schedule();
-    Pathfinding.setPathfinder(new LocalADStar());
+    //Pathfinding.setPathfinder(new LocalADStar());
     for (int port = 5800; port <= 5809; port++) {
       PortForwarder.add(port, "limelight.local", port);
     }
