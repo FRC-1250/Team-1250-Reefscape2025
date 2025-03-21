@@ -207,6 +207,8 @@ public class RobotContainer {
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("CenterAlgae", "CenterAlgea");
+        addPathAuto("LeftMiddleCageBargeScore", "LeftMiddleCageBargeScore");
+        addPathAuto("RightMiddle_To_Processor", "RightMiddle_To_Processor");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
