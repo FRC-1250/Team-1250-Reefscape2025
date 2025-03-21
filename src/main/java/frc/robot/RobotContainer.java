@@ -152,7 +152,7 @@ public class RobotContainer {
                 .whileFalse(controlFactory.cmdHomeIntake());
 
         // Climber
-        primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbPhaseBasedOnPositon());
+        primaryDriverJoystick.y().whileTrue(controlFactory.cmdDeepClimbRawTorque());
 
         /*
          * Operator controls

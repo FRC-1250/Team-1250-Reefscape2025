@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -36,6 +37,7 @@ public class DeepClimber extends SubsystemBase {
   }
 
   private TalonFX deepClimber = new TalonFX(41);
+  private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
   private MotionMagicTorqueCurrentFOC motionMagicTorqueControl = new MotionMagicTorqueCurrentFOC(0);
 
   /** Creates a new DeepClimb. */
@@ -89,6 +91,11 @@ public class DeepClimber extends SubsystemBase {
         .withPosition(deepClimberPhase.rotations)
         .withFeedForward(feedforward)
         .withSlot(0));
+  }
+
+  public void setTorque(Current amps) {
+    deepClimber.setControl(torqueControl.withOutput(amps)
+        .withMaxAbsDutyCycle(0.5));
   }
 
    public boolean isNearPositionAndTolerance(double position, double tolerance) {

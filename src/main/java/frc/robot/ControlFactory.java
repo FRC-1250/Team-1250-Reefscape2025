@@ -25,6 +25,7 @@ import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
 import frc.robot.commands.AlgaeEndEffector.SetIntakeVelocity;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
 import frc.robot.commands.Climber.DeepClimb;
+import frc.robot.commands.Climber.SetDeepClimbTorque;
 import frc.robot.commands.Climber.ShallowClimb;
 import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
@@ -97,6 +98,10 @@ public class ControlFactory {
     public Command cmdShallowClimb() {
         return new ShallowClimb(climber, Amps.of(80))
                 .withName("Climber: Shallow climb");
+    }
+
+    public Command cmdDeepClimbRawTorque() {
+        return new SetDeepClimbTorque(deepClimber, Amps.of(80));
     }
 
     public Command cmdDeepClimbPhase1() {
