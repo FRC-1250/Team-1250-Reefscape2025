@@ -13,7 +13,6 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
@@ -31,12 +30,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthMonitor;
-import frc.robot.util.TunableTalonFX;
 
 public class Elevator extends SubsystemBase {
   public enum ElevatorPosition {
     HOME(0.25),
-    SENSOR(1.3),
+    SENSOR(0.8),
     L1(6.08),
     LOW_ALGAE(18),
     HIGH_ALGAE(32),
@@ -56,9 +54,6 @@ public class Elevator extends SubsystemBase {
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
   private boolean homeFound = false;
   private boolean previousHomeSensor = isAtHome();
-
-  private final boolean tuningModeEnabled = false;
-  private TunableTalonFX tunableTalonFX;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
@@ -110,12 +105,6 @@ public class Elevator extends SubsystemBase {
         rightMotor.getPosition(),
         leftMotor.getVelocity(),
         rightMotor.getVelocity());
-
-    if (tuningModeEnabled) {
-      tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs),
-          leftMotor,
-          rightMotor);
-    }
 
     HealthMonitor.getInstance()
         .addComponent(getName(), "Left motor", leftMotor)
@@ -175,18 +164,20 @@ public class Elevator extends SubsystemBase {
         || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
   }
 
+  public void stop() {
+    leftMotor.stopMotor();
+    rightMotor.stopMotor();
+  }
+
   @Override
   public void periodic() {
-    if (tuningModeEnabled) {
-      tunableTalonFX.updateValuesFromSmartNT();
-    }
+ 
   }
 
   private Command cmdHandleSensorTransition() {
     return new NotifierCommand(() -> detectSensorTransition(), 0.01)
         .until(() -> homeFound)
-        .unless(() -> homeFound)
-        .withName("Elevator find home")
+        .withName("Elevator: Detect home")
         .ignoringDisable(true);
   }
 
