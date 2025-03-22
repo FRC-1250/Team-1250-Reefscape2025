@@ -222,6 +222,7 @@ public class RobotContainer {
     private void configureNamedCommands() {
         double releaseTimeoutTime = 1;
 
+        NamedCommands.registerCommand("HomeElevator", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
         NamedCommands.registerCommand("Release", controlFactory.cmdReleaseAlgae(WristPosition.PROCESSOR));
         // Complex
 
