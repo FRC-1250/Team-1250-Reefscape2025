@@ -103,9 +103,15 @@ public class ControlFactory {
                 .withName("Climber: Shallow climb");
     }
 
-    
     public Command cmdDeepClimbRawTorque() {
         return new SetDeepClimbTorque(deepClimber, Amps.of(80));
+    }
+
+    public Command cmdDeepClimbRawTorqueV2() {
+        return Commands.sequence(
+                cmdSetWristPosition(WristPosition.FLOOR),
+                Commands.waitSeconds(0.5),
+                new SetDeepClimbTorque(deepClimber, Amps.of(80)));
     }
 
     public Command cmdDeepClimbPhase1() {
