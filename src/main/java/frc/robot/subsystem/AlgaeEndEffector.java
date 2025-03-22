@@ -47,7 +47,7 @@ public class AlgaeEndEffector extends SubsystemBase {
 
   public enum WristPosition {
     HOME(0.31),
-    ALGEA_CONTAINMENT(.34),
+    ALGEA_CONTAINMENT(.36),
     SCORE(.41),
     L1(0.43),
     REEF(0.51),

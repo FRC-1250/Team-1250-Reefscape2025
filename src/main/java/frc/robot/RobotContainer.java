@@ -211,13 +211,14 @@ public class RobotContainer {
     private void configureNamedCommands() {
         double releaseTimeoutTime = 1;
 
+        NamedCommands.registerCommand("Release", controlFactory.cmdReleaseAlgae(WristPosition.SCORE));
         // Complex
         NamedCommands.registerCommand(
                 "DealgaeHighGoHome",
                 Commands.sequence(
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
                         controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT),
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(
@@ -225,7 +226,7 @@ public class RobotContainer {
                 Commands.sequence(
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
                         controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT),
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(

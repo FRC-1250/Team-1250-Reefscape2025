@@ -87,7 +87,7 @@ public class Elevator extends SubsystemBase {
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
-    voltageConfigs.PeakReverseVoltage = -4;
+    voltageConfigs.PeakReverseVoltage = -6;
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
     talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
