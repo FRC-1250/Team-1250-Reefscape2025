@@ -12,7 +12,7 @@
         "y": 5.962777526985951
       },
       "isLocked": false,
-      "linkedName": "MiddleCage"
+      "linkedName": "LeftBargeCenterStart"
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "JI"
+      "linkedName": "ReefJI"
     }
   ],
   "rotationTargets": [],

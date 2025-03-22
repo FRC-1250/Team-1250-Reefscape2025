@@ -17,13 +17,13 @@ public class TalonHealthChecker extends PhoenixHealthChecker {
     @Override
     protected List<Boolean> faultsToBooleanList() {
         return Arrays.asList(
-                talon.getStickyFault_BootDuringEnable().getValue(),
+                talon.getFault_BootDuringEnable().getValue(),
                 // talon.getStickyFault_BridgeBrownout().getValue(),
                 // talon.getStickyFault_Hardware().getValue(),
-                talon.getStickyFault_OverSupplyV().getValue(),
-                talon.getStickyFault_RemoteSensorDataInvalid().getValue(),
-                talon.getStickyFault_RemoteSensorReset().getValue(),
-                talon.getStickyFault_Undervoltage().getValue(),
-                talon.getStickyFault_UnstableSupplyV().getValue());
+                talon.getFault_OverSupplyV().getValue(),
+                talon.getFault_RemoteSensorDataInvalid().getValue(),
+                talon.getFault_RemoteSensorReset().getValue(),
+                talon.getFault_Undervoltage().getValue(),
+                talon.getFault_UnstableSupplyV().getValue());
     }
 }

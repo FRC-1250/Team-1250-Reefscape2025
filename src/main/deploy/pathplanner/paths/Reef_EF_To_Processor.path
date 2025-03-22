@@ -3,36 +3,36 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.199558080808081,
-        "y": 1.9210227272727274
+        "x": 5.126195481552121,
+        "y": 2.9217056419536154
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.105665661818006,
-        "y": 2.3114785067873442
+        "x": 5.238869215762764,
+        "y": 1.898221815258323
       },
       "isLocked": false,
-      "linkedName": "RightBargeCenterStart"
+      "linkedName": "ReefEF"
     },
     {
       "anchor": {
-        "x": 5.127571048509261,
-        "y": 2.929959043696456
+        "x": 5.98190336749634,
+        "y": 0.5201390922401186
       },
       "prevControl": {
-        "x": 6.168961393494373,
-        "y": 2.3952080532329876
+        "x": 5.541215527368746,
+        "y": 1.4698372459127271
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ReefEF"
+      "linkedName": "Processor"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5359911406422729,
+      "minWaypointRelativePos": 0.7475578406169726,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.2,
@@ -56,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.5778386812614
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -179.30130561701657
+    "rotation": 119.5778386812614
   },
   "useDefaultConstraints": true
 }

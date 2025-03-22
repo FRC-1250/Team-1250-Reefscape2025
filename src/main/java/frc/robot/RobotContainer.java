@@ -14,8 +14,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,17 +25,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
+import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
-import frc.robot.subsystem.EndEffector;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
-import frc.robot.subsystem.Elevator.Position;
-import frc.robot.subsystem.EndEffector.AlgaeServoPosition;
-import frc.robot.subsystem.EndEffector.HeadPosition;
-import frc.robot.subsystem.SystemLights.PresetColor;
-import frc.robot.util.ReefScoringMap;
+import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
+import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
+import frc.robot.subsystem.Elevator.ElevatorPosition;
+import frc.robot.subsystem.Limelight.LimeLightPipeline;
 
 public class RobotContainer {
     // kSpeedAt12Volts desired top speed
@@ -56,11 +56,8 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
-    private CommandPS4Controller devJoystick;
-
-    @Logged(name = "End effector")
-    public final EndEffector endEffector = new EndEffector();
+    private final CommandXboxController primaryDriverJoystick = new CommandXboxController(0);
+    private CommandPS4Controller operatorJoystick;
 
     @Logged(name = "Elevator")
     public final Elevator elevator = new Elevator();
@@ -71,69 +68,28 @@ public class RobotContainer {
     @Logged(name = "Climber")
     public final Climber climber = new Climber();
 
+    @Logged(name = "Deep climber")
+    public final DeepClimber deepClimber = new DeepClimber();
+
+    @Logged(name = "Algae end effector")
+    public final AlgaeEndEffector algaeEndEffector = new AlgaeEndEffector();
+
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Limelight limelight = new Limelight();
     public final ControlFactory controlFactory = new ControlFactory(
             drivetrain,
             elevator,
-            endEffector,
             climber,
+            deepClimber,
             limelight,
+            algaeEndEffector,
             systemLights);
-
-    // From control factory
-    private final Trigger reefHasHighAlgae = new Trigger(() -> controlFactory.hasHighAlgae());
-    private final Trigger reefHasLowAlgae = new Trigger(() -> controlFactory.hasLowAlgae());
-
-    // From end effector
-    private final Trigger hasCoral = new Trigger(() -> endEffector.hasCoral());
-    private final Trigger hasAlgae = new Trigger(() -> endEffector.hasAlgae());
-
-    // From Driverstation
-    private final Trigger isTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
-
-    // From elevator
-    private final Trigger isAtLowAlgaePrepPosition = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.LOW_ALGAE_PREP));
-    private final Trigger isAtHighAlgaePrepPosition = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.HIGH_ALGAE_PREP));
-    private final Trigger isAtAlgaeContainmentPositon = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.CONTAIN_ALGAE));
-    private final Trigger isAtHighAlgaePosition = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.HIGH_ALGAE));
-    private final Trigger isAtLowAlgaePosition = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.LOW_ALGAE));
-    private final Trigger isAtL1 = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.L1));
-    private final Trigger isAtL2 = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.L2));
-    private final Trigger isAtL3 = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.L3));
-    private final Trigger isAtL4 = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.L4));
-    private final Trigger isAtHome = new Trigger(
-            () -> elevator.isAtPosition(Elevator.Position.STARTING_CONFIGURATION));
-
-    // From limelight
-    private final Trigger isId6 = new Trigger(() -> limelight.isBestTagSeen(6));
-    private final Trigger isId7 = new Trigger(() -> limelight.isBestTagSeen(7));
-    private final Trigger isId8 = new Trigger(() -> limelight.isBestTagSeen(8));
-    private final Trigger isId9 = new Trigger(() -> limelight.isBestTagSeen(9));
-    private final Trigger isId10 = new Trigger(() -> limelight.isBestTagSeen(10));
-    private final Trigger isId11 = new Trigger(() -> limelight.isBestTagSeen(11));
-    private final Trigger isId17 = new Trigger(() -> limelight.isBestTagSeen(17));
-    private final Trigger isId18 = new Trigger(() -> limelight.isBestTagSeen(18));
-    private final Trigger isId19 = new Trigger(() -> limelight.isBestTagSeen(19));
-    private final Trigger isId20 = new Trigger(() -> limelight.isBestTagSeen(20));
-    private final Trigger isId21 = new Trigger(() -> limelight.isBestTagSeen(21));
-    private final Trigger isId22 = new Trigger(() -> limelight.isBestTagSeen(22));
-
-    private final boolean devController = false;
-    private final boolean driveEnabled = true;
-    private final boolean automationEnabled = true;
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);
+
+    private final Trigger isBlue = new Trigger(
+            () -> Double.compare(drivetrain.getOperatorForwardDirection().getDegrees(), 0) == 0);
 
     public RobotContainer() {
         configureBindings();
@@ -148,230 +104,92 @@ public class RobotContainer {
     }
 
     public void determineMaxSpeed() {
-        if (elevator.isAbovePosition(Position.L3)) {
-            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3;
-        } else if (elevator.isAbovePosition(Position.L2)) {
-            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 1.5;
+        if (elevator.isAbovePosition(ElevatorPosition.HIGH_ALGAE)) {
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 6;
+            MaxAngularRate = RotationsPerSecond.of(0.25).in(RadiansPerSecond);
+        } else if (elevator.isAbovePosition(ElevatorPosition.LOW_ALGAE)) {
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4;
+            MaxAngularRate = RotationsPerSecond.of(0.50).in(RadiansPerSecond);
         } else {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+            MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
         }
     }
 
     private void configureBindings() {
-        // More complicated triggers go to the top
-        joystick.rightTrigger()
-                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4))
-                .onTrue(endEffector.cmdAddCoralRotations(20));
-        joystick.rightTrigger()
-                .and(isAtHighAlgaePrepPosition.or(isAtHighAlgaePosition))
-                .whileTrue(controlFactory.reefHighDealgae());
-        joystick.rightTrigger()
-                .and(isAtLowAlgaePrepPosition.or(isAtLowAlgaePosition))
-                .whileTrue(controlFactory.reefLowDealgae());
-        joystick.rightTrigger()
-                .and(isAtAlgaeContainmentPositon)
-                .whileTrue(endEffector.cmdFireAlgae());
+        /*
+         * Primary driver controls
+         */
 
-        joystick.leftTrigger()
-                .and(reefHasHighAlgae)
-                .onTrue(controlFactory.reefHighDealgaePrep());
-        joystick.leftTrigger()
-                .and(reefHasLowAlgae)
-                .onTrue(controlFactory.reefLowDealgaePrep());
+        // Drive
+        drivetrain.setDefaultCommand(
+                drivetrain.applyRequest(() -> drive
+                        .withVelocityX(yLimiter.calculate(-primaryDriverJoystick.getLeftY() * MaxSpeed))
+                        .withVelocityY(xLimiter.calculate(-primaryDriverJoystick.getLeftX() * MaxSpeed))
+                        .withRotationalRate(-primaryDriverJoystick.getRightX() * MaxAngularRate))
+                        .withName("Field centric swerve"));
 
-        joystick.povDown()
-                .and(isAtL2.or(isAtL3).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .and(hasAlgae.negate())
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L1)));
-        joystick.povDown()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L1)));
-        joystick.povDown()
-                .and(isAtHighAlgaePosition)
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L1)));
-        joystick.povDown()
-                .and(isAtLowAlgaePosition)
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L1)));
+        primaryDriverJoystick.x().whileTrue(drivetrain.applyRequest(
+                () -> driveFacingAngle
+                        .withVelocityX(yLimiter.calculate(-primaryDriverJoystick.getLeftY() * MaxSpeed))
+                        .withVelocityY(xLimiter.calculate(-primaryDriverJoystick.getLeftX() * MaxSpeed))
+                        .withTargetDirection(Rotation2d.fromDegrees(
+                                drivetrain.getOperatorForwardDirection().getDegrees())))
+                .withName("Forward and strafe"));
 
-        joystick.povRight()
-                .and(isAtL1.or(isAtL3).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L2)));
-        joystick.povRight()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L2)));
-        joystick.povRight().and(isAtHighAlgaePosition)
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L2)));
-        joystick.povRight().and(isAtLowAlgaePosition)
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L2)));
+        primaryDriverJoystick.a().and(isBlue).whileTrue(controlFactory.cmdFollowPathToBlueReefTag());
+        primaryDriverJoystick.a().and(isBlue.negate()).whileTrue(controlFactory.cmdFollowPathToRedReefTag());
+        primaryDriverJoystick.start()
+                .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
 
-        joystick.povLeft()
-                .and(isAtL1.or(isAtL2).or(isAtL4).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L3)));
-        joystick.povLeft()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L3)));
-        joystick.povLeft().and(isAtHighAlgaePosition)
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L3)));
-        joystick.povLeft().and(isAtLowAlgaePosition)
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L3)));
+        // Elevator
+        // Allow elevator to free fall against brake mode
+        primaryDriverJoystick.back().onTrue(controlFactory.cmdStopElevatorMotors());
+        primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+        primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
+        primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetElevatorToReefAlgae());
 
-        joystick.povUp()
-                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtHome).or(isAtAlgaeContainmentPositon))
-                .onTrue(elevator.cmdSetPosition((Elevator.Position.L4)));
-        joystick.povUp()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.L4)));
-        joystick.povUp().and(isAtHighAlgaePosition)
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.L4)));
-        joystick.povUp().and(isAtLowAlgaePosition)
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.L4)));
+        // Intake
+        primaryDriverJoystick.rightTrigger()
+                .whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition())
+                .whileFalse(controlFactory.cmdHomeIntake());
+        primaryDriverJoystick.leftTrigger()
+                .whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition())
+                .whileFalse(controlFactory.cmdHomeIntake());
 
-        joystick.b()
-                .and(isAtL1.or(isAtL2).or(isAtL3).or(isAtL4).or(isAtAlgaeContainmentPositon).or(isAtHome))
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory
-                        .homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
-        joystick.b()
-                .and(isAtHighAlgaePrepPosition.or(isAtLowAlgaePrepPosition))
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory
-                        .homeEndEffectorAndSetElevatorPosition((Elevator.Position.STARTING_CONFIGURATION)));
-        joystick.b()
-                .and(isAtHighAlgaePosition)
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.reefHighDealgaeUndo((Elevator.Position.STARTING_CONFIGURATION)));
-        joystick.b()
-                .and(isAtLowAlgaePosition)
-                .and(hasAlgae.negate())
-                .onTrue(controlFactory.reefLowDealgaeUndo((Elevator.Position.STARTING_CONFIGURATION)));
+        // Climber
+         primaryDriverJoystick.y().onTrue(controlFactory.cmdShallowClimb());
+       // primaryDriverJoystick.y().whileTrue(controlFactory.cmdDeepClimbRawTorque());
+    }
 
-        joystick.b()
-                .and(hasAlgae)
-                .onTrue(controlFactory.homeEndEffectorAndSetElevatorPosition((Elevator.Position.CONTAIN_ALGAE)));
+    private void configureOpController() {
+        operatorJoystick = new CommandPS4Controller(1);
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE))
+                .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
+        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK))
+                .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
 
-        joystick.back().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-        joystick.rightBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-        joystick.leftBumper().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
-        joystick.y().onTrue(climber.cmdSetTorque(Amps.of(80)));
+        operatorJoystick.povUp().onTrue(controlFactory.cmdAddElevatorRotations(5));
+        operatorJoystick.povLeft().onTrue(controlFactory.cmdAddElevatorRotations(1));
+        operatorJoystick.povDown().onTrue(controlFactory.cmdAddElevatorRotations(-5));
+        operatorJoystick.povRight().onTrue(controlFactory.cmdAddElevatorRotations(-1));
 
-        if (driveEnabled) {
-            drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> drive
-                            .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
-                            .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
-                            .withRotationalRate(-joystick.getRightX() * MaxAngularRate)).withName("Field centric swerve"));
+        operatorJoystick.triangle().onTrue(controlFactory.cmdAddWristRotations(0.1));
+        operatorJoystick.cross().onTrue(controlFactory.cmdAddWristRotations(-0.1));
+        operatorJoystick.square().onTrue(controlFactory.cmdAddWristRotations(0.05));
+        operatorJoystick.circle().onTrue(controlFactory.cmdAddWristRotations(-0.05));
 
-            joystick.x().whileTrue(drivetrain.applyRequest(
-                    () -> driveFacingAngle
-                            .withVelocityX(yLimiter.calculate(-joystick.getLeftY() * MaxSpeed))
-                            .withVelocityY(xLimiter.calculate(-joystick.getLeftX() * MaxSpeed))
-                            .withTargetDirection(controlFactory.determineHeadingToReef())).withName("Auto turn to reef"));
+        operatorJoystick.L1().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+        operatorJoystick.L2().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
 
-            // Red
-            joystick.a().and(isId6).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(6), 0));
-            joystick.a().and(isId7).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(7), 0));
-            joystick.a().and(isId8).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(8), 0));
-            joystick.a().and(isId9).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(9), 0));
-            joystick.a().and(isId10).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(10), 0));
-            joystick.a().and(isId11).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(11), 0));
-
-            // Blue
-            joystick.a().and(isId17).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(17), 0));
-            joystick.a().and(isId18).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(18), 0));
-            joystick.a().and(isId19).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(19), 0));
-            joystick.a().and(isId20).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(20), 0));
-            joystick.a().and(isId21).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(21), 0));
-            joystick.a().and(isId22).whileTrue(controlFactory.pathfindToPose(ReefScoringMap.getReefPoseFromLimelightID(22), 0));
-
-            joystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
-        }
-
-        if (automationEnabled) {
-            isTeleop.and(hasCoral.negate()).onTrue(Commands.waitSeconds(0.2).andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER)));
-
-            isTeleop.and(hasCoral).onTrue(endEffector.cmdAddCoralRotations(5)
-                    .andThen(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.IDLE))
-                    .andThen(Commands.waitSeconds(0.2))
-                    .andThen(elevator.cmdSetPosition(Position.L1))
-                    .withName("Coral index and prep"));
-
-            isTeleop.and(hasCoral.negate()).onTrue(systemLights.cmdSetLEDs(PresetColor.KELLY_GREEN));
-            isTeleop.and(hasCoral.negate()).and(isAtHome).whileTrue(endEffector.cmdSetCoralDutyCycleOut(.05));
-            isTeleop.and(hasCoral).onTrue(systemLights.cmdSetLEDs(PresetColor.RED));
-        }
-      
-        if (devController) {
-            devJoystick = new CommandPS4Controller(1);
-
-            // End effector head, left and right
-            devJoystick.axisGreaterThan(0, 0.75)
-                    .onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_RIGHT));
-            devJoystick.axisLessThan(0, -0.75)
-                    .whileTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER_LEFT));
-            devJoystick.L3().onTrue(endEffector.cmdSetHeadRotation(EndEffector.HeadPosition.CENTER));
-
-            // End effector algae intake, in and out
-            devJoystick.axisGreaterThan(5, 0.75)
-                    .onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
-            devJoystick.axisLessThan(5, -0.75)
-                    .onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
-            devJoystick.R3().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.MIDDLE));
-
-            // Scoring options
-            devJoystick.R1().onTrue(endEffector.cmdAddCoralRotations(20));
-            devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
-            devJoystick.L1().onTrue(climber.cmdSetTorque(Amps.of(80)));
-            devJoystick.L2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
-
-            // Elevator duty cycle out, up and down
-            devJoystick.cross().onTrue(elevator.cmdAddRotations(-1));
-            devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
-            devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
-            devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
-        } else {
-                devJoystick = new CommandPS4Controller(1);
-
-                devJoystick.cross().onTrue(elevator.cmdAddRotations(-1));
-                devJoystick.square().onTrue(elevator.cmdAddRotations(-5));
-                devJoystick.triangle().onTrue(elevator.cmdAddRotations(1));
-                devJoystick.circle().onTrue(elevator.cmdAddRotations(5));
-
-                devJoystick.R1().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(0.5));
-                devJoystick.R2().whileTrue(endEffector.cmdSetAlgaeDutyCycleOut(-0.5));
-
-                devJoystick.L1().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.DEPLOYED));
-                devJoystick.L2().onTrue(endEffector.cmdSetAlgaeIntakePostion(EndEffector.AlgaeServoPosition.HOME));
-
-                devJoystick.povUp().whileTrue(elevator.cmdSetDutyCycleOut(0.30));
-                devJoystick.povDown().whileTrue(elevator.cmdSetDutyCycleOut(-0.20));
-        }
+        operatorJoystick.R1().onTrue(controlFactory.cmdSetWristPosition(WristPosition.REEF));
+        operatorJoystick.R2().onTrue(controlFactory.cmdSetWristPosition(WristPosition.HOME));
     }
 
     private void configureSmartDashboardBindings() {
-        // Servo replacement commands
-        SmartDashboard.putData(endEffector.cmdBumpHead(true));
-        SmartDashboard.putData(endEffector.cmdBumpHead(false));
-        SmartDashboard.putData(endEffector.cmdJumpHead(true));
-        SmartDashboard.putData(endEffector.cmdJumpHead(false));
-        SmartDashboard.putData(endEffector.cmdSetHeadRotation(HeadPosition.LOGICAL_CENTER).withName("Head, center"));
-
-        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(true));
-        SmartDashboard.putData(endEffector.cmdBumpAlgaeIntake(false));
-        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(true));
-        SmartDashboard.putData(endEffector.cmdJumpAlgaeIntake(false));
-        SmartDashboard.putData(
-                endEffector.cmdSetAlgaeIntakePostion(AlgaeServoPosition.MIDDLE).withName(" Intake, middle"));
-
-        // Elevator
-        SmartDashboard.putData(elevator.cmdAddRotations(5));
-        SmartDashboard.putData(elevator.cmdAddRotations(1));
-        SmartDashboard.putData(elevator.cmdAddRotations(-5));
-        SmartDashboard.putData(elevator.cmdAddRotations(-1));
-
-        SmartDashboard.putData(elevator.cmdResetPos());
+        // Limelight
+        SmartDashboard.putData(limelight.switchPipeline(LimeLightPipeline.MORNING));
+        SmartDashboard.putData(limelight.switchPipeline(LimeLightPipeline.EVENING));
     }
 
     private void addPathAuto(String name, String pathName) {
@@ -390,100 +208,64 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("CenterSingleCoral", "CenterSingleCoral");
-        addPathAuto("LeftDoubleCoral", "LeftDoubleCoral");
-        addPathAuto("RightDoubleCoral", "RightDoubleCoral");
-        addPathAuto("RightSingleCoral", "RightSingleCoral");
-        addPathAuto("LeftSingleCoral", "LeftSingleCoral");
+        addPathAuto("CenterAlgae", "CenterAlgea");
+        addPathAuto("LeftMiddleCageBargeScore", "LeftMiddleCageBargeScore");
+        addPathAuto("RightMiddle_To_Processor", "RightMiddle_To_Processor");
+        addPathAuto("GetOffLineLeft", "GetOffLineLeft");
+        addPathAuto("GetOffLineRight", "GetOffLineRight");
+        addPathAuto("GetOffLineCenter", "GetOffLineCenter");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private void configureNamedCommands() {
-        NamedCommands.registerCommand("L4", elevator.cmdSetPosition(Position.L4));
-        NamedCommands.registerCommand("Home", elevator.cmdSetPosition(Position.STARTING_CONFIGURATION));
-        NamedCommands.registerCommand("RotateHeadLeft", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT));
-        NamedCommands.registerCommand("RotateHeadRight", endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT));
-        NamedCommands.registerCommand("RotateHeadIdle", endEffector.cmdSetHeadRotation(HeadPosition.IDLE));
-        NamedCommands.registerCommand("ScoreCoral", endEffector.cmdAddCoralRotations(20));
-        NamedCommands.registerCommand("DealgaeHigh", controlFactory.reefHighDealgae().withTimeout(2));
-        NamedCommands.registerCommand("DealgaeLow", controlFactory.reefLowDealgae().withTimeout(2));
-        NamedCommands.registerCommand("AutoIndexer", endEffector.cmdAutoIndexer().andThen(endEffector.cmdAddCoralRotations(5)));
-        NamedCommands.registerCommand("HighAlgeaPrep", elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP));
-        //NamedCommands.registerCommand("LowAlgeaPrep", elevator.cmdSetPosition(Position.LOW_ALGAE_PREP));
+        double releaseTimeoutTime = 1;
 
-        // Complex commands
-        NamedCommands.registerCommand(
-                "ScoreRightL4AndHome",
-                elevator.cmdSetPosition(Position.L4)
-                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(endEffector.cmdAddCoralRotations(20))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+        NamedCommands.registerCommand("Release", controlFactory.cmdReleaseAlgae(WristPosition.PROCESSOR));
+        // Complex
 
         NamedCommands.registerCommand(
-                "ScoreRightL4AndHighAlgeaPrep",
-                elevator.cmdSetPosition(Position.L4)
-                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(endEffector.cmdAddCoralRotations(20))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP)));
+                "DealgaeHigh",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
+                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT)));
 
         NamedCommands.registerCommand(
-                "ScoreRightL4AndLowAlgeaPrep",
-                elevator.cmdSetPosition(Position.L4)
-                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(endEffector.cmdAddCoralRotations(20))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
+                "DealgaeHighGoHome",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
+                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT),
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(
-                "ScoreLeftL4AndHome",
-                elevator.cmdSetPosition(Position.L4)
-                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(endEffector.cmdAddCoralRotations(20))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+                "DealgaeLow",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
+                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT)));
 
         NamedCommands.registerCommand(
-                "ScoreLeftL4AndHighAlgeaPrep",
-                elevator.cmdSetPosition(Position.L4)
-                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(endEffector.cmdAddCoralRotations(20))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(elevator.cmdSetPosition(Position.HIGH_ALGAE_PREP)));
+                "DealgaeLowGoHome",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
+                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT),
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(
-                "ScoreLeftL4AndLowAlgeaPrep",
-                elevator.cmdSetPosition(Position.L4)
-                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(endEffector.cmdAddCoralRotations(20))
-                        .andThen(Commands.waitSeconds(0.5))
-                        .andThen(elevator.cmdSetPosition(Position.LOW_ALGAE_PREP)));
+                "L1Coral",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1),
+                        controlFactory.cmdReleaseAlgae(WristPosition.L1).withTimeout(releaseTimeoutTime),
+                        controlFactory.cmdSetWristPosition(WristPosition.HOME)));
 
-                        NamedCommands.registerCommand(
-                                "ScoreRightL2AndHome",
-                                elevator.cmdSetPosition(Position.L2)
-                                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_RIGHT))
-                                        .andThen(Commands.waitSeconds(0.5))
-                                        .andThen(endEffector.cmdAddCoralRotations(20))
-                                        .andThen(Commands.waitSeconds(0.5))
-                                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
-
-                                        NamedCommands.registerCommand(
-                                                "ScoreLeftL2AndHome",
-                                                elevator.cmdSetPosition(Position.L2)
-                                                        .andThen(endEffector.cmdSetHeadRotation(HeadPosition.CENTER_LEFT))
-                                                        .andThen(Commands.waitSeconds(0.5))
-                                                        .andThen(endEffector.cmdAddCoralRotations(20))
-                                                        .andThen(Commands.waitSeconds(0.5))
-                                                        .andThen(elevator.cmdSetPosition(Position.STARTING_CONFIGURATION)));
+        NamedCommands.registerCommand(
+                "ScoreBargeGoHome",
+                Commands.sequence(
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE),
+                        controlFactory.cmdReleaseAlgae(WristPosition.BARGE).withTimeout(releaseTimeoutTime),
+                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
+                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
     }
-
-    
 }

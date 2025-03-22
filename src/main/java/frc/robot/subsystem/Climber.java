@@ -13,18 +13,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.HealthStatus;
-import frc.robot.util.TalonHealthChecker;
+import frc.robot.util.HealthMonitor;
 
 public class Climber extends SubsystemBase {
 
   private TalonFX climber = new TalonFX(40);
-  private final boolean healthCheckEnabled = true;
-  private HealthStatus healthStatus = HealthStatus.IS_OK;
-  private TalonHealthChecker climberCheck;
   private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
   private final double requiredRotations = 244; // 235 ~= 13 inches of travel on the climber
 
@@ -39,45 +33,35 @@ public class Climber extends SubsystemBase {
     climber.getConfigurator().apply(talonFXConfiguration);
     climber.setPosition(0);
     climber.getPosition().setUpdateFrequency(200);
-    if (healthCheckEnabled) {
-      climberCheck = new TalonHealthChecker(climber, getName());
-    }
+   
+    HealthMonitor.getInstance()
+        .addComponent(getName(), "Winch", climber);
   }
 
-  public Command cmdSetTorque(Current newCurrent) {
-    return Commands.runEnd(
-        () -> setTorque(newCurrent),
-        () -> climber.stopMotor(), this)
-        .until(() -> getRotations() >= requiredRotations)
-        .withName(String.format("Climber set torque - %f", newCurrent.magnitude()));
-  }
-
-  public HealthStatus getHealthStatus() {
-    return healthStatus;
-  }
-
-  @Logged(name = "Climber torque current")
+  @Logged(name = "Torque current")
   public double getTorque() {
     return climber.getTorqueCurrent().getValueAsDouble();
   }
 
-  @Override
-  public void periodic() {
-    if (healthCheckEnabled) {
-      if (!climberCheck.isDeviceHealthy()) {
-        healthStatus = HealthStatus.ERROR;
-      } else {
-        healthStatus = HealthStatus.IS_OK;
-      }
-    }
-  }
-
-  private void setTorque(Current newCurrent) {
+  public void setTorque(Current newCurrent) {
     climber.setControl(torqueControl.withOutput(newCurrent));
   }
 
-  private double getRotations(){
+  @Logged(name = "Position")
+  public double getPosition() {
     return climber.getPosition().getValueAsDouble();
   }
 
+  public void stopMotor() {
+    climber.stopMotor();
+  }
+
+  public boolean hasPassedClimbThreshold() {
+    return getPosition() >= requiredRotations;
+  }
+
+  @Override
+  public void periodic() {
+    
+  }
 }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.867019983931079,
-        "y": 5.12543498914717
+        "x": 5.341869884480925,
+        "y": 2.5382836907116566
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.474615317249657,
-        "y": 6.608354628074037
+        "x": 5.222652602006198,
+        "y": 2.7580272675446125
       },
       "isLocked": false,
-      "linkedName": "LK"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.723436303945527,
-        "y": 7.430331330938008
+        "x": 5.12,
+        "y": 2.93
       },
       "prevControl": {
-        "x": 2.288837632170565,
-        "y": 6.841226409490917
+        "x": 5.239859178547847,
+        "y": 2.710605885863282
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CoralStationL"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
+    "maxVelocity": 1.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -52.52382043863874
+    "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Teleop",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -60.255118703057796
+    "rotation": 119.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
