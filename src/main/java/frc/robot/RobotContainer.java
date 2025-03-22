@@ -205,6 +205,9 @@ public class RobotContainer {
         addPathAuto("CenterAlgae", "CenterAlgea");
         addPathAuto("LeftMiddleCageBargeScore", "LeftMiddleCageBargeScore");
         addPathAuto("RightMiddle_To_Processor", "RightMiddle_To_Processor");
+        addPathAuto("GetOffLineLeft", "GetOffLineLeft");
+        addPathAuto("GetOffLineRight", "GetOffLineRight");
+        addPathAuto("GetOffLineCenter", "GetOffLineCenter");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
