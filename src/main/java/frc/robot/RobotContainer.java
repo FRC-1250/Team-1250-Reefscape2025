@@ -57,7 +57,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     private final CommandXboxController primaryDriverJoystick = new CommandXboxController(0);
-    private final CommandPS4Controller operatorJoystick = new CommandPS4Controller(1);
+    private CommandPS4Controller operatorJoystick;
 
     @Logged(name = "Elevator")
     public final Elevator elevator = new Elevator();
@@ -68,9 +68,6 @@ public class RobotContainer {
     @Logged(name = "Climber")
     public final Climber climber = new Climber();
 
-    @Logged(name = "Deep climber")
-    public final DeepClimber deepClimber = new DeepClimber();
-
     @Logged(name = "Algae end effector")
     public final AlgaeEndEffector algaeEndEffector = new AlgaeEndEffector();
 
@@ -80,7 +77,6 @@ public class RobotContainer {
             drivetrain,
             elevator,
             climber,
-            deepClimber,
             limelight,
             algaeEndEffector,
             systemLights);
@@ -157,13 +153,15 @@ public class RobotContainer {
                 .whileFalse(controlFactory.cmdHomeIntake());
 
         // Climber
-        primaryDriverJoystick.y().whileTrue(controlFactory.cmdDeepClimbRawTorque());
+        primaryDriverJoystick.y().whileTrue(controlFactory.cmdShallowClimb());     
+    }
 
-        /*
-         * Operator controls
-         */
-        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE)).onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
-        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK)).onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
+    private void configureOpController() {
+        operatorJoystick = new CommandPS4Controller(1);
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE))
+                .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
+        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK))
+                .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
 
         operatorJoystick.povUp().onTrue(controlFactory.cmdAddElevatorRotations(5));
         operatorJoystick.povLeft().onTrue(controlFactory.cmdAddElevatorRotations(1));
@@ -180,8 +178,6 @@ public class RobotContainer {
 
         operatorJoystick.R1().onTrue(controlFactory.cmdSetWristPosition(WristPosition.REEF));
         operatorJoystick.R2().onTrue(controlFactory.cmdSetWristPosition(WristPosition.HOME));
-
-
     }
 
     private void configureSmartDashboardBindings() {
