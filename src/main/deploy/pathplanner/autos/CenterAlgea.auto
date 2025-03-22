@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterHG"
+            "pathName": "CenterField_To_HG"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HGBarge"
+            "pathName": "ReefHG_Barge3"
           }
         },
         {

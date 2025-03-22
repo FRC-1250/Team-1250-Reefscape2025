@@ -13,13 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LEFTMiddleCageJI"
+            "pathName": "LeftCenterCage_To_ReefJI"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "DealgaeHigh"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefJI_Backoff"
           }
         }
       ]

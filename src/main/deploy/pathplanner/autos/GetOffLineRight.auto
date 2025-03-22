@@ -13,13 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RIGHTMiddleCageEF"
+            "pathName": "RightCenterCage_To_ReefEF"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "DealgaeHigh"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefEF_Backoff"
           }
         }
       ]

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LEFTMiddleCageJI"
+            "pathName": "LeftCenterCage_To_ReefJI"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "JI_ScoreBarge"
+            "pathName": "ReefJI_To_Barge"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BargeOffline"
+            "pathName": "Barge_Backoff"
           }
         }
       ]

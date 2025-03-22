@@ -113,7 +113,7 @@ public class AlgaeEndEffector extends SubsystemBase {
     intakeTalonFXConfiguration.Slot1 = intakeVelocityPIDConfigs;
     intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
     intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
-    intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     intakeTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     intakeTalonFX.getConfigurator().apply(intakeTalonFXConfiguration);
 

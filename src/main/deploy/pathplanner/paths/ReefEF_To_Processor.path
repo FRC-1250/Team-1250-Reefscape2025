@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 5.238869215762764,
-        "y": 1.898221815258323
+        "y": 1.8982218152583232
       },
       "isLocked": false,
       "linkedName": "ReefEF"
@@ -62,7 +62,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.5778386812614
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

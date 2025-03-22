@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RIGHTMiddleCageEF"
+            "pathName": "RightCenterCage_To_ReefEF"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Reef_EF_To_Processor"
+            "pathName": "ReefEF_To_Processor"
           }
         },
         {
