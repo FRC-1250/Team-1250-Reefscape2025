@@ -175,7 +175,8 @@ public class ControlFactory {
     }
 
     public Command cmdReturnIntakeBasedOnAlgae() {
-        return new ConditionalCommand(cmdResetScoringPosition(),
+        return new ConditionalCommand(
+                cmdResetScoringPosition(),
                 cmdHomeIntake(),
                 () -> algaeEndEffector.hasAlgae());
     }
@@ -188,7 +189,7 @@ public class ControlFactory {
 
     public Command cmdResetScoringPosition() {
         return Commands.sequence(cmdSetIntakeVelocity(IntakeVelocity.STOP),
-                cmdSetWristPosition(WristPosition.PROCESSOR));
+                cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT));
     }
 
     public Command cmdIntakeAlgae(IntakeVelocity velocity, WristPosition position) {
@@ -197,7 +198,7 @@ public class ControlFactory {
                 cmdSetWristPosition(position),
                 Commands.waitUntil(() -> algaeEndEffector.hasAlgae()),
                 cmdSetIntakeVelocity(IntakeVelocity.STOP),
-                cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT))
+                cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT))
                 .unless(() -> algaeEndEffector.hasAlgae())
                 .withName(String.format("Intake: %s", position.toString()));
     }
@@ -206,7 +207,22 @@ public class ControlFactory {
         return new ConditionalCommand(
                 cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.FLOOR),
                 cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.REEF),
-                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
+                () ->  elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations,5));
+    }
+
+    public Command cmdIntakeAlgaeSelector() {
+        return new SelectCommand<>(Map.ofEntries(
+                Map.entry(1, cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.FLOOR)),
+                Map.entry(2, cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.REEF))),
+                () -> intakeAlgaeSelector());
+    }
+
+    private int intakeAlgaeSelector() {
+        if(elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations,5)) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 
     public Command cmdReleaseAlgae(WristPosition position) {
@@ -219,8 +235,26 @@ public class ControlFactory {
     public Command cmdReleaseAlgaeBasedOnElevatorPosition() {
         return new ConditionalCommand(
                 cmdReleaseAlgae(WristPosition.BARGE),
-                cmdReleaseAlgae(WristPosition.PROCESSOR),
+                cmdReleaseAlgae(WristPosition.ALGAE_CONTAINMENT),
                 () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5));
+    }
+
+    public Command cmdReleaseAlgaeSelector() {
+        return new SelectCommand<>(Map.ofEntries(
+                Map.entry(1, cmdReleaseAlgae(WristPosition.BARGE)),
+                Map.entry(2, cmdReleaseAlgae(WristPosition.ALGAE_CONTAINMENT)),
+                Map.entry(3, cmdSetIntakeVelocity(IntakeVelocity.YEET))),
+                () -> releaseAlgaeSelector());
+    }
+
+    private int releaseAlgaeSelector() {
+        if(elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5)) {
+            return 1;
+        } else if (algaeEndEffector.isWristNearPosition(WristPosition.PROCESSOR)) {
+            return 3;
+        } else {
+            return 2;
+        }
     }
 
     /*

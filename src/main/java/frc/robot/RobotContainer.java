@@ -151,15 +151,17 @@ public class RobotContainer {
 
         // Intake
         primaryDriverJoystick.rightTrigger()
-                .whileTrue(controlFactory.cmdReleaseAlgaeBasedOnElevatorPosition())
+                .whileTrue(controlFactory.cmdReleaseAlgaeSelector())
                 .whileFalse(controlFactory.cmdHomeIntake());
         primaryDriverJoystick.leftTrigger()
-                .whileTrue(controlFactory.cmdIntakeAlgaeBasedOnElevatorPosition())
+                .whileTrue(controlFactory.cmdIntakeAlgaeSelector())
                 .whileFalse(controlFactory.cmdHomeIntake());
 
         // Climber
          primaryDriverJoystick.y().onTrue(controlFactory.cmdShallowClimb());
        // primaryDriverJoystick.y().whileTrue(controlFactory.cmdDeepClimbRawTorque());
+
+       primaryDriverJoystick.povDown().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
     }
 
     private void configureOpController() {
@@ -228,14 +230,14 @@ public class RobotContainer {
                 Commands.sequence(
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
                         controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT)));
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT)));
 
         NamedCommands.registerCommand(
                 "DealgaeHighGoHome",
                 Commands.sequence(
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
                         controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(
@@ -243,14 +245,14 @@ public class RobotContainer {
                 Commands.sequence(
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
                         controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT)));
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT)));
 
         NamedCommands.registerCommand(
                 "DealgaeLowGoHome",
                 Commands.sequence(
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
                         controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGEA_CONTAINMENT),
+                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
                         controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
 
         NamedCommands.registerCommand(
