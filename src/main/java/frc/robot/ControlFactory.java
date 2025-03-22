@@ -63,7 +63,6 @@ public class ControlFactory {
     private final Climber climber;
     private final Limelight limelight;
     private final AlgaeEndEffector algaeEndEffector;
-    private final DeepClimber deepClimber;
     private final Translation2d blueReef = new Translation2d(4.490, 4);
     private final Translation2d redReef = new Translation2d(13.05, 4);
     private final double[] lowAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
@@ -81,7 +80,6 @@ public class ControlFactory {
             CommandSwerveDrivetrain swerveDrivetrain,
             Elevator elevator,
             Climber climber,
-            DeepClimber deepClimber,
             Limelight limelight,
             AlgaeEndEffector algaeEndEffector,
             SystemLights systemLights) {
@@ -91,7 +89,6 @@ public class ControlFactory {
         this.limelight = limelight;
         this.algaeEndEffector = algaeEndEffector;
         this.systemLights = systemLights;
-        this.deepClimber = deepClimber;
     }
 
     /*
@@ -103,8 +100,9 @@ public class ControlFactory {
                 .withName("Climber: Shallow climb");
     }
 
+    /* 
     public Command cmdDeepClimbRawTorque() {
-        return new SetDeepClimbTorque(deepClimber, Amps.of(80));
+        return new SetDeepClimbTorque(deepClimber, Amps.of(200));
     }
 
     public Command cmdDeepClimbPhase1() {
@@ -123,6 +121,7 @@ public class ControlFactory {
                 cmdDeepClimbPhase1(),
                 () -> deepClimber.isNearPositionAndTolerance(DeepClimberPhase.PREP.rotations, 5));
     }
+                */
 
     /*
      * Elevator
@@ -224,7 +223,7 @@ public class ControlFactory {
                             }
 
                             if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR
-                                    || hm.getSubsystemStatus("DeepClimber") == HealthStatus.ERROR) {
+                             ) {
                                 systemLights.diagnosticColors.add(PresetColor.BLUE);
                             }
 
