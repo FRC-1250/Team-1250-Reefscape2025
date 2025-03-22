@@ -8,7 +8,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -51,9 +50,6 @@ public class DeepClimber extends SubsystemBase {
     motionMagicConfigs.MotionMagicAcceleration = 150;
     motionMagicConfigs.MotionMagicJerk = 0;
 
-    TorqueCurrentConfigs torqueCurrentConfigs = new TorqueCurrentConfigs();
-    torqueCurrentConfigs.PeakForwardTorqueCurrent = 100;
-
     Slot0Configs positionConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Arm_Cosine)
         .withKG(0.0)
@@ -68,7 +64,8 @@ public class DeepClimber extends SubsystemBase {
     talonFXConfiguration.MotorOutput = motorOutputConfigs;
     talonFXConfiguration.MotionMagic = motionMagicConfigs;
     talonFXConfiguration.Slot0 = positionConfigs;
-    talonFXConfiguration.TorqueCurrent = torqueCurrentConfigs;
+    talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = false;
+    talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false;
 
     deepClimber.getConfigurator().apply(talonFXConfiguration);
     deepClimber.setPosition(0);
@@ -94,8 +91,7 @@ public class DeepClimber extends SubsystemBase {
   }
 
   public void setTorque(Current amps) {
-    deepClimber.setControl(torqueControl.withOutput(amps)
-        .withMaxAbsDutyCycle(0.5));
+    deepClimber.setControl(torqueControl.withOutput(amps));
   }
 
    public boolean isNearPositionAndTolerance(double position, double tolerance) {
