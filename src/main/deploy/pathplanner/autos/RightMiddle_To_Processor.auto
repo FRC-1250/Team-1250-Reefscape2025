@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCenterCage_To_ReefEF"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L1Coral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DealgaeHighGoHome"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefEF_To_Processor"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Release"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.156432165877549,
-        "y": 5.118442681276327
+        "x": 7.205092376500736,
+        "y": 6.113265146520115
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.2823160042613875,
-        "y": 5.687634600468246
+        "x": 6.650308109420402,
+        "y": 5.962777526985951
       },
       "isLocked": false,
-      "linkedName": "JI"
+      "linkedName": "LeftBargeCenterStart"
     },
     {
       "anchor": {
-        "x": 1.723436303945527,
-        "y": 7.430331330938008
+        "x": 5.156432165877549,
+        "y": 5.118442681276327
       },
       "prevControl": {
-        "x": 2.2824640817233046,
-        "y": 6.932288401645079
+        "x": 5.34503593924802,
+        "y": 5.282542092215001
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CoralStationL"
+      "linkedName": "ReefJI"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 0.7574750830564793,
+      "minWaypointRelativePos": 0.4859392575928056,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.2,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -56,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -52.52382043863874
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.86283435627512
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

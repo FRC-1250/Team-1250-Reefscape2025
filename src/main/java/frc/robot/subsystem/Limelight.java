@@ -4,7 +4,6 @@
 
 package frc.robot.subsystem;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,7 +13,6 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 public class Limelight extends SubsystemBase {
 
   private final String name;
-  private double fid = -1;
 
   public enum LimeLightPipeline {
     MORNING(0),
@@ -36,11 +34,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getFid() {
-    return fid;
-  }
-
-  public boolean isBestTagSeen(double fid) {
-    return Double.compare(this.fid, fid) == 0;
+    return LimelightHelpers.getFiducialID(name);
   }
 
   public void setRobotOrientation(double headingDeg) {
@@ -56,11 +50,12 @@ public class Limelight extends SubsystemBase {
   }
 
   public Command switchPipeline(LimeLightPipeline limeLightPipeline) {
-    return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId));
+    return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId))
+        .withName(String.format("%s set pipeline %s", name, limeLightPipeline.toString()))
+        .ignoringDisable(true);
   }
 
   @Override
   public void periodic() {
-    fid = LimelightHelpers.getFiducialID(name);
   }
 }

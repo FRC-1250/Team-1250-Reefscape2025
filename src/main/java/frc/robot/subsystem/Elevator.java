@@ -9,22 +9,17 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotionMagicIsRunningValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
@@ -32,89 +27,67 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.HealthStatus;
-import frc.robot.util.TalonHealthChecker;
-import frc.robot.util.TunableTalonFX;
+import frc.robot.util.HealthMonitor;
 
 public class Elevator extends SubsystemBase {
-  public enum Position {
-    STARTING_CONFIGURATION(0),
-    SENSOR(1.3),
-    CONTAIN_ALGAE(17.65),
+  public enum ElevatorPosition {
+    HOME(0.25),
+    SENSOR(0.8),
     L1(6.08),
-    L2(17.7),
-    LOW_ALGAE(32.1),
-    LOW_ALGAE_PREP(37.9),
-    L3(33.6),
-    HIGH_ALGAE(46.7),
-    HIGH_ALGAE_PREP(52.7),
-    L4(58.3),
-    PEAK(61.5);
+    LOW_ALGAE(18),
+    HIGH_ALGAE(32),
+    BARGE(73),
+    PEAK(74);
 
     public final double rotations;
 
-    Position(double rotations) {
+    ElevatorPosition(double rotations) {
       this.rotations = rotations;
     }
   }
 
   private TalonFX leftMotor = new TalonFX(30);
   private TalonFX rightMotor = new TalonFX(31);
-  private DigitalInput coralSensor = new DigitalInput(0);
   private DigitalInput homeSensor = new DigitalInput(1);
   private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
-  private DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(false);
   private boolean homeFound = false;
   private boolean previousHomeSensor = isAtHome();
-
-  private final boolean tuningModeEnabled = false;
-  private final boolean healthCheckEnabled = true;
-  private TunableTalonFX tunableTalonFX;
-  private TalonHealthChecker leftMotorCheck;
-  private TalonHealthChecker rightMotorCheck;
-  private HealthStatus healthStatus = HealthStatus.IS_OK;
-  public Position elevatorPosition = Position.STARTING_CONFIGURATION;
-  public Position previousElevatorPosition = Position.STARTING_CONFIGURATION;
-  private double leftMotorPosition = 0;
 
   public Elevator() {
     Slot0Configs positionPIDConfigs = new Slot0Configs()
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withKG(0.3)
-        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
         .withKS(0.2)
-        .withKV(0.25)
-        .withKP(7)
+        .withKV(0.3)
+        .withKA(0.01)
+        .withKP(2)
         .withKI(0)
-        .withKD(0);
+        .withKD(0.1);
 
     MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
         .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
-        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(175))
-        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(0));
+        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
+        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
 
     SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
     softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = Position.PEAK.rotations;
+    softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = ElevatorPosition.PEAK.rotations;
     softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = Position.STARTING_CONFIGURATION.rotations;
+    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = ElevatorPosition.HOME.rotations;
 
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.SupplyCurrentLimit = 25;
+    currentLimitsConfigs.SupplyCurrentLimit = 50;
 
     MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
     motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
-    motorOutputConfigs.DutyCycleNeutralDeadband = 0.05;
 
     VoltageConfigs voltageConfigs = new VoltageConfigs();
-    voltageConfigs.PeakForwardVoltage = 12;
-    voltageConfigs.PeakReverseVoltage = -4;
+    voltageConfigs.PeakReverseVoltage = -6;
 
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
     talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
@@ -129,101 +102,15 @@ public class Elevator extends SubsystemBase {
 
     BaseStatusSignal.setUpdateFrequencyForAll(200,
         leftMotor.getPosition(),
-        rightMotor.getPosition());
+        rightMotor.getPosition(),
+        leftMotor.getVelocity(),
+        rightMotor.getVelocity());
 
-    if (tuningModeEnabled) {
-      tunableTalonFX = new TunableTalonFX(getName(), "Left + right motors", SlotConfigs.from(positionPIDConfigs),
-          leftMotor,
-          rightMotor);
-    }
+    HealthMonitor.getInstance()
+        .addComponent(getName(), "Left motor", leftMotor)
+        .addComponent(getName(), "Right motor", rightMotor);
 
-    if (healthCheckEnabled) {
-      leftMotorCheck = new TalonHealthChecker(leftMotor, getName());
-      rightMotorCheck = new TalonHealthChecker(rightMotor, getName());
-    }
-  }
-
-  public Command cmdManualHome() {
-    return cmdSetDutyCycleOut(-0.05).until(() -> homeFound).withName("Elevator force home");
-  }
-
-  public Command cmdSetPosition(Position position) {
-    return new FunctionalCommand(
-        () -> {
-        },
-        () -> setPosition(position.rotations),
-        interrupted -> {
-          if (!interrupted) {
-            previousElevatorPosition = elevatorPosition;
-            elevatorPosition = position;
-          }
-        },
-        () -> isNearPosition(position.rotations),
-        this).withName(String.format("Elevator new position %s", position.name()));
-  }
-
-  public Command cmdAddRotations(double rotations) {
-    return new FunctionalCommand(
-        () -> leftMotorPosition = getLeftMotorPosition(),
-        () -> {
-          setPosition(leftMotorPosition + rotations);
-        },
-        interrupted -> {
-        },
-        () -> isNearPosition(leftMotorPosition + rotations),
-        this).withName(String.format("Elevator pos add %f", rotations));
-  }
-
-  public Command cmdSetDutyCycleOut(double output) {
-    return Commands.runEnd(
-        () -> setDutyCycleOut(output),
-        () -> holdPosition(),
-        this).withName(String.format("Elevator duty cycle %f", output));
-  }
-
-  public Command cmdStop() {
-    return Commands.runOnce(() -> stopMotors(), this).withName("Elevator stop");
-  }
-
-  @Override
-  public void periodic() {
-    // TODO: Verify if notifier command works better
-    detectSensorTransition();
-
-    if (tuningModeEnabled) {
-      tunableTalonFX.updateValuesFromSmartNT();
-    }
-
-    if (healthCheckEnabled) {
-      if (!leftMotorCheck.isDeviceHealthy() |
-          !rightMotorCheck.isDeviceHealthy()) {
-        healthStatus = HealthStatus.ERROR;
-      } else {
-        healthStatus = HealthStatus.IS_OK;
-      }
-    }
-  }
-
-  public Command cmdHandleSensorTransition() {
-    return new NotifierCommand(() -> detectSensorTransition(), 0.05).until(() -> homeFound).withName("Elevator find home");
-  }
-
-  private void detectSensorTransition() {
-    if (!homeFound && previousHomeSensor != isAtHome()) {
-      homeFound = true;
-      resetMotorPositionToPosition(Position.SENSOR.rotations);
-    }
-    previousHomeSensor = isAtHome();
-  }
-
-  @Logged(name = "Home found")
-  public boolean getHomeFound() {
-    return homeFound;
-  }
-
-  @Logged(name = "Has coral")
-  public boolean hasCoralInChute() {
-    return !coralSensor.get();
+    cmdHandleSensorTransition().schedule();
   }
 
   @Logged(name = "Right rotations")
@@ -236,41 +123,29 @@ public class Elevator extends SubsystemBase {
     return leftMotor.getPosition().getValueAsDouble();
   }
 
+  @Logged(name = "Left velocity")
   public double getLeftMotorVelocity() {
     return leftMotor.getVelocity().getValueAsDouble();
   }
 
+  @Logged(name = "Right velocity")
   public double getRightMotorVelocity() {
     return rightMotor.getVelocity().getValueAsDouble();
   }
 
-  @Logged(name = "Health status")
-  public HealthStatus getHealthStatus() {
-    return healthStatus;
+  @Logged(name = "Home found")
+  public boolean getHomeFound() {
+    return homeFound;
   }
 
-  public boolean isAbovePosition(Position position) {
-    return position.rotations < getLeftMotorPosition() || position.rotations < getRightMotorPosition();
-  }
-
-  public boolean isAtCoralScoringPosition() {
-    return (isAtPosition(Elevator.Position.L1)
-        || isAtPosition(Elevator.Position.L2)
-        || isAtPosition(Elevator.Position.L3)
-        || isAtPosition(Elevator.Position.L4));
-  }
-
-  public boolean isAtPosition(Position position) {
-    return elevatorPosition == position;
-  }
-
-  public boolean wasPreviouslyAtPosition(Position position) {
-    return previousElevatorPosition == position;
-  }
-
-  @Logged(name = "Home")
+  @Logged(name = "At home")
   public boolean isAtHome() {
     return !homeSensor.get();
+  }
+
+  public boolean isAbovePosition(ElevatorPosition position) {
+    var pos = position.rotations - 2; // Apply some buffer
+    return pos <= getLeftMotorPosition() || pos <= getRightMotorPosition();
   }
 
   public void setPosition(double position) {
@@ -279,47 +154,39 @@ public class Elevator extends SubsystemBase {
     rightMotor.setControl(motionMagicPostionControl);
   }
 
-  private void holdPosition() {
-    setPosition(getLeftMotorPosition());
-  }
-
-  private void setDutyCycleOut(double output) {
-    dutyCycleOut.Output = output;
-    leftMotor.setControl(dutyCycleOut);
-    rightMotor.setControl(dutyCycleOut);
-  }
-
-  private void stopMotors() {
-    leftMotor.stopMotor();
-    rightMotor.stopMotor();
-  }
-
-  private void resetMotorPositionToPosition(double rotations) {
+  public void resetMotorPositionToPosition(double rotations) {
     leftMotor.setPosition(rotations);
     rightMotor.setPosition(rotations);
   }
 
-  public Command cmdResetPos() {
-    return Commands.runOnce(() -> resetMotorPositionToPosition(Position.STARTING_CONFIGURATION.rotations), this).ignoringDisable(true);
-  }
-
-  private boolean isNearPosition(double position) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), 0.25)
-        || MathUtil.isNear(position, getRightMotorPosition(), 0.25);
-  }
-
   public boolean isNearPositionAndTolerance(double position, double tolerance) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), 0.5)
-        || MathUtil.isNear(position, getRightMotorPosition(), 0.5);
+    return MathUtil.isNear(position, getLeftMotorPosition(), tolerance)
+        || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
   }
 
-  private boolean isNearPosition(Position position) {
-    return isNearPosition(position.rotations);
+  public void stop() {
+    leftMotor.stopMotor();
+    rightMotor.stopMotor();
   }
 
-  @Logged
-  public Position getElevatorState() {
-    return elevatorPosition;
+  @Override
+  public void periodic() {
+ 
   }
 
+  private Command cmdHandleSensorTransition() {
+    return new NotifierCommand(() -> detectSensorTransition(), 0.01)
+        .until(() -> homeFound)
+        .withName("Elevator: Detect home")
+        .ignoringDisable(true);
+  }
+
+  private void detectSensorTransition() {
+    var isAtHome = isAtHome();
+    if (previousHomeSensor != isAtHome) {
+      homeFound = true;
+      resetMotorPositionToPosition(ElevatorPosition.SENSOR.rotations);
+    }
+    previousHomeSensor = isAtHome;
+  }
 }

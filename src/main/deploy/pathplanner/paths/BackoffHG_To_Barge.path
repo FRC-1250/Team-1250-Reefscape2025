@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6131944444493438,
-        "y": 1.361994949492207
+        "x": 6.071338383838384,
+        "y": 4.01
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.34211929018955,
-        "y": 1.6693477790533267
+        "x": 6.24536184049269,
+        "y": 4.18948770580206
       },
       "isLocked": false,
-      "linkedName": "CoralStationR"
+      "linkedName": "BackoffHG"
     },
     {
       "anchor": {
-        "x": 3.848973993463843,
-        "y": 2.914829343745846
+        "x": 6.945454545454546,
+        "y": 4.970265151515151
       },
       "prevControl": {
-        "x": 2.9866466087064705,
-        "y": 2.5060726986662125
+        "x": 6.777574689269831,
+        "y": 4.7850184136561555
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CD"
+      "linkedName": "LeftBargeScoreRight"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 60.11330673086572
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 55.00797980144135
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

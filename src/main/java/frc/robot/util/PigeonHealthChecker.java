@@ -17,11 +17,11 @@ public class PigeonHealthChecker extends PhoenixHealthChecker {
     @Override
     protected List<Boolean> faultsToBooleanList() {
         return Arrays.asList(
-                pigeon.getStickyFault_BootDuringEnable().getValue(),
-                pigeon.getStickyFault_BootupGyroscope().getValue(),
-                pigeon.getStickyFault_DataAcquiredLate().getValue(),
+                pigeon.getFault_BootDuringEnable().getValue(),
+                pigeon.getFault_BootupGyroscope().getValue(),
+                pigeon.getFault_DataAcquiredLate().getValue(),
                 // pigeon.getStickyFault_Hardware().getValue(),
-                pigeon.getStickyFault_Undervoltage().getValue());
+                pigeon.getFault_Undervoltage().getValue());
     }
 
 }

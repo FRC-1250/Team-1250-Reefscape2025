@@ -20,7 +20,25 @@ public class ReefScoringMap {
             Map.entry(21, new Pose2d(5.750, 4.030, Rotation2d.fromDegrees(180))),
             Map.entry(22, new Pose2d(5.120, 2.930, Rotation2d.fromDegrees(120))));
 
+            public static final Map<Integer, String> pathNames = Map.ofEntries(
+            Map.entry(6, "Teleop_LK"),
+            Map.entry(7, "Teleop_AB"),
+            Map.entry(8, "Teleop_CD"),
+            Map.entry(9, "Teleop_EF"),
+            Map.entry(10, "Teleop_HG"),
+            Map.entry(11, "Teleop_JI"),
+            Map.entry(17, "Teleop_CD"),
+            Map.entry(18, "Teleop_AB"),
+            Map.entry(19, "Teleop_LK"),
+            Map.entry(20, "Teleop_JI"),
+            Map.entry(21, "Teleop_HG"),
+            Map.entry(22, "Teleop_EF"));
+
     public static final Pose2d getReefPoseFromLimelightID(int id) {
         return poses.get(id);
+    }
+
+    public static final String getReefPathFromLimelightID(int id) {
+        return pathNames.get(id);
     }
 }

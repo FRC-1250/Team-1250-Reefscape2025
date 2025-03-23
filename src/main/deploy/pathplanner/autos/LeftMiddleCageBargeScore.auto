@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftCenterCage_To_ReefJI"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L1Coral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DealgaeHighGoHome"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefJI_To_Barge"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreBargeGoHome"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge_Backoff"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
