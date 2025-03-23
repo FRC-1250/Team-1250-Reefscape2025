@@ -107,28 +107,9 @@ public class ControlFactory {
         return new SetDeepClimbTorque(deepClimber, Amps.of(80));
     }
 
-    public Command cmdDeepClimbRawTorqueV2() {
-        return Commands.sequence(
-                cmdSetWristPosition(WristPosition.FLOOR),
-                Commands.waitSeconds(0.5),
-                new SetDeepClimbTorque(deepClimber, Amps.of(80)));
-    }
-
-    public Command cmdDeepClimbPhase1() {
-        return new DeepClimb(deepClimber, DeepClimberPhase.PREP, Amps.of(10))
-                .withName("Climber: Deep prep");
-    }
-
-    public Command cmdDeepClimbPhase2() {
+    public Command cmdDeepClimb() {
         return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(80))
                 .withName("Climber: Deep climb");
-    }
-
-    public Command cmdDeepClimbPhaseBasedOnPositon() {
-        return new ConditionalCommand(
-                cmdDeepClimbPhase2(),
-                cmdDeepClimbPhase1(),
-                () -> deepClimber.isNearPositionAndTolerance(DeepClimberPhase.PREP.rotations, 15));
     }
 
     /*

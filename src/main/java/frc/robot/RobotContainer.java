@@ -159,8 +159,9 @@ public class RobotContainer {
 
         // Climber
          //primaryDriverJoystick.y().onTrue(controlFactory.cmdShallowClimb());
-       primaryDriverJoystick.y().whileTrue(controlFactory.cmdDeepClimbRawTorque());
+       primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimb());
 
+       primaryDriverJoystick.povRight().whileTrue(controlFactory.cmdDeepClimbRawTorque());
        primaryDriverJoystick.povDown().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
     }
 

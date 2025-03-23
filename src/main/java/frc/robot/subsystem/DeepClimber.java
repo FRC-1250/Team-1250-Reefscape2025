@@ -20,9 +20,7 @@ import frc.robot.util.HealthMonitor;
 public class DeepClimber extends SubsystemBase {
 
   public enum DeepClimberPhase {
-    PREP(410), // Takes about ~ 400 to get from deployed to climbed, add a bit extra due to the
-               // rollover
-    CLIMB(790);
+    CLIMB(285);
 
     public final double rotations;
 
@@ -69,7 +67,7 @@ public class DeepClimber extends SubsystemBase {
     deepClimber.setControl(torqueControl.withOutput(amps));
   }
 
-   public boolean isNearPositionAndTolerance(double position, double tolerance) {
+  public boolean isNearPositionAndTolerance(double position, double tolerance) {
     return MathUtil.isNear(position, getRotations(), tolerance);
   }
 
