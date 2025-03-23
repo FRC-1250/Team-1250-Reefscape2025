@@ -25,7 +25,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ReefJI_Backoff"
+            "pathName": "ReefJI_BackoffJI"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HomeElevator"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BackoffJI_To_Barge"
           }
         }
       ]

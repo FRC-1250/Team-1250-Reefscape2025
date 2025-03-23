@@ -27,6 +27,18 @@
           "data": {
             "pathName": "ReefEF_Backoff"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HomeElevator"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BackoffEF_To_Processor"
+          }
         }
       ]
     }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.945454545454546,
-        "y": 4.970265151515151
+        "x": 5.293290171188811,
+        "y": 5.354790419743248
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.049673637761728,
-        "y": 6.003126606760217
+        "x": 5.793290171188811,
+        "y": 5.354790419743248
       },
       "isLocked": false,
-      "linkedName": "LeftBargeScoreRight"
+      "linkedName": "BackoffJI"
     },
     {
       "anchor": {
-        "x": 6.3534836065573765,
-        "y": 6.50046106557377
+        "x": 6.945454545454546,
+        "y": 4.970265151515151
       },
       "prevControl": {
-        "x": 6.658428365552063,
-        "y": 6.158019845401828
+        "x": 6.445454545454546,
+        "y": 4.970265151515151
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LeftBargeScoreRight"
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

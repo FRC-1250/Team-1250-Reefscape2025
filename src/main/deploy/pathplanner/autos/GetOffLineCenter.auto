@@ -27,6 +27,18 @@
           "data": {
             "pathName": "ReefHG_Backoff"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HomeElevator"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BackoffHG_To_Barge"
+          }
         }
       ]
     }
