@@ -120,7 +120,7 @@ public class ControlFactory {
     }
 
     public Command cmdDeepClimbPhase2() {
-        return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(40))
+        return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(80))
                 .withName("Climber: Deep climb");
     }
 
@@ -128,7 +128,7 @@ public class ControlFactory {
         return new ConditionalCommand(
                 cmdDeepClimbPhase2(),
                 cmdDeepClimbPhase1(),
-                () -> deepClimber.isNearPositionAndTolerance(DeepClimberPhase.PREP.rotations, 5));
+                () -> deepClimber.isNearPositionAndTolerance(DeepClimberPhase.PREP.rotations, 15));
     }
 
     /*

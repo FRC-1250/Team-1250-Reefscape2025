@@ -15,19 +15,19 @@ public class DeepClimb extends Command {
 
   private final DeepClimber cmdDeepClimber;
   private final DeepClimberPhase cmdDeepClimberPhase;
-  private final Current cmdFeedforward;
+  private final Current cmdAmps;
 
-  public DeepClimb(DeepClimber deepClimber, DeepClimberPhase deepClimberPhase, Current feedforward) {
+  public DeepClimb(DeepClimber deepClimber, DeepClimberPhase deepClimberPhase, Current amps) {
     addRequirements(deepClimber);
     cmdDeepClimber = deepClimber;
     cmdDeepClimberPhase = deepClimberPhase;
-    cmdFeedforward = feedforward;
+    cmdAmps = amps;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    cmdDeepClimber.setPosition(cmdDeepClimberPhase, cmdFeedforward);
+    cmdDeepClimber.setTorque(cmdAmps);
   }
 
   // Called once the command ends or is interrupted.
@@ -39,6 +39,6 @@ public class DeepClimb extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return cmdDeepClimber.isNearPositionAndTolerance(cmdDeepClimberPhase.rotations, 1);
+    return cmdDeepClimber.hasPassedClimbThreshold(cmdDeepClimberPhase);
   }
 }

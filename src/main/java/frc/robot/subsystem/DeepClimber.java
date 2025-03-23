@@ -4,17 +4,12 @@
 
 package frc.robot.subsystem;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
@@ -25,8 +20,9 @@ import frc.robot.util.HealthMonitor;
 public class DeepClimber extends SubsystemBase {
 
   public enum DeepClimberPhase {
-    PREP(10),
-    CLIMB(20);
+    PREP(410), // Takes about ~ 400 to get from deployed to climbed, add a bit extra due to the
+               // rollover
+    CLIMB(790);
 
     public final double rotations;
 
@@ -37,7 +33,6 @@ public class DeepClimber extends SubsystemBase {
 
   private TalonFX deepClimber = new TalonFX(41);
   private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
-  private MotionMagicTorqueCurrentFOC motionMagicTorqueControl = new MotionMagicTorqueCurrentFOC(0);
 
   /** Creates a new DeepClimb. */
   public DeepClimber() {
@@ -45,25 +40,8 @@ public class DeepClimber extends SubsystemBase {
     motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
     motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
-    motionMagicConfigs.MotionMagicCruiseVelocity = 50;
-    motionMagicConfigs.MotionMagicAcceleration = 150;
-    motionMagicConfigs.MotionMagicJerk = 0;
-
-    Slot0Configs positionConfigs = new Slot0Configs()
-        .withGravityType(GravityTypeValue.Arm_Cosine)
-        .withKG(0.0)
-        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
-        .withKS(2.5)
-        .withKV(0.25)
-        .withKP(5)
-        .withKI(0)
-        .withKD(0.0);
-
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
     talonFXConfiguration.MotorOutput = motorOutputConfigs;
-    talonFXConfiguration.MotionMagic = motionMagicConfigs;
-    talonFXConfiguration.Slot0 = positionConfigs;
     talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = false;
     talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false;
 
@@ -83,11 +61,8 @@ public class DeepClimber extends SubsystemBase {
     deepClimber.stopMotor();
   }
 
-  public void setPosition(DeepClimberPhase deepClimberPhase, Current feedforward) {
-    deepClimber.setControl(motionMagicTorqueControl
-        .withPosition(deepClimberPhase.rotations)
-        .withFeedForward(feedforward)
-        .withSlot(0));
+  public boolean hasPassedClimbThreshold(DeepClimberPhase deepClimberPhase) {
+    return getRotations() >= deepClimberPhase.rotations;
   }
 
   public void setTorque(Current amps) {
