@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
@@ -66,9 +65,6 @@ public class RobotContainer {
     @Logged(name = "System lights")
     public final SystemLights systemLights = new SystemLights();
 
-    @Logged(name = "Climber")
-    public final Climber climber = new Climber();
-
     @Logged(name = "Deep climber")
     public final DeepClimber deepClimber = new DeepClimber();
 
@@ -83,7 +79,6 @@ public class RobotContainer {
     public final ControlFactory controlFactory = new ControlFactory(
             drivetrain,
             elevator,
-            climber,
             deepClimber,
             wrist,
             intake,

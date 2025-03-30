@@ -28,12 +28,10 @@ import frc.robot.commands.AlgaeEndEffector.SetIntakeVelocity;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
 import frc.robot.commands.Climber.DeepClimb;
 import frc.robot.commands.Climber.SetDeepClimbTorque;
-import frc.robot.commands.Climber.ShallowClimb;
 import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
 import frc.robot.commands.Elevator.SetElevatorPosition;
 import frc.robot.commands.Elevator.StopElevator;
-import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
@@ -61,7 +59,6 @@ public class ControlFactory {
     private final CommandSwerveDrivetrain swerveDrivetrain;
     private final Elevator elevator;
     private final SystemLights systemLights;
-    private final Climber climber;
     private final Wrist wrist;
     private final Intake intake;
     private final Limelight limelight;
@@ -82,7 +79,6 @@ public class ControlFactory {
     public ControlFactory(
             CommandSwerveDrivetrain swerveDrivetrain,
             Elevator elevator,
-            Climber climber,
             DeepClimber deepClimber,
             Wrist wrist,
             Intake intake,
@@ -90,7 +86,6 @@ public class ControlFactory {
             SystemLights systemLights) {
         this.swerveDrivetrain = swerveDrivetrain;
         this.elevator = elevator;
-        this.climber = climber;
         this.deepClimber = deepClimber;
         this.limelight = limelight;
         this.wrist = wrist;
@@ -101,12 +96,7 @@ public class ControlFactory {
     /*
      * Climber
      */
-
-    public Command cmdShallowClimb() {
-        return new ShallowClimb(climber, Amps.of(80))
-                .withName("Climber: Shallow climb");
-    }
-
+    
     public Command cmdDeepClimbRawTorque() {
         return new SetDeepClimbTorque(deepClimber, Amps.of(80));
     }
