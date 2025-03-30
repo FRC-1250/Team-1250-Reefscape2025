@@ -8,16 +8,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystem.Elevator;
 
 public class StopElevator extends InstantCommand {
-  private final Elevator cmdElevator;
+    private final Elevator cmdElevator;
 
-  public StopElevator(Elevator elevator) {
-    cmdElevator = elevator;
-    addRequirements(elevator);
-  }
+    public StopElevator(Elevator elevator) {
+        cmdElevator = elevator;
+        addRequirements(elevator);
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    cmdElevator.stop();
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        cmdElevator.stop();
+    }
 }

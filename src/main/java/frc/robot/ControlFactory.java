@@ -48,7 +48,6 @@ import frc.robot.util.HealthMonitor;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.ReefScoringMap;
 
-
 /**
  * Factory class intended to provide convenience commands that have some general
  * assumpions made to make button mapping easier. It also provides some helper
@@ -96,7 +95,7 @@ public class ControlFactory {
     /*
      * Climber
      */
-    
+
     public Command cmdDeepClimbRawTorque() {
         return new SetDeepClimbTorque(deepClimber, Amps.of(80));
     }
@@ -182,7 +181,7 @@ public class ControlFactory {
         return new ConditionalCommand(
                 cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.FLOOR),
                 cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.REEF),
-                () ->  elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations,5));
+                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
     }
 
     public Command cmdIntakeAlgaeSelector() {
@@ -193,7 +192,7 @@ public class ControlFactory {
     }
 
     private int intakeAlgaeSelector() {
-        if(elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations,5)) {
+        if (elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5)) {
             return 1;
         } else {
             return 2;
@@ -223,7 +222,7 @@ public class ControlFactory {
     }
 
     private int releaseAlgaeSelector() {
-        if(elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5)) {
+        if (elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5)) {
             return 1;
         } else if (wrist.isWristNearPosition(WristPosition.PROCESSOR)) {
             return 3;
@@ -250,8 +249,7 @@ public class ControlFactory {
                                 systemLights.diagnosticColors.add(PresetColor.RED);
                             }
 
-                            if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR
-                             ) {
+                            if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR) {
                                 systemLights.diagnosticColors.add(PresetColor.BLUE);
                             }
 

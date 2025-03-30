@@ -12,50 +12,50 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 
 public class Limelight extends SubsystemBase {
 
-  private final String name;
+    private final String name;
 
-  public enum LimeLightPipeline {
-    MORNING(0),
-    EVENING(1);
+    public enum LimeLightPipeline {
+        MORNING(0),
+        EVENING(1);
 
-    public final int pipelineId;
+        public final int pipelineId;
 
-    LimeLightPipeline(int pipelineId) {
-      this.pipelineId = pipelineId;
+        LimeLightPipeline(int pipelineId) {
+            this.pipelineId = pipelineId;
+        }
     }
-  }
 
-  public Limelight(String name) {
-    this.name = name;
-  }
+    public Limelight(String name) {
+        this.name = name;
+    }
 
-  public Limelight() {
-    name = "limelight";
-  }
+    public Limelight() {
+        name = "limelight";
+    }
 
-  public double getFid() {
-    return LimelightHelpers.getFiducialID(name);
-  }
+    public double getFid() {
+        return LimelightHelpers.getFiducialID(name);
+    }
 
-  public void setRobotOrientation(double headingDeg) {
-    LimelightHelpers.SetRobotOrientation(name, headingDeg, 0, 0, 0, 0, 0);
-  }
+    public void setRobotOrientation(double headingDeg) {
+        LimelightHelpers.SetRobotOrientation(name, headingDeg, 0, 0, 0, 0, 0);
+    }
 
-  public PoseEstimate getBotPoseEstimate_wpiBlue_MegaTag2() {
-    return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
-  }
+    public PoseEstimate getBotPoseEstimate_wpiBlue_MegaTag2() {
+        return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+    }
 
-  public double getDistanceFromTarget() {
-    return LimelightHelpers.getTargetPose3d_RobotSpace(name).getMeasureZ().magnitude();
-  }
+    public double getDistanceFromTarget() {
+        return LimelightHelpers.getTargetPose3d_RobotSpace(name).getMeasureZ().magnitude();
+    }
 
-  public Command switchPipeline(LimeLightPipeline limeLightPipeline) {
-    return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId))
-        .withName(String.format("%s set pipeline %s", name, limeLightPipeline.toString()))
-        .ignoringDisable(true);
-  }
+    public Command switchPipeline(LimeLightPipeline limeLightPipeline) {
+        return Commands.runOnce(() -> LimelightHelpers.setPipelineIndex(name, limeLightPipeline.pipelineId))
+                .withName(String.format("%s set pipeline %s", name, limeLightPipeline.toString()))
+                .ignoringDisable(true);
+    }
 
-  @Override
-  public void periodic() {
-  }
+    @Override
+    public void periodic() {
+    }
 }

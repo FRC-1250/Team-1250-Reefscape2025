@@ -9,25 +9,25 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystem.DeepClimber;
 
 public class SetDeepClimbTorque extends Command {
-  private final DeepClimber cmdDeepClimber;
-  private final Current cmdAmps;
+    private final DeepClimber cmdDeepClimber;
+    private final Current cmdAmps;
 
-  public SetDeepClimbTorque(DeepClimber deepClimber, Current amps) {
-    addRequirements(deepClimber);
-    cmdDeepClimber = deepClimber;
-    cmdAmps = amps;
-  }
+    public SetDeepClimbTorque(DeepClimber deepClimber, Current amps) {
+        addRequirements(deepClimber);
+        cmdDeepClimber = deepClimber;
+        cmdAmps = amps;
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void execute() {
-    cmdDeepClimber.setTorque(cmdAmps);
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void execute() {
+        cmdDeepClimber.setTorque(cmdAmps);
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    cmdDeepClimber.stop();
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        cmdDeepClimber.stop();
+    }
 
 }

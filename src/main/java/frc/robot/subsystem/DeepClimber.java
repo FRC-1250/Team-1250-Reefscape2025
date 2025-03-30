@@ -19,66 +19,66 @@ import frc.robot.util.HealthMonitor;
 
 public class DeepClimber extends SubsystemBase {
 
-  public enum DeepClimberPhase {
-    CLIMB(285);
+    public enum DeepClimberPhase {
+        CLIMB(285);
 
-    public final double rotations;
+        public final double rotations;
 
-    DeepClimberPhase(double rotations) {
-      this.rotations = rotations;
+        DeepClimberPhase(double rotations) {
+            this.rotations = rotations;
+        }
     }
-  }
 
-  private TalonFX deepClimber = new TalonFX(41);
-  private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
+    private TalonFX deepClimber = new TalonFX(41);
+    private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
 
-  /** Creates a new DeepClimb. */
-  public DeepClimber() {
-    MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
-    motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
-    motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+    /** Creates a new DeepClimb. */
+    public DeepClimber() {
+        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
+        motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
+        motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-    talonFXConfiguration.MotorOutput = motorOutputConfigs;
-    talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = false;
-    talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false;
+        TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
+        talonFXConfiguration.MotorOutput = motorOutputConfigs;
+        talonFXConfiguration.CurrentLimits.StatorCurrentLimitEnable = false;
+        talonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false;
 
-    deepClimber.getConfigurator().apply(talonFXConfiguration);
-    deepClimber.setPosition(0);
-    deepClimber.getPosition().setUpdateFrequency(200);
+        deepClimber.getConfigurator().apply(talonFXConfiguration);
+        deepClimber.setPosition(0);
+        deepClimber.getPosition().setUpdateFrequency(200);
 
-    HealthMonitor.getInstance().addComponent(getName(), "Winch", deepClimber);
-  }
+        HealthMonitor.getInstance().addComponent(getName(), "Winch", deepClimber);
+    }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    @Override
+    public void periodic() {
+        // This method will be called once per scheduler run
+    }
 
-  public void stop() {
-    deepClimber.stopMotor();
-  }
+    public void stop() {
+        deepClimber.stopMotor();
+    }
 
-  public boolean hasPassedClimbThreshold(DeepClimberPhase deepClimberPhase) {
-    return getRotations() >= deepClimberPhase.rotations;
-  }
+    public boolean hasPassedClimbThreshold(DeepClimberPhase deepClimberPhase) {
+        return getRotations() >= deepClimberPhase.rotations;
+    }
 
-  public void setTorque(Current amps) {
-    deepClimber.setControl(torqueControl.withOutput(amps));
-  }
+    public void setTorque(Current amps) {
+        deepClimber.setControl(torqueControl.withOutput(amps));
+    }
 
-  public boolean isNearPositionAndTolerance(double position, double tolerance) {
-    return MathUtil.isNear(position, getRotations(), tolerance);
-  }
+    public boolean isNearPositionAndTolerance(double position, double tolerance) {
+        return MathUtil.isNear(position, getRotations(), tolerance);
+    }
 
-  @Logged(name = "Position")
-  public double getRotations() {
-    return deepClimber.getPosition().getValueAsDouble();
-  }
+    @Logged(name = "Position")
+    public double getRotations() {
+        return deepClimber.getPosition().getValueAsDouble();
+    }
 
-  @Logged(name = "Amps")
-  public double getCurrent() {
-    return deepClimber.getStatorCurrent().getValueAsDouble();
-  }
+    @Logged(name = "Amps")
+    public double getCurrent() {
+        return deepClimber.getStatorCurrent().getValueAsDouble();
+    }
 
 }

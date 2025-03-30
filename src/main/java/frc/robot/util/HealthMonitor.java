@@ -72,7 +72,7 @@ public class HealthMonitor {
     }
 
     private void checkHealth() {
-        if(!paused) {
+        if (!paused) {
             for (var subsystem : subsystems.entrySet()) {
                 for (var component : subsystem.getValue().entrySet()) {
                     if (component.getValue().isDeviceHealthy()) {

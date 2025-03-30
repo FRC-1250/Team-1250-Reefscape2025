@@ -20,7 +20,7 @@ public class ReefScoringMap {
             Map.entry(21, new Pose2d(5.750, 4.030, Rotation2d.fromDegrees(180))),
             Map.entry(22, new Pose2d(5.120, 2.930, Rotation2d.fromDegrees(120))));
 
-            public static final Map<Integer, String> pathNames = Map.ofEntries(
+    public static final Map<Integer, String> pathNames = Map.ofEntries(
             Map.entry(6, "Teleop_LK"),
             Map.entry(7, "Teleop_AB"),
             Map.entry(8, "Teleop_CD"),

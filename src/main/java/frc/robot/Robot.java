@@ -19,109 +19,116 @@ import frc.robot.util.HealthMonitor;
 
 public class Robot extends TimedRobot {
 
-  private Command m_autonomousCommand;
+    private Command m_autonomousCommand;
 
-  @Logged(name = "RobotContainer")
-  private final RobotContainer m_robotContainer;
+    @Logged(name = "RobotContainer")
+    private final RobotContainer m_robotContainer;
 
-  private final Timer m_gcTimer;
-  private final HealthMonitor hm;
-  
+    private final Timer m_gcTimer;
+    private final HealthMonitor hm;
 
-  public Robot() {
-    m_robotContainer = new RobotContainer();
+    public Robot() {
+        m_robotContainer = new RobotContainer();
 
-    hm = HealthMonitor.getInstance();
-    hm.start();
+        hm = HealthMonitor.getInstance();
+        hm.start();
 
-    DriverStation.startDataLog(DataLogManager.getLog());
-    Epilogue.bind(this);
-    DriverStation.silenceJoystickConnectionWarning(true);
+        DriverStation.startDataLog(DataLogManager.getLog());
+        Epilogue.bind(this);
+        DriverStation.silenceJoystickConnectionWarning(true);
 
-    CommandScheduler.getInstance().onCommandInitialize(
-        command -> DataLogManager.log(
-            String.format("Command init: %s, with requirements: %s", command.getName(), command.getRequirements())));
+        CommandScheduler.getInstance().onCommandInitialize(
+                command -> DataLogManager.log(
+                        String.format("Command init: %s, with requirements: %s", command.getName(),
+                                command.getRequirements())));
 
-    CommandScheduler.getInstance().onCommandFinish(
-        command -> DataLogManager.log(String.format("Command finished: %s", command.getName())));
+        CommandScheduler.getInstance().onCommandFinish(
+                command -> DataLogManager.log(String.format("Command finished: %s", command.getName())));
 
-    CommandScheduler.getInstance().onCommandInterrupt(
-        command -> DataLogManager.log(String.format("Command interrupted: %s", command.getName())));
+        CommandScheduler.getInstance().onCommandInterrupt(
+                command -> DataLogManager.log(String.format("Command interrupted: %s", command.getName())));
 
-    m_gcTimer = new Timer();
-    m_gcTimer.start();
-  }
-
-  @Override
-  public void robotInit() {
-    FollowPathCommand.warmupCommand().schedule();
-    //Pathfinding.setPathfinder(new LocalADStar());
-    for (int port = 5800; port <= 5809; port++) {
-      PortForwarder.add(port, "limelight.local", port);
+        m_gcTimer = new Timer();
+        m_gcTimer.start();
     }
-  }
 
-  @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-    m_robotContainer.determineMaxSpeed();
-    m_robotContainer.controlFactory.addLimelightVisionMeasurements();
-
-    if (m_gcTimer.advanceIfElapsed(15)) {
-      System.gc();
+    @Override
+    public void robotInit() {
+        FollowPathCommand.warmupCommand().schedule();
+        // Pathfinding.setPathfinder(new LocalADStar());
+        for (int port = 5800; port <= 5809; port++) {
+            PortForwarder.add(port, "limelight.local", port);
+        }
     }
-  }
 
-  @Override
-  public void disabledInit() {
-    hm.unpause();
-    m_robotContainer.controlFactory.cmdDisplaySubsystemErrorState().schedule();
-  }
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+        m_robotContainer.determineMaxSpeed();
+        m_robotContainer.controlFactory.addLimelightVisionMeasurements();
 
-  @Override
-  public void disabledPeriodic() {}
-
-  @Override
-  public void disabledExit() {
-    hm.pause();
-  }
-
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+        if (m_gcTimer.advanceIfElapsed(15)) {
+            System.gc();
+        }
     }
-  }
 
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    @Override
+    public void disabledInit() {
+        hm.unpause();
+        m_robotContainer.controlFactory.cmdDisplaySubsystemErrorState().schedule();
     }
-  }
 
-  @Override
-  public void teleopPeriodic() {}
+    @Override
+    public void disabledPeriodic() {
+    }
 
-  @Override
-  public void teleopExit() {}
+    @Override
+    public void disabledExit() {
+        hm.pause();
+    }
 
-  @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-  }
+    @Override
+    public void autonomousInit() {
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-  @Override
-  public void testPeriodic() {}
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.schedule();
+        }
+    }
 
-  @Override
-  public void testExit() {}
+    @Override
+    public void autonomousPeriodic() {
+    }
+
+    @Override
+    public void autonomousExit() {
+    }
+
+    @Override
+    public void teleopInit() {
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }
+    }
+
+    @Override
+    public void teleopPeriodic() {
+    }
+
+    @Override
+    public void teleopExit() {
+    }
+
+    @Override
+    public void testInit() {
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void testExit() {
+    }
 }

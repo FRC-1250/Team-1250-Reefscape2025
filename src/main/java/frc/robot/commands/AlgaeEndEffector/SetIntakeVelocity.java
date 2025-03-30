@@ -9,19 +9,19 @@ import frc.robot.subsystem.Intake;
 import frc.robot.subsystem.Intake.IntakeVelocity;
 
 public class SetIntakeVelocity extends InstantCommand {
-  private final Intake cmdIntake;
-  private final IntakeVelocity cmdIntakeVelocity;
+    private final Intake cmdIntake;
+    private final IntakeVelocity cmdIntakeVelocity;
 
-  public SetIntakeVelocity(Intake Intake, IntakeVelocity intakeVelocity) {
-    addRequirements(Intake);
-    cmdIntake = Intake;
-    cmdIntakeVelocity = intakeVelocity;
-  }
+    public SetIntakeVelocity(Intake Intake, IntakeVelocity intakeVelocity) {
+        addRequirements(Intake);
+        cmdIntake = Intake;
+        cmdIntakeVelocity = intakeVelocity;
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    cmdIntake.setIntakeVelocity(cmdIntakeVelocity);
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        cmdIntake.setIntakeVelocity(cmdIntakeVelocity);
+    }
 
 }

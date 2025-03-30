@@ -32,161 +32,161 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthMonitor;
 
 public class Elevator extends SubsystemBase {
-  public enum ElevatorPosition {
-    HOME(0.25),
-    SENSOR(0.8),
-    L1(6.08),
-    LOW_ALGAE(18),
-    HIGH_ALGAE(32),
-    BARGE(73),
-    PEAK(74);
+    public enum ElevatorPosition {
+        HOME(0.25),
+        SENSOR(0.8),
+        L1(6.08),
+        LOW_ALGAE(18),
+        HIGH_ALGAE(32),
+        BARGE(73),
+        PEAK(74);
 
-    public final double rotations;
+        public final double rotations;
 
-    ElevatorPosition(double rotations) {
-      this.rotations = rotations;
+        ElevatorPosition(double rotations) {
+            this.rotations = rotations;
+        }
     }
-  }
 
-  private TalonFX leftMotor = new TalonFX(30);
-  private TalonFX rightMotor = new TalonFX(31);
-  private DigitalInput homeSensor = new DigitalInput(1);
-  private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
-  private boolean homeFound = false;
-  private boolean previousHomeSensor = isAtHome();
+    private TalonFX leftMotor = new TalonFX(30);
+    private TalonFX rightMotor = new TalonFX(31);
+    private DigitalInput homeSensor = new DigitalInput(1);
+    private MotionMagicVoltage motionMagicPostionControl = new MotionMagicVoltage(0).withEnableFOC(false);
+    private boolean homeFound = false;
+    private boolean previousHomeSensor = isAtHome();
 
-  public Elevator() {
-    Slot0Configs positionPIDConfigs = new Slot0Configs()
-        .withGravityType(GravityTypeValue.Elevator_Static)
-        .withKG(0.3)
-        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-        .withKS(0.2)
-        .withKV(0.3)
-        .withKA(0.01)
-        .withKP(2)
-        .withKI(0)
-        .withKD(0.1);
+    public Elevator() {
+        Slot0Configs positionPIDConfigs = new Slot0Configs()
+                .withGravityType(GravityTypeValue.Elevator_Static)
+                .withKG(0.3)
+                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+                .withKS(0.2)
+                .withKV(0.3)
+                .withKA(0.01)
+                .withKP(2)
+                .withKI(0)
+                .withKD(0.1);
 
-    MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-        .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
-        .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
-        .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
+        MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
+                .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
 
-    SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
-    softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = ElevatorPosition.PEAK.rotations;
-    softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
-    softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = ElevatorPosition.HOME.rotations;
+        SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
+        softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
+        softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = ElevatorPosition.PEAK.rotations;
+        softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
+        softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = ElevatorPosition.HOME.rotations;
 
-    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.SupplyCurrentLimit = 50;
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+        currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+        currentLimitsConfigs.SupplyCurrentLimit = 50;
 
-    MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
-    motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
-    motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+        MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
+        motorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
+        motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    VoltageConfigs voltageConfigs = new VoltageConfigs();
-    voltageConfigs.PeakReverseVoltage = -6;
+        VoltageConfigs voltageConfigs = new VoltageConfigs();
+        voltageConfigs.PeakReverseVoltage = -6;
 
-    TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-    talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
-    talonFXConfiguration.Slot0 = positionPIDConfigs;
-    talonFXConfiguration.MotionMagic = motionMagicConfigs;
-    talonFXConfiguration.CurrentLimits = currentLimitsConfigs;
-    talonFXConfiguration.MotorOutput = motorOutputConfigs;
-    talonFXConfiguration.Voltage = voltageConfigs;
+        TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
+        talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
+        talonFXConfiguration.Slot0 = positionPIDConfigs;
+        talonFXConfiguration.MotionMagic = motionMagicConfigs;
+        talonFXConfiguration.CurrentLimits = currentLimitsConfigs;
+        talonFXConfiguration.MotorOutput = motorOutputConfigs;
+        talonFXConfiguration.Voltage = voltageConfigs;
 
-    leftMotor.getConfigurator().apply(talonFXConfiguration);
-    rightMotor.getConfigurator().apply(talonFXConfiguration);
+        leftMotor.getConfigurator().apply(talonFXConfiguration);
+        rightMotor.getConfigurator().apply(talonFXConfiguration);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(200,
-        leftMotor.getPosition(),
-        rightMotor.getPosition(),
-        leftMotor.getVelocity(),
-        rightMotor.getVelocity());
+        BaseStatusSignal.setUpdateFrequencyForAll(200,
+                leftMotor.getPosition(),
+                rightMotor.getPosition(),
+                leftMotor.getVelocity(),
+                rightMotor.getVelocity());
 
-    HealthMonitor.getInstance()
-        .addComponent(getName(), "Left motor", leftMotor)
-        .addComponent(getName(), "Right motor", rightMotor);
+        HealthMonitor.getInstance()
+                .addComponent(getName(), "Left motor", leftMotor)
+                .addComponent(getName(), "Right motor", rightMotor);
 
-    cmdHandleSensorTransition().schedule();
-  }
-
-  @Logged(name = "Right rotations")
-  public double getRightMotorPosition() {
-    return rightMotor.getPosition().getValueAsDouble();
-  }
-
-  @Logged(name = "Left rotations")
-  public double getLeftMotorPosition() {
-    return leftMotor.getPosition().getValueAsDouble();
-  }
-
-  @Logged(name = "Left velocity")
-  public double getLeftMotorVelocity() {
-    return leftMotor.getVelocity().getValueAsDouble();
-  }
-
-  @Logged(name = "Right velocity")
-  public double getRightMotorVelocity() {
-    return rightMotor.getVelocity().getValueAsDouble();
-  }
-
-  @Logged(name = "Home found")
-  public boolean getHomeFound() {
-    return homeFound;
-  }
-
-  @Logged(name = "At home")
-  public boolean isAtHome() {
-    return !homeSensor.get();
-  }
-
-  public boolean isAbovePosition(ElevatorPosition position) {
-    var pos = position.rotations - 2; // Apply some buffer
-    return pos <= getLeftMotorPosition() || pos <= getRightMotorPosition();
-  }
-
-  public void setPosition(double position) {
-    motionMagicPostionControl.Position = position;
-    leftMotor.setControl(motionMagicPostionControl);
-    rightMotor.setControl(motionMagicPostionControl);
-  }
-
-  public void resetMotorPositionToPosition(double rotations) {
-    leftMotor.setPosition(rotations);
-    rightMotor.setPosition(rotations);
-  }
-
-  public boolean isNearPositionAndTolerance(double position, double tolerance) {
-    return MathUtil.isNear(position, getLeftMotorPosition(), tolerance)
-        || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
-  }
-
-  public void stop() {
-    leftMotor.stopMotor();
-    rightMotor.stopMotor();
-  }
-
-  @Override
-  public void periodic() {
- 
-  }
-
-  private Command cmdHandleSensorTransition() {
-    return new NotifierCommand(() -> detectSensorTransition(), 0.01)
-        .until(() -> homeFound)
-        .withName("Elevator: Detect home")
-        .ignoringDisable(true);
-  }
-
-  private void detectSensorTransition() {
-    var isAtHome = isAtHome();
-    if (previousHomeSensor != isAtHome) {
-      homeFound = true;
-      resetMotorPositionToPosition(ElevatorPosition.SENSOR.rotations);
+        cmdHandleSensorTransition().schedule();
     }
-    previousHomeSensor = isAtHome;
-  }
+
+    @Logged(name = "Right rotations")
+    public double getRightMotorPosition() {
+        return rightMotor.getPosition().getValueAsDouble();
+    }
+
+    @Logged(name = "Left rotations")
+    public double getLeftMotorPosition() {
+        return leftMotor.getPosition().getValueAsDouble();
+    }
+
+    @Logged(name = "Left velocity")
+    public double getLeftMotorVelocity() {
+        return leftMotor.getVelocity().getValueAsDouble();
+    }
+
+    @Logged(name = "Right velocity")
+    public double getRightMotorVelocity() {
+        return rightMotor.getVelocity().getValueAsDouble();
+    }
+
+    @Logged(name = "Home found")
+    public boolean getHomeFound() {
+        return homeFound;
+    }
+
+    @Logged(name = "At home")
+    public boolean isAtHome() {
+        return !homeSensor.get();
+    }
+
+    public boolean isAbovePosition(ElevatorPosition position) {
+        var pos = position.rotations - 2; // Apply some buffer
+        return pos <= getLeftMotorPosition() || pos <= getRightMotorPosition();
+    }
+
+    public void setPosition(double position) {
+        motionMagicPostionControl.Position = position;
+        leftMotor.setControl(motionMagicPostionControl);
+        rightMotor.setControl(motionMagicPostionControl);
+    }
+
+    public void resetMotorPositionToPosition(double rotations) {
+        leftMotor.setPosition(rotations);
+        rightMotor.setPosition(rotations);
+    }
+
+    public boolean isNearPositionAndTolerance(double position, double tolerance) {
+        return MathUtil.isNear(position, getLeftMotorPosition(), tolerance)
+                || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
+    }
+
+    public void stop() {
+        leftMotor.stopMotor();
+        rightMotor.stopMotor();
+    }
+
+    @Override
+    public void periodic() {
+
+    }
+
+    private Command cmdHandleSensorTransition() {
+        return new NotifierCommand(() -> detectSensorTransition(), 0.01)
+                .until(() -> homeFound)
+                .withName("Elevator: Detect home")
+                .ignoringDisable(true);
+    }
+
+    private void detectSensorTransition() {
+        var isAtHome = isAtHome();
+        if (previousHomeSensor != isAtHome) {
+            homeFound = true;
+            resetMotorPositionToPosition(ElevatorPosition.SENSOR.rotations);
+        }
+        previousHomeSensor = isAtHome;
+    }
 }
