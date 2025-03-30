@@ -5,23 +5,23 @@
 package frc.robot.commands.AlgaeEndEffector;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.subsystem.AlgaeEndEffector;
-import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
+import frc.robot.subsystem.Intake;
+import frc.robot.subsystem.Intake.IntakeVelocity;
 
 public class SetIntakeVelocity extends InstantCommand {
-  private final AlgaeEndEffector cmdAlgaeEndEffector;
+  private final Intake cmdIntake;
   private final IntakeVelocity cmdIntakeVelocity;
 
-  public SetIntakeVelocity(AlgaeEndEffector algaeEndEffector, IntakeVelocity intakeVelocity) {
-    addRequirements(algaeEndEffector);
-    cmdAlgaeEndEffector = algaeEndEffector;
+  public SetIntakeVelocity(Intake Intake, IntakeVelocity intakeVelocity) {
+    addRequirements(Intake);
+    cmdIntake = Intake;
     cmdIntakeVelocity = intakeVelocity;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    cmdAlgaeEndEffector.setIntakeVelocity(cmdIntakeVelocity);
+    cmdIntake.setIntakeVelocity(cmdIntakeVelocity);
   }
 
 }

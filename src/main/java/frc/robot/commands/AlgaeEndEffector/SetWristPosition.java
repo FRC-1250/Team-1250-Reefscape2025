@@ -5,29 +5,29 @@
 package frc.robot.commands.AlgaeEndEffector;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystem.AlgaeEndEffector;
-import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
+import frc.robot.subsystem.Wrist;
+import frc.robot.subsystem.Wrist.WristPosition;
 
 public class SetWristPosition extends Command {
 
-  private final AlgaeEndEffector cmdAlgaeEndEffector;
-  private final WristPosition cmdWristPosition;
+    private final Wrist cmdWrist;
+    private final WristPosition cmdWristPosition;
 
-  public SetWristPosition(AlgaeEndEffector algaeEndEffector, WristPosition wristPosition) {
-    addRequirements(algaeEndEffector);
-    cmdAlgaeEndEffector = algaeEndEffector;
-    cmdWristPosition = wristPosition;
-  }
+    public SetWristPosition(Wrist Wrist, WristPosition wristPosition) {
+        addRequirements(Wrist);
+        cmdWrist = Wrist;
+        cmdWristPosition = wristPosition;
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    cmdAlgaeEndEffector.setWristPosition(cmdWristPosition);
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        cmdWrist.setWristPosition(cmdWristPosition);
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return cmdAlgaeEndEffector.isWristNearPosition(cmdWristPosition);
-  }
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return cmdWrist.isWristNearPosition(cmdWristPosition);
+    }
 }

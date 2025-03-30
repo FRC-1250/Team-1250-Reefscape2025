@@ -33,18 +33,19 @@ import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
 import frc.robot.commands.Elevator.SetElevatorPosition;
 import frc.robot.commands.Elevator.StopElevator;
-import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
-import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
-import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
+import frc.robot.subsystem.Intake.IntakeVelocity;
+import frc.robot.subsystem.Wrist.WristPosition;
 import frc.robot.subsystem.DeepClimber.DeepClimberPhase;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
+import frc.robot.subsystem.Intake;
 import frc.robot.subsystem.SystemLights.PresetColor;
+import frc.robot.subsystem.Wrist;
 import frc.robot.util.HealthMonitor;
 import frc.robot.util.HealthStatus;
 import frc.robot.util.ReefScoringMap;
@@ -61,9 +62,10 @@ public class ControlFactory {
     private final Elevator elevator;
     private final SystemLights systemLights;
     private final Climber climber;
+    private final Wrist wrist;
+    private final Intake intake;
     private final Limelight limelight;
     private final DeepClimber deepClimber;
-    private final AlgaeEndEffector algaeEndEffector;
     private final Translation2d blueReef = new Translation2d(4.490, 4);
     private final Translation2d redReef = new Translation2d(13.05, 4);
     private final double[] lowAlgaeAprilTags = { 6, 8, 10, 17, 19, 21 };
@@ -82,15 +84,17 @@ public class ControlFactory {
             Elevator elevator,
             Climber climber,
             DeepClimber deepClimber,
+            Wrist wrist,
+            Intake intake,
             Limelight limelight,
-            AlgaeEndEffector algaeEndEffector,
             SystemLights systemLights) {
         this.swerveDrivetrain = swerveDrivetrain;
         this.elevator = elevator;
         this.climber = climber;
         this.deepClimber = deepClimber;
         this.limelight = limelight;
-        this.algaeEndEffector = algaeEndEffector;
+        this.wrist = wrist;
+        this.intake = intake;
         this.systemLights = systemLights;
     }
 
@@ -144,22 +148,22 @@ public class ControlFactory {
      * Algae intake
      */
     public Command cmdSetWristPosition(WristPosition position) {
-        return new SetWristPosition(algaeEndEffector, position);
+        return new SetWristPosition(wrist, position);
     }
 
     public Command cmdAddWristRotations(double rotations) {
-        return new AddWristRotations(algaeEndEffector, rotations);
+        return new AddWristRotations(wrist, rotations);
     }
 
     public Command cmdSetIntakeVelocity(IntakeVelocity velocity) {
-        return new SetIntakeVelocity(algaeEndEffector, velocity);
+        return new SetIntakeVelocity(intake, velocity);
     }
 
     public Command cmdReturnIntakeBasedOnAlgae() {
         return new ConditionalCommand(
                 cmdResetScoringPosition(),
                 cmdHomeIntake(),
-                () -> algaeEndEffector.hasAlgae());
+                () -> intake.hasAlgae());
     }
 
     public Command cmdHomeIntake() {
@@ -177,10 +181,10 @@ public class ControlFactory {
         return Commands.sequence(
                 cmdSetIntakeVelocity(velocity),
                 cmdSetWristPosition(position),
-                Commands.waitUntil(() -> algaeEndEffector.hasAlgae()),
+                Commands.waitUntil(() -> intake.hasAlgae()),
                 cmdSetIntakeVelocity(IntakeVelocity.STOP),
                 cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT))
-                .unless(() -> algaeEndEffector.hasAlgae())
+                .unless(() -> intake.hasAlgae())
                 .withName(String.format("Intake: %s", position.toString()));
     }
 
@@ -231,7 +235,7 @@ public class ControlFactory {
     private int releaseAlgaeSelector() {
         if(elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5)) {
             return 1;
-        } else if (algaeEndEffector.isWristNearPosition(WristPosition.PROCESSOR)) {
+        } else if (wrist.isWristNearPosition(WristPosition.PROCESSOR)) {
             return 3;
         } else {
             return 2;

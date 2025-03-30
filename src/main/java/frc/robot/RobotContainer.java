@@ -25,16 +25,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystem.AlgaeEndEffector;
 import frc.robot.subsystem.Climber;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
-import frc.robot.subsystem.AlgaeEndEffector.IntakeVelocity;
-import frc.robot.subsystem.AlgaeEndEffector.WristPosition;
+import frc.robot.subsystem.Wrist;
+import frc.robot.subsystem.Intake.IntakeVelocity;
+import frc.robot.subsystem.Wrist.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
+import frc.robot.subsystem.Intake;
 import frc.robot.subsystem.Limelight.LimeLightPipeline;
 
 public class RobotContainer {
@@ -71,8 +72,11 @@ public class RobotContainer {
     @Logged(name = "Deep climber")
     public final DeepClimber deepClimber = new DeepClimber();
 
-    @Logged(name = "Algae end effector")
-    public final AlgaeEndEffector algaeEndEffector = new AlgaeEndEffector();
+    @Logged(name = "Wrist")
+    public final Wrist wrist = new Wrist();
+
+    @Logged(name = "Intake")
+    public final Intake intake = new Intake();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Limelight limelight = new Limelight();
@@ -81,8 +85,9 @@ public class RobotContainer {
             elevator,
             climber,
             deepClimber,
+            wrist,
+            intake,
             limelight,
-            algaeEndEffector,
             systemLights);
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
@@ -165,6 +170,7 @@ public class RobotContainer {
        primaryDriverJoystick.povDown().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
     }
 
+    @SuppressWarnings("unused")
     private void configureOpController() {
         operatorJoystick = new CommandPS4Controller(1);
         operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE))
