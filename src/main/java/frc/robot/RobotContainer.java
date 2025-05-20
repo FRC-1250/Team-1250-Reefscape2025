@@ -85,8 +85,8 @@ public class RobotContainer {
             limelight,
             systemLights);
 
-    private final SlewRateLimiter xLimiter = new SlewRateLimiter(16);
-    private final SlewRateLimiter yLimiter = new SlewRateLimiter(16);
+    private final SlewRateLimiter xLimiter = new SlewRateLimiter(14, -18, 0);
+    private final SlewRateLimiter yLimiter = new SlewRateLimiter(14, -18, 0);
 
     private final Trigger isBlue = new Trigger(
             () -> Double.compare(drivetrain.getOperatorForwardDirection().getDegrees(), 0) == 0);
