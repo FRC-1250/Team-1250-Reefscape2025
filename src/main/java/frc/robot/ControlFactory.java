@@ -27,6 +27,8 @@ import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
 import frc.robot.commands.AlgaeEndEffector.SetIntakeVelocity;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
 import frc.robot.commands.Climber.DeepClimb;
+import frc.robot.commands.Climber.DeepClimbPostClimb;
+import frc.robot.commands.Climber.DeepClimbPreclimb;
 import frc.robot.commands.Climber.SetDeepClimbTorque;
 import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
@@ -103,6 +105,28 @@ public class ControlFactory {
     public Command cmdDeepClimb() {
         return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(80))
                 .withName("Climber: Deep climb");
+    }
+     
+    private int DeepClimbSelector() {
+        if (deepClimber.PreClimbFlag == true && deepClimber.PostClimbFlag == true) {
+            return 1;
+
+        } else if (deepClimber.PreClimbFlag == true && deepClimber.PostClimbFlag == false){
+            return 2;
+        }
+        else if (deepClimber.PreClimbFlag == false && deepClimber.PostClimbFlag == false) {
+            return 3;
+        }
+         else {
+            return 0 ;
+         }
+        
+    }
+    public Command cmdDeepClimbSelector() {
+        return new SelectCommand<>(Map.ofEntries(
+                Map.entry(2, new DeepClimbPostClimb(deepClimber, Amps.of(40))),
+                Map.entry(3, new DeepClimbPreclimb(deepClimber, Amps.of(80)))),
+                () -> DeepClimbSelector());
     }
 
     /*

@@ -31,6 +31,8 @@ public class DeepClimber extends SubsystemBase {
 
     private TalonFX deepClimber = new TalonFX(41);
     private TorqueCurrentFOC torqueControl = new TorqueCurrentFOC(0);
+    public boolean PreClimbFlag = false;
+    public boolean PostClimbFlag = false;
 
     /** Creates a new DeepClimb. */
     public DeepClimber() {
