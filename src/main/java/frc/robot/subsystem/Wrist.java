@@ -26,13 +26,13 @@ import frc.robot.util.HealthMonitor;
 
 public class Wrist extends SubsystemBase {
     public enum WristPosition {
-        HOME(0.31),
-        ALGAE_CONTAINMENT(.41),
-        PROCESSOR(.59),
-        L1(0.43),
-        REEF(0.51),
-        FLOOR(0.67),
-        BARGE(0.31);
+        HOME(0.36),
+        ALGAE_CONTAINMENT(0.26),
+        PROCESSOR(0.08),
+        L1(0.24),
+        REEF(0.16),
+        FLOOR(0),
+        BARGE(0.36);
 
         public final double rotations;
 
@@ -49,8 +49,8 @@ public class Wrist extends SubsystemBase {
     public Wrist() {
         CANcoderConfiguration wristAbsoluteEncoderConfiguration = new CANcoderConfiguration();
         // Set encoder to provide a value between 0 and 1
-        wristAbsoluteEncoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-        wristAbsoluteEncoderConfiguration.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        wristAbsoluteEncoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        wristAbsoluteEncoderConfiguration.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         wristAbsoluteEncoderConfiguration.MagnetSensor.MagnetOffset = encoderOffset;
         wristAbsoluteEncoder.getConfigurator().apply(wristAbsoluteEncoderConfiguration);
         wristAbsoluteEncoder.getAbsolutePosition().setUpdateFrequency(200);
@@ -69,13 +69,14 @@ public class Wrist extends SubsystemBase {
         wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
         wristTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
         wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.7;
+        wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.35;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.30;
+        wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
         wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();
         wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        wristTalonFXConfiguration.Feedback.RotorToSensorRatio = 2.0;
         wristTalonFX.getConfigurator().apply(wristTalonFXConfiguration);
 
         HealthMonitor.getInstance()
