@@ -89,6 +89,11 @@ public class Wrist extends SubsystemBase {
         return wristAbsoluteEncoder.getPosition().getValueAsDouble();
     }
 
+    @Logged(name = "Wrist position")
+    public double getWristMotorPosition() {
+        return wristTalonFX.getRotorPosition().getValueAsDouble();
+    }
+
     private void setWristPosition(double rotations) {
         wristTalonFX.setControl(
                 wristPositionControl
