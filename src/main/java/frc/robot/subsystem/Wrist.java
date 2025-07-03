@@ -44,7 +44,7 @@ public class Wrist extends SubsystemBase {
     private TalonFX wristTalonFX = new TalonFX(22);
     private CANcoder wristAbsoluteEncoder = new CANcoder(24);
     private PositionVoltage wristPositionControl = new PositionVoltage(0).withSlot(0);
-    private final double encoderOffset = 0.95888671875;
+    private final double encoderOffset = 0.48295703125;
 
     public Wrist() {
         CANcoderConfiguration wristAbsoluteEncoderConfiguration = new CANcoderConfiguration();
@@ -71,12 +71,12 @@ public class Wrist extends SubsystemBase {
         wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.35;
+        wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.37;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
         wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();
         wristTalonFXConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        wristTalonFXConfiguration.Feedback.RotorToSensorRatio = 2.0;
+        wristTalonFXConfiguration.Feedback.RotorToSensorRatio = 34.2;
         wristTalonFX.getConfigurator().apply(wristTalonFXConfiguration);
 
         HealthMonitor.getInstance()
@@ -89,7 +89,7 @@ public class Wrist extends SubsystemBase {
         return wristAbsoluteEncoder.getPosition().getValueAsDouble();
     }
 
-    @Logged(name = "Wrist position")
+    @Logged(name = "Wrist motor position")
     public double getWristMotorPosition() {
         return wristTalonFX.getRotorPosition().getValueAsDouble();
     }
