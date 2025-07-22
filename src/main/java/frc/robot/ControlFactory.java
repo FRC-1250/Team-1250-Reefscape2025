@@ -201,13 +201,6 @@ public class ControlFactory {
                 .withName(String.format("Intake: %s", position.toString()));
     }
 
-    public Command cmdIntakeAlgaeBasedOnElevatorPosition() {
-        return new ConditionalCommand(
-                cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.FLOOR),
-                cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.REEF),
-                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.HOME.rotations, 5));
-    }
-
     public Command cmdIntakeAlgaeSelector() {
         return new SelectCommand<>(Map.ofEntries(
                 Map.entry(1, cmdIntakeAlgae(IntakeVelocity.YOINK, WristPosition.FLOOR)),
