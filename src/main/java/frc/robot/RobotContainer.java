@@ -214,6 +214,7 @@ public class RobotContainer {
         addPathAuto("GetOffLineLeft", "GetOffLineLeft");
         addPathAuto("GetOffLineRight", "GetOffLineRight");
         addPathAuto("GetOffLineCenter", "GetOffLineCenter");
+        addPathAuto("CenterToHGScore1", "CenterToHGScore1");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 

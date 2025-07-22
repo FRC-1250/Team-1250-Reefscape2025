@@ -7,7 +7,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 5.0
+            "waitTime": 2.5
           }
         },
         {
@@ -17,27 +17,33 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "New Path"
+            "name": "L1Coral"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "DealgaeLow"
+            "name": "DealgaeLowGoHome"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "HomeElevator"
+            "waitTime": 0.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BackoffHG_To_Barge"
+            "pathName": "ReefHG_Barge3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreBargeGoHome"
           }
         }
       ]
