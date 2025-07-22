@@ -29,6 +29,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ElevatorBarge"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Barge_LineUp"
@@ -37,13 +43,19 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreBargeGoHome"
+            "name": "ReleaseAlgae"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "BargeScore-BackOff"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorHome"
           }
         }
       ]
