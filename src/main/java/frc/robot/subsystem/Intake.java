@@ -4,8 +4,10 @@
 
 package frc.robot.subsystem;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -34,9 +36,15 @@ public class Intake extends SubsystemBase {
 
     private TalonFX intakeTalonFX = new TalonFX(23);
     private DigitalInput intakeAlgaeSensor = new DigitalInput(5);
+    private PositionVoltage intakePositionControl = new PositionVoltage(0).withSlot(0);
     private VelocityVoltage intakeVelocityControl = new VelocityVoltage(0).withSlot(1);
 
     public Intake() {
+        Slot0Configs intakePositionPIDConfigs = new Slot0Configs()
+                .withKP(1)
+                .withKI(0)
+                .withKD(0);
+
         Slot1Configs intakeVelocityPIDConfigs = new Slot1Configs()
                 .withKS(0.1)
                 .withKV(0.12)
@@ -45,6 +53,7 @@ public class Intake extends SubsystemBase {
                 .withKD(0);
 
         TalonFXConfiguration intakeTalonFXConfiguration = new TalonFXConfiguration();
+        intakeTalonFXConfiguration.Slot0 = intakePositionPIDConfigs;
         intakeTalonFXConfiguration.Slot1 = intakeVelocityPIDConfigs;
         intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimit = 30;
         intakeTalonFXConfiguration.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -63,6 +72,10 @@ public class Intake extends SubsystemBase {
 
     public void setIntakeVelocity(IntakeVelocity velocity) {
         intakeTalonFX.setControl(intakeVelocityControl.withVelocity(velocity.rotationsPerSecond));
+    }
+
+    public void holdPosition() {
+        intakeTalonFX.setControl(intakePositionControl.withPosition(intakeTalonFX.getPosition().getValueAsDouble()));
     }
 
     @Logged
