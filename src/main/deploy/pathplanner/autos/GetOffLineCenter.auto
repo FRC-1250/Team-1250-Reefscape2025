@@ -17,15 +17,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "DealgaeLow"
+            "pathName": "New Path"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "ReefHG_Backoff"
+            "name": "DealgaeLow"
           }
         },
         {

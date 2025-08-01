@@ -7,37 +7,55 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftCenterCage_To_ReefJI"
+            "pathName": "CenterField_To_HG"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L1Coral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DealgaeHighGoHome"
+            "name": "DealgaeLow"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ReefJI_To_Barge"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ScoreBargeGoHome"
+            "pathName": "HG_BackOff"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Barge_Backoff"
+            "pathName": "HG-ToBarge"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorBarge"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge_LineUp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReleaseAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BargeScore-BackOff"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorHome"
           }
         }
       ]

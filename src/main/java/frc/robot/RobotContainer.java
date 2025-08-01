@@ -211,22 +211,27 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("CenterAlgae", "CenterAlgea");
-        addPathAuto("LeftMiddleCageBargeScore", "LeftMiddleCageBargeScore");
-        addPathAuto("RightMiddle_To_Processor", "RightMiddle_To_Processor");
         addPathAuto("GetOffLineLeft", "GetOffLineLeft");
         addPathAuto("GetOffLineRight", "GetOffLineRight");
         addPathAuto("GetOffLineCenter", "GetOffLineCenter");
+        addPathAuto("CenterToHGScore1", "CenterToHGScore1");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private void configureNamedCommands() {
         double releaseTimeoutTime = 1;
 
+        NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
+        NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+        NamedCommands.registerCommand("ElevatorHighAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
+        NamedCommands.registerCommand("ElevatorLowAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
+        NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
+        NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
+        NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
+
+        // Old
         NamedCommands.registerCommand("HomeElevator", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
         NamedCommands.registerCommand("Release", controlFactory.cmdReleaseAlgae(WristPosition.PROCESSOR));
-        // Complex
-
         NamedCommands.registerCommand(
                 "DealgaeHigh",
                 Commands.sequence(

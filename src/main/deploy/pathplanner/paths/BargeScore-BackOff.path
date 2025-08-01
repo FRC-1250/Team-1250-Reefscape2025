@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.735921717171717,
-        "y": 4.01
+        "x": 7.636616161616163,
+        "y": 4.732982954545454
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.985921717171717,
-        "y": 4.01
+        "x": 7.00279404669913,
+        "y": 4.740489091434248
       },
       "isLocked": false,
-      "linkedName": "ReefHG"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.508396464646464,
-        "y": 4.035164141414142
+        "x": 6.630366161616162,
+        "y": 4.732982954545454
       },
       "prevControl": {
-        "x": 6.258396464646464,
-        "y": 4.035164141414142
+        "x": 7.2909601601343805,
+        "y": 4.742532911396231
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BackoffHG"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.25,
+    "maxVelocity": 1.5,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -0.9380900724838074
   },
   "reversed": false,
   "folder": null,
