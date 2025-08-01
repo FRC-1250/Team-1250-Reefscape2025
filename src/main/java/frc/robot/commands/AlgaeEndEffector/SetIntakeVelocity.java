@@ -22,6 +22,9 @@ public class SetIntakeVelocity extends InstantCommand {
     @Override
     public void initialize() {
         cmdIntake.setIntakeVelocity(cmdIntakeVelocity);
+        if(cmdIntakeVelocity == IntakeVelocity.STOP) {
+            cmdIntake.holdPosition();
+        }
     }
 
 }
