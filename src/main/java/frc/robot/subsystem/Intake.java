@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
 
     public Intake() {
         Slot0Configs intakePositionPIDConfigs = new Slot0Configs()
-                .withKP(1)
+                .withKP(5)
                 .withKI(0)
                 .withKD(0);
 
