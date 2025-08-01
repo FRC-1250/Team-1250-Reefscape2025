@@ -105,10 +105,10 @@ public class RobotContainer {
 
     public void determineMaxSpeed() {
         if (elevator.isAbovePosition(ElevatorPosition.HIGH_ALGAE)) {
-            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 6;
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 5;
             MaxAngularRate = RotationsPerSecond.of(0.25).in(RadiansPerSecond);
         } else if (elevator.isAbovePosition(ElevatorPosition.LOW_ALGAE)) {
-            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4;
+            MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3;
             MaxAngularRate = RotationsPerSecond.of(0.50).in(RadiansPerSecond);
         } else {
             MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
