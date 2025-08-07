@@ -13,31 +13,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightCenterCage_To_ReefEF"
+            "pathName": "RightStartToReefEF"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "DealgaeHigh"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ReefEF_Backoff"
+            "name": "ElevatorHighAlgae"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "HomeElevator"
+            "name": "IntakeAlgae"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BackoffEF_To_Processor"
+            "pathName": "ReefEFBackoff"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorHome"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BackoffEFToProcessor"
           }
         }
       ]

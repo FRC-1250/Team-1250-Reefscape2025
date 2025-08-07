@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.945454545454546,
-        "y": 4.970265151515151
+        "x": 3.6587994642530965,
+        "y": 2.5862933118112097
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.049673637761728,
-        "y": 6.003126606760217
+        "x": 3.7837994642530965,
+        "y": 2.8027996627573195
       },
       "isLocked": false,
-      "linkedName": "LeftBargeScoreRight"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.3534836065573765,
-        "y": 6.50046106557377
+        "x": 3.86,
+        "y": 2.93
       },
       "prevControl": {
-        "x": 6.658428365552063,
-        "y": 6.158019845401828
+        "x": 3.735,
+        "y": 2.7134936490538903
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
+    "maxVelocity": 1.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Teleop",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 59.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

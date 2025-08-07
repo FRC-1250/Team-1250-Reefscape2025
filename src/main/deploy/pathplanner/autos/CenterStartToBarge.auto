@@ -7,25 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterField_To_HG"
+            "pathName": "CenterStartToHG"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "DealgaeLow"
+            "name": "ElevatorLowAlgae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeAlgae"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HG_BackOff"
+            "pathName": "ReefHGBackOff"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HG-ToBarge"
+            "pathName": "ReefHGToBarge"
           }
         },
         {
@@ -37,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Barge_LineUp"
+            "pathName": "BargeLineUp"
           }
         },
         {
@@ -49,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BargeScore-BackOff"
+            "pathName": "BargeScoreBackOff"
           }
         },
         {

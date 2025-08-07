@@ -13,31 +13,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterField_To_HG"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "New Path"
+            "pathName": "LeftStartToReefJI"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "DealgaeLow"
+            "name": "ElevatorHighAlgae"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "HomeElevator"
+            "name": "IntakeAlgae"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BackoffHG_To_Barge"
+            "pathName": "ReefJIBackoff"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorHome"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BackoffJIToBarge"
           }
         }
       ]

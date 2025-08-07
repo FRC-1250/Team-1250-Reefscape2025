@@ -14,6 +14,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -211,10 +212,15 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("GetOffLineLeft", "GetOffLineLeft");
-        addPathAuto("GetOffLineRight", "GetOffLineRight");
-        addPathAuto("GetOffLineCenter", "GetOffLineCenter");
-        addPathAuto("CenterToHGScore1", "CenterToHGScore1");
+        addPathAuto("LeftStartToBarge", "LeftStartToBarge");
+        addPathAuto("RightStartToProcessor", "RightStartToProcessor");
+        addPathAuto("CenterStartToBarge", "CenterStartToBarge");
+        autoChooser.addOption("GetOffLine",
+                Commands.sequence(
+                        Commands.runOnce(
+                                () -> drivetrain.resetPose(new Pose2d(0, 0, drivetrain.getOperatorForwardDirection())),
+                                drivetrain),
+                        drivetrain.applyRequest(() -> drive.withVelocityX(0.5)).withTimeout(0.5)));
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -228,53 +234,5 @@ public class RobotContainer {
         NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
         NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
         NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
-
-        // Old
-        NamedCommands.registerCommand("HomeElevator", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
-        NamedCommands.registerCommand("Release", controlFactory.cmdReleaseAlgae(WristPosition.PROCESSOR));
-        NamedCommands.registerCommand(
-                "DealgaeHigh",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT)));
-
-        NamedCommands.registerCommand(
-                "DealgaeHighGoHome",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
-
-        NamedCommands.registerCommand(
-                "DealgaeLow",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT)));
-
-        NamedCommands.registerCommand(
-                "DealgaeLowGoHome",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
-
-        NamedCommands.registerCommand(
-                "L1Coral",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1),
-                        controlFactory.cmdReleaseAlgae(WristPosition.L1).withTimeout(releaseTimeoutTime),
-                        controlFactory.cmdSetWristPosition(WristPosition.HOME)));
-
-        NamedCommands.registerCommand(
-                "ScoreBargeGoHome",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE),
-                        controlFactory.cmdReleaseAlgae(WristPosition.BARGE).withTimeout(releaseTimeoutTime),
-                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
     }
 }
