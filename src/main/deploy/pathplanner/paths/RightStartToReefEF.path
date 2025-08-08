@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.199558080808081,
-        "y": 1.9210227272727274
+        "x": 7.2,
+        "y": 1.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.105665661818006,
-        "y": 2.3114785067873442
+        "x": 6.2,
+        "y": 1.8999999999999997
       },
       "isLocked": false,
-      "linkedName": "RightBargeCenterStart"
+      "linkedName": "RightStart"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 2.929959043696456
       },
       "prevControl": {
-        "x": 6.168961393494373,
-        "y": 2.3952080532329876
+        "x": 5.627571048509261,
+        "y": 2.063933639912017
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,23 +29,34 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5359911406422729,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 1.2,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
+      "name": "ElevatorHighAlgae",
+      "waypointRelativePos": 0.9496103896103962,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "ElevatorHighAlgae"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "IntakeAlgae"
+              }
+            }
+          ]
+        }
       }
     }
   ],
-  "pointTowardsZones": [],
-  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.5,
     "maxAcceleration": 3.0,
