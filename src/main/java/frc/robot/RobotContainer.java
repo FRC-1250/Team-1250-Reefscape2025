@@ -14,7 +14,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -212,15 +211,15 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("LeftStartToBarge", "LeftStartToBarge");
+        addPathAuto("LeftStartToBargeDouble", "LeftStartToBargeDouble");
         addPathAuto("RightStartToProcessor", "RightStartToProcessor");
-        addPathAuto("CenterStartToBarge", "CenterStartToBarge");
+        addPathAuto("CenterStartToBargeDouble", "CenterStartToBargeDouble");
         autoChooser.addOption("GetOffLine",
                 Commands.sequence(
                         Commands.runOnce(
-                                () -> drivetrain.resetPose(new Pose2d(0, 0, drivetrain.getOperatorForwardDirection())),
+                                () -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection()),
                                 drivetrain),
-                        drivetrain.applyRequest(() -> drive.withVelocityX(0.5)).withTimeout(0.5)));
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-1)).withTimeout(2)));
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
