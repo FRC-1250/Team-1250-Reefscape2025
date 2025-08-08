@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeAlgae"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "ReefJIToBarge2"
@@ -29,6 +35,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeAlgae"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "ReefLKToBarge2"
@@ -38,6 +50,12 @@
           "type": "named",
           "data": {
             "name": "ReleaseAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge2Backoff"
           }
         }
       ]

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.808596979964366,
-        "y": 6.830889749760599
+        "x": 3.187653634849286,
+        "y": 6.640884065568164
       },
       "isLocked": false,
       "linkedName": "ReefLK"
@@ -20,8 +20,8 @@
         "y": 6.17
       },
       "prevControl": {
-        "x": 6.080028973509934,
-        "y": 6.422144039735099
+        "x": 6.370591887417217,
+        "y": 6.146109271523178
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,21 +29,7 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8955844155844206,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
@@ -61,12 +47,17 @@
       "name": "ElevatorBarge",
       "waypointRelativePos": 0.8987012987013048,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ElevatorBarge"
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

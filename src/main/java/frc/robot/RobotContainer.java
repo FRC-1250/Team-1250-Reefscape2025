@@ -168,7 +168,7 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private void configureOpController() {
         operatorJoystick = new CommandPS4Controller(1);
-        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE))
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YEET))
                 .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
         operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK))
                 .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
@@ -225,7 +225,7 @@ public class RobotContainer {
     }
 
     private void configureNamedCommands() {
-        double releaseTimeoutTime = 1;
+        double releaseTimeoutTime = 0.25;
 
         NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
@@ -233,6 +233,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ElevatorLowAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
         NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
         NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
+        NamedCommands.registerCommand("ReleaseCoral", Commands.none().withTimeout(releaseTimeoutTime));
         NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
     }
 }

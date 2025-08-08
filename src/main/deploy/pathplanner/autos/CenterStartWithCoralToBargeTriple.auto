@@ -7,7 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterStartToHG"
+            "pathName": "CenterStartToHGWithCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReleaseCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorLowAlgae"
           }
         },
         {
@@ -44,6 +56,30 @@
           "type": "path",
           "data": {
             "pathName": "ReefJIToBarge3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReleaseAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge3ToReefEF"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefEFToBarge3"
           }
         },
         {

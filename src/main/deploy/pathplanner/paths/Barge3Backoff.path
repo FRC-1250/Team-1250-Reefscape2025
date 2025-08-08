@@ -3,43 +3,57 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.2,
-        "y": 1.9
+        "x": 7.66,
+        "y": 5.07
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.2,
-        "y": 1.8999999999999997
+        "x": 7.41,
+        "y": 5.07
       },
       "isLocked": false,
-      "linkedName": "RightStart"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.127571048509261,
-        "y": 2.929959043696456
+        "x": 7.082471026490066,
+        "y": 5.07
       },
       "prevControl": {
-        "x": 5.627571048509261,
-        "y": 2.063933639912017
+        "x": 7.332471026490066,
+        "y": 5.07
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ReefEF"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.4987012987012943,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "ElevatorHighAlgae",
-      "waypointRelativePos": 0.9496103896103962,
+      "name": "ElevatorHome",
+      "waypointRelativePos": 0.05090909090908885,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "ElevatorHighAlgae"
+          "name": "ElevatorHome"
         }
       }
     }
@@ -54,13 +68,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -179.30130561701657
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

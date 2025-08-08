@@ -55,7 +55,7 @@
   "eventMarkers": [
     {
       "name": "ElevatorHome",
-      "waypointRelativePos": 0.19740259740259383,
+      "waypointRelativePos": 0.04571428571429323,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -66,8 +66,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
