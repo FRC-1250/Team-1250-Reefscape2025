@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -106,22 +107,21 @@ public class ControlFactory {
         return new DeepClimb(deepClimber, DeepClimberPhase.CLIMB, Amps.of(80))
                 .withName("Climber: Deep climb");
     }
-     
+
     private int DeepClimbSelector() {
         if (deepClimber.PreClimbFlag == true && deepClimber.PostClimbFlag == true) {
             return 1;
 
-        } else if (deepClimber.PreClimbFlag == true && deepClimber.PostClimbFlag == false){
+        } else if (deepClimber.PreClimbFlag == true && deepClimber.PostClimbFlag == false) {
             return 2;
-        }
-        else if (deepClimber.PreClimbFlag == false && deepClimber.PostClimbFlag == false) {
+        } else if (deepClimber.PreClimbFlag == false && deepClimber.PostClimbFlag == false) {
             return 3;
+        } else {
+            return 0;
         }
-         else {
-            return 0 ;
-         }
-        
+
     }
+
     public Command cmdDeepClimbSelector() {
         return new SelectCommand<>(Map.ofEntries(
                 Map.entry(2, new DeepClimbPostClimb(deepClimber, Amps.of(40))),
@@ -371,16 +371,18 @@ public class ControlFactory {
     }
 
     public void addLimelightVisionMeasurements() {
-        var driveState = swerveDrivetrain.getState();
-        double headingDeg = driveState.Pose.getRotation().getDegrees();
-        double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+        if (!DriverStation.isDisabled()) {
+            var driveState = swerveDrivetrain.getState();
+            double headingDeg = driveState.Pose.getRotation().getDegrees();
+            double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
 
-        limelight.setRobotOrientation(headingDeg);
-        var llMeasurement = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
-        if (llMeasurement != null && llMeasurement.tagCount > 0 && llMeasurement.avgTagDist < 2 && omegaRps < 2.0) {
-            swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-            swerveDrivetrain.addVisionMeasurement(llMeasurement.pose,
-                    Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
+            limelight.setRobotOrientation(headingDeg);
+            var llMeasurement = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
+            if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
+                swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                swerveDrivetrain.addVisionMeasurement(llMeasurement.pose,
+                        Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
+            }
         }
     }
 

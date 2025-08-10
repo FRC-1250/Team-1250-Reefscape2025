@@ -7,14 +7,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
@@ -47,11 +44,6 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
             .withDriveRequestType(DriveRequestType.Velocity);
-
-    private final SwerveRequest.FieldCentricFacingAngle driveFacingAngle = new FieldCentricFacingAngle()
-            .withDeadband(MaxSpeed * 0.1)
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withHeadingPID(5, 0, 0);
 
     private final Telemetry logger = new Telemetry();
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -87,9 +79,6 @@ public class RobotContainer {
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(14, -18, 0);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(14, -18, 0);
-
-    private final Trigger isBlue = new Trigger(
-            () -> Double.compare(drivetrain.getOperatorForwardDirection().getDegrees(), 0) == 0);
 
     public RobotContainer() {
         configureBindings();
@@ -129,16 +118,6 @@ public class RobotContainer {
                         .withRotationalRate(-primaryDriverJoystick.getRightX() * MaxAngularRate))
                         .withName("Field centric swerve"));
 
-        primaryDriverJoystick.x().whileTrue(drivetrain.applyRequest(
-                () -> driveFacingAngle
-                        .withVelocityX(yLimiter.calculate(-primaryDriverJoystick.getLeftY() * MaxSpeed))
-                        .withVelocityY(xLimiter.calculate(-primaryDriverJoystick.getLeftX() * MaxSpeed))
-                        .withTargetDirection(Rotation2d.fromDegrees(
-                                drivetrain.getOperatorForwardDirection().getDegrees())))
-                .withName("Forward and strafe"));
-
-        primaryDriverJoystick.a().and(isBlue).whileTrue(controlFactory.cmdFollowPathToBlueReefTag());
-        primaryDriverJoystick.a().and(isBlue.negate()).whileTrue(controlFactory.cmdFollowPathToRedReefTag());
         primaryDriverJoystick.start()
                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
 
@@ -167,7 +146,7 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private void configureOpController() {
         operatorJoystick = new CommandPS4Controller(1);
-        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.RELEASE))
+        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YEET))
                 .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
         operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK))
                 .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
@@ -211,15 +190,20 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("GetOffLineLeft", "GetOffLineLeft");
-        addPathAuto("GetOffLineRight", "GetOffLineRight");
-        addPathAuto("GetOffLineCenter", "GetOffLineCenter");
-        addPathAuto("CenterToHGScore1", "CenterToHGScore1");
+        addPathAuto("LeftStartToBargeDouble", "LeftStartToBargeDouble");
+        addPathAuto("RightStartToProcessor", "RightStartToProcessor");
+        addPathAuto("CenterStartToBargeDouble", "CenterStartToBargeDouble");
+        autoChooser.addOption("GetOffLine",
+                Commands.sequence(
+                        Commands.runOnce(
+                                () -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection()),
+                                drivetrain),
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-1)).withTimeout(2)));
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private void configureNamedCommands() {
-        double releaseTimeoutTime = 1;
+        double releaseTimeoutTime = 0.25;
 
         NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
@@ -227,54 +211,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ElevatorLowAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
         NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
         NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
+        NamedCommands.registerCommand("ReleaseCoral", Commands.none().withTimeout(releaseTimeoutTime));
         NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
-
-        // Old
-        NamedCommands.registerCommand("HomeElevator", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
-        NamedCommands.registerCommand("Release", controlFactory.cmdReleaseAlgae(WristPosition.PROCESSOR));
-        NamedCommands.registerCommand(
-                "DealgaeHigh",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT)));
-
-        NamedCommands.registerCommand(
-                "DealgaeHighGoHome",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
-
-        NamedCommands.registerCommand(
-                "DealgaeLow",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT)));
-
-        NamedCommands.registerCommand(
-                "DealgaeLowGoHome",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE),
-                        controlFactory.cmdIntakeAlgae(IntakeVelocity.INTAKE, WristPosition.REEF),
-                        controlFactory.cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
-
-        NamedCommands.registerCommand(
-                "L1Coral",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1),
-                        controlFactory.cmdReleaseAlgae(WristPosition.L1).withTimeout(releaseTimeoutTime),
-                        controlFactory.cmdSetWristPosition(WristPosition.HOME)));
-
-        NamedCommands.registerCommand(
-                "ScoreBargeGoHome",
-                Commands.sequence(
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE),
-                        controlFactory.cmdReleaseAlgae(WristPosition.BARGE).withTimeout(releaseTimeoutTime),
-                        controlFactory.cmdSetWristPosition(WristPosition.HOME),
-                        controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME)));
     }
 }

@@ -5,39 +5,57 @@
     "data": {
       "commands": [
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "CenterField_To_HG"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "New Path"
+            "pathName": "CenterStartToHG"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "DealgaeLow"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "HomeElevator"
+            "name": "IntakeAlgae"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BackoffHG_To_Barge"
+            "pathName": "ReefHGToBarge3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReleaseAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge3ToReefJI"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ReefJIToBarge3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReleaseAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Barge3Backoff"
           }
         }
       ]

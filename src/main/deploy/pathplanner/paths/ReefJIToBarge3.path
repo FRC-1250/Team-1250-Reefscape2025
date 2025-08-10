@@ -8,33 +8,54 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.156432165877549,
-        "y": 5.118442681276327
+        "x": 5.665459238554306,
+        "y": 5.834045472949814
       },
-      "isLocked": false,
+      "isLocked": true,
       "linkedName": "ReefJI"
     },
     {
       "anchor": {
-        "x": 6.945454545454546,
-        "y": 4.970265151515151
+        "x": 7.66,
+        "y": 5.07
       },
       "prevControl": {
-        "x": 5.945454545454546,
-        "y": 4.970265151515151
+        "x": 6.799172185430463,
+        "y": 5.027442052980132
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LeftBargeScoreRight"
+      "linkedName": "Barge3"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.10360777058278908,
+      "rotationDegrees": -119.99999999999999
+    },
+    {
+      "waypointRelativePos": 0.7946345975948267,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ElevatorBarge",
+      "waypointRelativePos": 0.8955844155844251,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ElevatorBarge"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

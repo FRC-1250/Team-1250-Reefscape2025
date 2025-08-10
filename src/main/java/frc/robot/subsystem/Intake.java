@@ -21,10 +21,8 @@ public class Intake extends SubsystemBase {
     public enum IntakeVelocity {
         STOP(0),
         SLOW_INTAKE(-50),
-        INTAKE(-75),
         YOINK(-100),
         SLOW_RELEASE(50),
-        RELEASE(75),
         YEET(100);
 
         public final double rotationsPerSecond;
@@ -41,14 +39,14 @@ public class Intake extends SubsystemBase {
 
     public Intake() {
         Slot0Configs intakePositionPIDConfigs = new Slot0Configs()
-                .withKP(5)
+                .withKP(8)
                 .withKI(0)
                 .withKD(0);
 
         Slot1Configs intakeVelocityPIDConfigs = new Slot1Configs()
                 .withKS(0.1)
                 .withKV(0.12)
-                .withKP(0.11)
+                .withKP(0.15)
                 .withKI(0)
                 .withKD(0);
 

@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.985921717171717,
+        "x": 6.735921717171717,
         "y": 4.01
       },
       "isLocked": false,
@@ -16,25 +16,46 @@
     },
     {
       "anchor": {
-        "x": 6.508396464646464,
-        "y": 4.035164141414142
+        "x": 7.66,
+        "y": 5.07
       },
       "prevControl": {
-        "x": 6.258396464646464,
-        "y": 4.035164141414142
+        "x": 6.16,
+        "y": 5.07
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BackoffHG"
+      "linkedName": "Barge3"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.09990749306197835,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.8991674375578187,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ElevatorBarge",
+      "waypointRelativePos": 0.9038961038961002,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ElevatorBarge"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 0.25,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
@@ -50,5 +71,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
