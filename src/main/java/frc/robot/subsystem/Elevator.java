@@ -33,7 +33,7 @@ import frc.robot.util.HealthMonitor;
 
 public class Elevator extends SubsystemBase {
     public enum ElevatorPosition {
-        HOME(0.25),
+        HOME(1),
         SENSOR(0.8),
         L1(6.08),
         LOW_ALGAE(18),
@@ -63,13 +63,13 @@ public class Elevator extends SubsystemBase {
                 .withKS(0.2)
                 .withKV(0.3)
                 .withKA(0.01)
-                .withKP(2)
+                .withKP(1)
                 .withKI(0)
-                .withKD(0.1);
+                .withKD(0.2);
 
         MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(90))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(225))
                 .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
 
         SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
@@ -87,7 +87,7 @@ public class Elevator extends SubsystemBase {
         motorOutputConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
 
         VoltageConfigs voltageConfigs = new VoltageConfigs();
-        voltageConfigs.PeakReverseVoltage = -6;
+        voltageConfigs.PeakReverseVoltage = -8;
 
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         talonFXConfiguration.SoftwareLimitSwitch = softwareLimitSwitchConfigs;
