@@ -26,13 +26,13 @@ import frc.robot.util.HealthMonitor;
 
 public class Wrist extends SubsystemBase {
     public enum WristPosition {
-        HOME(0.36),
-        ALGAE_CONTAINMENT(0.26),
+        HOME(0.38),
+        ALGAE_CONTAINMENT(0.31),
         PROCESSOR(0.08),
         L1(0.24),
         REEF(0.16),
-        FLOOR(0),
-        BARGE(0.36);
+        FLOOR(0.01),
+        BARGE(0.34);
 
         public final double rotations;
 
@@ -60,9 +60,9 @@ public class Wrist extends SubsystemBase {
                 .withKG(0)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
                 .withKS(0.25)
-                .withKP(25)
+                .withKP(20)
                 .withKI(0)
-                .withKD(0.01);
+                .withKD(0.1);
 
         TalonFXConfiguration wristTalonFXConfiguration = new TalonFXConfiguration();
         wristTalonFXConfiguration.Slot0 = wristPositionPIDConfigs;
@@ -71,7 +71,7 @@ public class Wrist extends SubsystemBase {
         wristTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         wristTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.37;
+        wristTalonFXConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.39;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         wristTalonFXConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
         wristTalonFXConfiguration.Feedback.FeedbackRemoteSensorID = wristAbsoluteEncoder.getDeviceID();
@@ -98,8 +98,7 @@ public class Wrist extends SubsystemBase {
         wristTalonFX.setControl(
                 wristPositionControl
                         .withPosition(rotations)
-                        .withFeedForward(Volts.of(0))
-                        .withEnableFOC(true));
+                        .withFeedForward(Volts.of(0)));
     }
 
     public void setWristPosition(WristPosition postion) {

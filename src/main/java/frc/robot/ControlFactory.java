@@ -172,21 +172,22 @@ public class ControlFactory {
         return new SetIntakeVelocity(intake, velocity);
     }
 
-    public Command cmdReturnIntakeBasedOnAlgae() {
+    public Command cmdHomeIntake() {
         return new ConditionalCommand(
-                cmdResetScoringPosition(),
-                cmdHomeIntake(),
+                cmdHomeIntakeWithAlgae(),
+                cmdHomeIntakeNoAlgae(),
                 () -> intake.hasAlgae());
     }
 
-    public Command cmdHomeIntake() {
+    public Command cmdHomeIntakeNoAlgae() {
         return Commands.sequence(
                 cmdSetIntakeVelocity(IntakeVelocity.STOP),
                 cmdSetWristPosition(WristPosition.HOME));
     }
 
-    public Command cmdResetScoringPosition() {
-        return Commands.sequence(cmdSetIntakeVelocity(IntakeVelocity.STOP),
+    public Command cmdHomeIntakeWithAlgae() {
+        return Commands.sequence(
+                cmdSetIntakeVelocity(IntakeVelocity.STOP),
                 cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT));
     }
 
@@ -195,8 +196,7 @@ public class ControlFactory {
                 cmdSetIntakeVelocity(velocity),
                 cmdSetWristPosition(position),
                 Commands.waitUntil(() -> intake.hasAlgae()),
-                cmdSetIntakeVelocity(IntakeVelocity.STOP),
-                cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT))
+                cmdHomeIntake())
                 .unless(() -> intake.hasAlgae())
                 .withName(String.format("Intake: %s", position.toString()));
     }
@@ -221,13 +221,6 @@ public class ControlFactory {
                 cmdSetWristPosition(position),
                 cmdSetIntakeVelocity(IntakeVelocity.YEET))
                 .withName(String.format("Intake: %s", position.toString()));
-    }
-
-    public Command cmdReleaseAlgaeBasedOnElevatorPosition() {
-        return new ConditionalCommand(
-                cmdReleaseAlgae(WristPosition.BARGE),
-                cmdReleaseAlgae(WristPosition.ALGAE_CONTAINMENT),
-                () -> elevator.isNearPositionAndTolerance(ElevatorPosition.BARGE.rotations, 5));
     }
 
     public Command cmdReleaseAlgaeSelector() {
