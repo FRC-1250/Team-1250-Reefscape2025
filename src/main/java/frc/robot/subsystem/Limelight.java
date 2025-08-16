@@ -41,6 +41,10 @@ public class Limelight extends SubsystemBase {
         LimelightHelpers.SetRobotOrientation(name, headingDeg, 0, 0, 0, 0, 0);
     }
 
+    public PoseEstimate getBotPoseEstimate_wpiBlue_MegaTag1() {
+        return LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+    }
+
     public PoseEstimate getBotPoseEstimate_wpiBlue_MegaTag2() {
         return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
     }

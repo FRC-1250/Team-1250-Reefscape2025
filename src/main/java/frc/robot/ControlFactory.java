@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Amps;
 import java.util.Map;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -24,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
+import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
 import frc.robot.commands.AlgaeEndEffector.SetIntakeVelocity;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
@@ -377,6 +380,82 @@ public class ControlFactory {
                         Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
             }
         }
+    }
+
+    public void addLimelightVisionMeasurementsV2() {
+        if (DriverStation.isDisabled()) {
+            PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag1();
+
+            if (megaTag == null | megaTag.tagCount == 0)
+                return;
+
+            if (megaTag.tagCount < 1)
+                return;
+
+            swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
+            swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
+        } else {
+            SwerveDriveState driveState = swerveDrivetrain.getState();
+            limelight.setRobotOrientation(driveState.Pose.getRotation().getDegrees());
+            PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
+            double xTrust, yTrust = 10.0;
+
+            if (Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond) > 2.0)
+                return;
+
+            if (megaTag == null | megaTag.tagCount == 0)
+                return;
+
+            if (areAnyTagsAmbiguous(megaTag.rawFiducials))
+                return;
+
+            if (areAnyTagsFar(megaTag.rawFiducials))
+                return;
+
+            if (isEstimateOutOfBounds(megaTag.pose))
+                return;
+
+            if (hasTeleported(megaTag.pose, driveState.Pose, 3.5))
+                return;
+
+            // Increase the trust value to reduce trust in vision measurements
+            if (megaTag.tagCount > 1) {
+                xTrust = 0.5;
+                yTrust = 0.5;
+            } else {
+                xTrust = 0.8;
+                yTrust = 0.8;
+            }
+
+            swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(xTrust, yTrust, 9999999));
+            swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
+        }
+    }
+
+    private boolean areAnyTagsAmbiguous(RawFiducial[] tags) {
+        for (RawFiducial rawFiducial : tags) {
+            if (rawFiducial.ambiguity > 0.8) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean areAnyTagsFar(RawFiducial[] tags) {
+        for (RawFiducial rawFiducial : tags) {
+            if (rawFiducial.distToRobot > 3) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEstimateOutOfBounds(Pose2d pose) {
+        return pose.getX() > Units.feetToMeters(52) || pose.getY() > Units.feetToMeters(27);
+    }
+
+    private boolean hasTeleported(Pose2d visionPose, Pose2d currentPose, double teleportThreshold) {
+        return currentPose.minus(visionPose).getTranslation().getNorm() > teleportThreshold;
     }
 
     /*
