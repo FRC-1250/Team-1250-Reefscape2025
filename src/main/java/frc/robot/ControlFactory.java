@@ -415,9 +415,6 @@ public class ControlFactory {
             if (isEstimateOutOfBounds(megaTag.pose))
                 return;
 
-            if (hasTeleported(megaTag.pose, driveState.Pose, 3.5))
-                return;
-
             // Increase the trust value to reduce trust in vision measurements
             if (megaTag.tagCount > 1) {
                 xTrust = 0.5;
@@ -454,6 +451,7 @@ public class ControlFactory {
         return pose.getX() > Units.feetToMeters(52) || pose.getY() > Units.feetToMeters(27);
     }
 
+    // TODO: Removed from filter. Figure out what to do if you die on the field.
     private boolean hasTeleported(Pose2d visionPose, Pose2d currentPose, double teleportThreshold) {
         return currentPose.minus(visionPose).getTranslation().getNorm() > teleportThreshold;
     }
