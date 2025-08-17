@@ -67,30 +67,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Barge3ToReefEF"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakeAlgae"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ReefEFToBarge3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ReleaseAlgae"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "Barge3Backoff"
           }
         }
