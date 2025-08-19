@@ -126,8 +126,9 @@ public class RobotContainer {
         primaryDriverJoystick.back().onTrue(controlFactory.cmdStopElevatorMotors());
         primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
         primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
-        primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetElevatorToReefAlgae());
-
+        primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
+        primaryDriverJoystick.a().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
+        primaryDriverJoystick.x().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
         // Intake
         primaryDriverJoystick.rightTrigger()
                 .whileTrue(controlFactory.cmdReleaseAlgaeSelector())
@@ -137,10 +138,7 @@ public class RobotContainer {
                 .whileFalse(controlFactory.cmdHomeIntake());
 
         // Climber
-        primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbSelector());
-
-        primaryDriverJoystick.povRight().whileTrue(controlFactory.cmdDeepClimbRawTorque());
-        primaryDriverJoystick.povDown().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
+        primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbSelector());       
     }
 
     @SuppressWarnings("unused")
