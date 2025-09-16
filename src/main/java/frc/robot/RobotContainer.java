@@ -188,9 +188,9 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
-        addPathAuto("LeftStartToBargeDouble", "LeftStartToBargeDouble");
-        addPathAuto("RightStartToProcessor", "RightStartToProcessor");
-        addPathAuto("CenterStartToBargeDouble", "CenterStartToBargeDouble");
+        addPathAuto("LeftBargeDoubleJILK", "LeftBargeDoubleJILK");
+        addPathAuto("RightProcessorEF", "RightProcessorEF");
+        addPathAuto("CenterBargeDoubleHGEF", "CenterBargeDoubleHGEF");
         autoChooser.addOption("GetOffLine",
                 Commands.sequence(
                         Commands.runOnce(
@@ -201,7 +201,7 @@ public class RobotContainer {
     }
 
     private void configureNamedCommands() {
-        double releaseTimeoutTime = 0.25;
+        double releaseTimeoutTime = 0.50;
 
         NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));

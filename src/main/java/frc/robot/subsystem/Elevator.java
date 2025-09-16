@@ -65,7 +65,7 @@ public class Elevator extends SubsystemBase {
                 .withKA(0.01)
                 .withKP(1)
                 .withKI(0)
-                .withKD(0.2);
+                .withKD(0.5);
 
         MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(RotationsPerSecond.of(90))
