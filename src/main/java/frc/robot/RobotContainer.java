@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -14,13 +15,15 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
@@ -28,7 +31,6 @@ import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Limelight;
 import frc.robot.subsystem.SystemLights;
 import frc.robot.subsystem.Wrist;
-import frc.robot.subsystem.Intake.IntakeVelocity;
 import frc.robot.subsystem.Wrist.WristPosition;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.Intake;
@@ -49,7 +51,20 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     private final CommandXboxController primaryDriverJoystick = new CommandXboxController(0);
-    private CommandPS4Controller operatorJoystick;
+    private final CommandXboxController operatorJoystick = new CommandXboxController(1);
+
+    @Logged(name = "Robot state")
+    private RobotState robotState;
+
+    public enum RobotState {
+        INTAKE,
+        CLIMB,
+        HIGH_ALGAE,
+        LOW_ALGAE,
+        BARGE,
+        PROCESSOR,
+        SINGLE_PLAYER
+    }
 
     @Logged(name = "Elevator")
     public final Elevator elevator = new Elevator();
@@ -79,12 +94,18 @@ public class RobotContainer {
 
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(14, -18, 0);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(14, -18, 0);
+    private final EventLoop singlePlayerLoop = new EventLoop();
+    private final EventLoop twoPlayerLoop = new EventLoop();
 
     public RobotContainer() {
-        configureBindings();
+        configureSinglePlayerBindings();
+        configureTwoPlayerBindings();
+        configureDefaultCommands();
+        changeEventLoop(singlePlayerLoop);
         configureSmartDashboardBindings();
         configureNamedCommands();
         configureAutoCommands();
+        robotState = RobotState.SINGLE_PLAYER;
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
@@ -105,65 +126,81 @@ public class RobotContainer {
         }
     }
 
-    private void configureBindings() {
-        /*
-         * Primary driver controls
-         */
-
-        // Drive
+    private void configureDefaultCommands() {
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
                         .withVelocityX(yLimiter.calculate(-primaryDriverJoystick.getLeftY() * MaxSpeed))
                         .withVelocityY(xLimiter.calculate(-primaryDriverJoystick.getLeftX() * MaxSpeed))
                         .withRotationalRate(-primaryDriverJoystick.getRightX() * MaxAngularRate))
                         .withName("Field centric swerve"));
+    }
 
-        primaryDriverJoystick.start()
+    private void configureDefaultBindings(EventLoop loop) {
+        primaryDriverJoystick.start(loop)
                 .onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()).withName("Reseed drive"));
 
+        primaryDriverJoystick.b(loop).onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+    }
+
+    private void configureSinglePlayerBindings() {
+        configureDefaultBindings(singlePlayerLoop);
         // Elevator
-        // Allow elevator to free fall against brake mode
-        primaryDriverJoystick.back().onTrue(controlFactory.cmdStopElevatorMotors());
-        primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
-        primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
-        primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
-        primaryDriverJoystick.a().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
-        primaryDriverJoystick.x().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
+        primaryDriverJoystick.back(singlePlayerLoop).onTrue(controlFactory.cmdStopElevatorMotors());
+        primaryDriverJoystick.rightBumper(singlePlayerLoop)
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
+        primaryDriverJoystick.leftBumper(singlePlayerLoop)
+                .onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));
+        primaryDriverJoystick.a(singlePlayerLoop)
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
+        primaryDriverJoystick.x(singlePlayerLoop)
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
+
         // Intake
-        primaryDriverJoystick.rightTrigger()
+        primaryDriverJoystick.rightTrigger(0.5, singlePlayerLoop)
                 .whileTrue(controlFactory.cmdReleaseAlgaeSelector())
                 .whileFalse(controlFactory.cmdHomeIntake());
-        primaryDriverJoystick.leftTrigger()
+        primaryDriverJoystick.leftTrigger(0.5, singlePlayerLoop)
                 .whileTrue(controlFactory.cmdIntakeAlgaeSelector())
                 .whileFalse(controlFactory.cmdHomeIntake());
 
         // Climber
-        primaryDriverJoystick.y().onTrue(controlFactory.cmdDeepClimbSelector());       
+        primaryDriverJoystick.y(singlePlayerLoop).onTrue(controlFactory.cmdDeepClimbSelector());
     }
 
-    @SuppressWarnings("unused")
-    private void configureOpController() {
-        operatorJoystick = new CommandPS4Controller(1);
-        operatorJoystick.axisLessThan(1, -0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YEET))
-                .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
-        operatorJoystick.axisGreaterThan(1, 0.5).whileTrue(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.YOINK))
-                .onFalse(controlFactory.cmdSetIntakeVelocity(IntakeVelocity.STOP));
+    private void configureTwoPlayerBindings() {
+        configureDefaultBindings(twoPlayerLoop);
 
-        operatorJoystick.povUp().onTrue(controlFactory.cmdAddElevatorRotations(5));
-        operatorJoystick.povLeft().onTrue(controlFactory.cmdAddElevatorRotations(1));
-        operatorJoystick.povDown().onTrue(controlFactory.cmdAddElevatorRotations(-5));
-        operatorJoystick.povRight().onTrue(controlFactory.cmdAddElevatorRotations(-1));
+        Trigger bargeState = new Trigger(() -> isRobotState(RobotState.BARGE));
+        Trigger highAlgaeState = new Trigger(() -> isRobotState(RobotState.HIGH_ALGAE));
+        Trigger lowAlgaeState = new Trigger(() -> isRobotState(RobotState.LOW_ALGAE));
+        Trigger climbState = new Trigger(() -> isRobotState(RobotState.CLIMB));
+        Trigger processorState = new Trigger(() -> isRobotState(RobotState.PROCESSOR));
+        Trigger intakeState = new Trigger(() -> isRobotState(RobotState.INTAKE));
 
-        operatorJoystick.triangle().onTrue(controlFactory.cmdAddWristRotations(0.1));
-        operatorJoystick.cross().onTrue(controlFactory.cmdAddWristRotations(-0.1));
-        operatorJoystick.square().onTrue(controlFactory.cmdAddWristRotations(0.05));
-        operatorJoystick.circle().onTrue(controlFactory.cmdAddWristRotations(-0.05));
+        // Intake mode
+        intakeState.and(primaryDriverJoystick.leftTrigger(0.5, twoPlayerLoop))
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
 
-        operatorJoystick.L1().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
-        operatorJoystick.L2().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
+        // Barge
+        bargeState.and(primaryDriverJoystick.leftTrigger(0.5, twoPlayerLoop))
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
 
-        operatorJoystick.R1().onTrue(controlFactory.cmdSetWristPosition(WristPosition.REEF));
-        operatorJoystick.R2().onTrue(controlFactory.cmdSetWristPosition(WristPosition.HOME));
+        // High
+        highAlgaeState.and(primaryDriverJoystick.leftTrigger(0.5, twoPlayerLoop))
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
+
+        // Low
+        lowAlgaeState.and(primaryDriverJoystick.leftTrigger(0.5, twoPlayerLoop))
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
+
+        // Processor
+        processorState.and(primaryDriverJoystick.leftTrigger(0.5, twoPlayerLoop))
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+
+        // Climb
+        climbState.and(primaryDriverJoystick.leftTrigger(0.5, twoPlayerLoop))
+                .onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
+
     }
 
     private void configureSmartDashboardBindings() {
@@ -188,9 +225,10 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
+        addPathAuto("CenterBargeDoubleHGEF", "CenterBargeDoubleHGEF");
+        addPathAuto("CenterBargeDoubleHGJI", "CenterBargeDoubleHGJI");
         addPathAuto("LeftBargeDoubleJILK", "LeftBargeDoubleJILK");
         addPathAuto("RightProcessorEF", "RightProcessorEF");
-        addPathAuto("CenterBargeDoubleHGEF", "CenterBargeDoubleHGEF");
         autoChooser.addOption("GetOffLine",
                 Commands.sequence(
                         Commands.runOnce(
@@ -201,15 +239,61 @@ public class RobotContainer {
     }
 
     private void configureNamedCommands() {
-        double releaseTimeoutTime = 0.50;
+        double releaseTimeoutTime = 0.5;
 
         NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
-        NamedCommands.registerCommand("ElevatorHighAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
-        NamedCommands.registerCommand("ElevatorLowAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
+        NamedCommands.registerCommand("ElevatorHighAlgae",
+                controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
+        NamedCommands.registerCommand("ElevatorLowAlgae",
+                controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
         NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
-        NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
+        NamedCommands.registerCommand("ReleaseAlgae",
+                controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
         NamedCommands.registerCommand("ReleaseCoral", Commands.none().withTimeout(releaseTimeoutTime));
         NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
+    }
+
+    public void changeEventLoop(EventLoop loop) {
+        CommandScheduler.getInstance().setActiveButtonLoop(loop);
+    }
+
+    public boolean isCurrentEventLoop(EventLoop loop) {
+        return CommandScheduler.getInstance().getActiveButtonLoop().equals(loop);
+    }
+
+    public void setRobotState() {
+        boolean isBarge = false;
+        boolean isHighAlgae = false;
+        boolean isLowAlgae = false;
+        boolean isClimb = false;
+        boolean isProcessor = false;
+
+        if (isCurrentEventLoop(singlePlayerLoop)) {
+            robotState = RobotState.SINGLE_PLAYER;
+        } else {
+            isBarge = operatorJoystick.b(twoPlayerLoop).getAsBoolean();
+            isHighAlgae = operatorJoystick.a(twoPlayerLoop).getAsBoolean();
+            isLowAlgae = operatorJoystick.x(twoPlayerLoop).getAsBoolean();
+            isClimb = operatorJoystick.y(twoPlayerLoop).getAsBoolean();
+            isProcessor = operatorJoystick.leftBumper(twoPlayerLoop).getAsBoolean();
+            if (isLowAlgae) {
+                robotState = RobotState.LOW_ALGAE;
+            } else if (isHighAlgae) {
+                robotState = RobotState.HIGH_ALGAE;
+            } else if (isClimb) {
+                robotState = RobotState.CLIMB;
+            } else if (isProcessor) {
+                robotState = RobotState.PROCESSOR;
+            } else if (isBarge) {
+                robotState = RobotState.BARGE;
+            } else {
+                robotState = RobotState.INTAKE;
+            }
+        }        
+    }
+
+    public boolean isRobotState(RobotState state) {
+        return robotState == state;
     }
 }

@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        m_robotContainer.setRobotState();
         CommandScheduler.getInstance().run();
         m_robotContainer.determineMaxSpeed();
         m_robotContainer.controlFactory.addLimelightVisionMeasurements();
