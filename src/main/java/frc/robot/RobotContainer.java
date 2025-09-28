@@ -193,6 +193,8 @@ public class RobotContainer {
         addPathAuto("CenterBargeDoubleHGJI", "CenterBargeDoubleHGJI");
         addPathAuto("LeftBargeDoubleJILK", "LeftBargeDoubleJILK");
         addPathAuto("RightProcessorEF", "RightProcessorEF");
+        addPathAuto("BargeProveOut", "BargeProveOut");
+        addPathAuto("FloorToBargeProveOut", "FloorToBargeProveOut");
         autoChooser.addOption("GetOffLine",
                 Commands.sequence(
                         Commands.runOnce(
@@ -210,8 +212,10 @@ public class RobotContainer {
         NamedCommands.registerCommand("ElevatorHighAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
         NamedCommands.registerCommand("ElevatorLowAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
         NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
-        NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime));
-        NamedCommands.registerCommand("ReleaseCoral", Commands.none().withTimeout(releaseTimeoutTime));
+        NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime)
+                .andThen(controlFactory.cmdHomeIntake()));
+        NamedCommands.registerCommand("ReleaseCoral", controlFactory.cmdReleaseCoral().withTimeout(releaseTimeoutTime)
+                .andThen(controlFactory.cmdHomeIntake()));
         NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
     }
 }

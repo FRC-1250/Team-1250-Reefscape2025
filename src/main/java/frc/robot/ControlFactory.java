@@ -39,7 +39,6 @@ import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.HomeElevatorBasedOnAmps;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
 import frc.robot.commands.Elevator.SetElevatorPosition;
-import frc.robot.commands.Elevator.StopElevator;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
@@ -232,6 +231,13 @@ public class ControlFactory {
                 cmdSetWristPosition(position),
                 cmdSetIntakeVelocity(IntakeVelocity.YEET))
                 .withName(String.format("Intake: %s", position.toString()));
+    }
+
+    public Command cmdReleaseCoral() {
+        return Commands.sequence(
+            cmdSetWristPosition(WristPosition.L1),
+            cmdSetIntakeVelocity(IntakeVelocity.YEET)
+        );
     }
 
     public Command cmdReleaseAlgaeSelector() {

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.404470198675496,
-        "y": 2.0055877483443716
+        "x": 5.877571048509261,
+        "y": 1.630920938019798
       },
       "isLocked": false,
       "linkedName": "ReefEF"
@@ -20,8 +20,8 @@
         "y": 5.07
       },
       "prevControl": {
-        "x": 6.879076986754967,
-        "y": 4.0613203642384095
+        "x": 6.16,
+        "y": 5.07
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,9 +29,42 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.9,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.1,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
+    {
+      "name": "ElevatorHome",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
     {
       "name": "ElevatorBarge",
       "waypointRelativePos": 0.8955844155844251,

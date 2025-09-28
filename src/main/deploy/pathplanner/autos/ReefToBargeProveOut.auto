@@ -5,9 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "LeftStartToReefJI"
+            "name": "ElevatorL1"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ElevatorHighAlgae"
+            "name": "ElevatorLowAlgae"
           }
         },
         {
@@ -29,9 +29,21 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "ReefJIToBarge2"
+            "name": "ElevatorHome"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorBarge"
           }
         },
         {
@@ -41,33 +53,9 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Barge2ToReefLK"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "IntakeAlgae"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ReefLKToBarge2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ReleaseAlgae"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Barge2Backoff"
+            "name": "ElevatorHome"
           }
         }
       ]
