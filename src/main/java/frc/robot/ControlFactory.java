@@ -39,6 +39,8 @@ import frc.robot.commands.Elevator.AddElevatorRotations;
 import frc.robot.commands.Elevator.HomeElevatorBasedOnAmps;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
 import frc.robot.commands.Elevator.SetElevatorPosition;
+import frc.robot.commands.LEDs.DiagnosticLights;
+import frc.robot.commands.LEDs.MatchLights;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
 import frc.robot.subsystem.Elevator;
@@ -49,10 +51,7 @@ import frc.robot.subsystem.Wrist.WristPosition;
 import frc.robot.subsystem.DeepClimber.DeepClimberPhase;
 import frc.robot.subsystem.Elevator.ElevatorPosition;
 import frc.robot.subsystem.Intake;
-import frc.robot.subsystem.SystemLights.PresetColor;
 import frc.robot.subsystem.Wrist;
-import frc.robot.util.HealthMonitor;
-import frc.robot.util.HealthStatus;
 import frc.robot.util.ReefScoringMap;
 
 /**
@@ -259,42 +258,16 @@ public class ControlFactory {
     }
 
     /*
-     * Diag lights
+     * System lights
      */
 
     public Command cmdDisplaySubsystemErrorState() {
-        return Commands.repeatingSequence(
-                Commands.runOnce(
-                        () -> {
-                            HealthMonitor hm = HealthMonitor.getInstance();
-                            systemLights.diagnosticColors.clear();
-                            if (hm.getSubsystemStatus("Elevator") == HealthStatus.ERROR) {
-                                systemLights.diagnosticColors.add(PresetColor.PURPLE);
-                            }
+        return new DiagnosticLights(systemLights, 5).ignoringDisable(true).repeatedly();
+    }
 
-                            if (hm.getSubsystemStatus("Drivetrain") == HealthStatus.ERROR) {
-                                systemLights.diagnosticColors.add(PresetColor.RED);
-                            }
-
-                            if (hm.getSubsystemStatus("Climber") == HealthStatus.ERROR) {
-                                systemLights.diagnosticColors.add(PresetColor.BLUE);
-                            }
-
-                            if (hm.getSubsystemStatus("AlgaeEndEffector") == HealthStatus.ERROR) {
-                                systemLights.diagnosticColors.add(PresetColor.WHITE);
-                            }
-
-                            if (systemLights.diagnosticColors.size() == 0) {
-                                systemLights.diagnosticColors.add(PresetColor.KELLY_GREEN);
-                            }
-                            systemLights.cmdSetLEDs(systemLights.diagnosticColors.get(0));
-                        }, systemLights),
-                Commands.run(
-                        () -> {
-                            systemLights.cycleDiagnosticColors();
-                        }, systemLights).withTimeout(5))
-                .withName("Diagnostic lights")
-                .ignoringDisable(true);
+    // TODO: Add some logic for LEDs during a match
+    public Command cmdDisplayMatchState() {
+        return new MatchLights(systemLights);
     }
 
     /*

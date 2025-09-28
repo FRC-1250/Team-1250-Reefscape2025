@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledExit() {
         hm.pause();
-        m_robotContainer.controlFactory.cmdDisplaySubsystemErrorState().cancel();
+        m_robotContainer.controlFactory.cmdDisplayMatchState().schedule();
     }
 
     @Override

@@ -4,102 +4,46 @@
 
 package frc.robot.subsystem;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.ctre.phoenix6.configs.CANdleConfiguration;
+import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.hardware.CANdle;
+import com.ctre.phoenix6.signals.Enable5VRailValue;
+import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue;
+import com.ctre.phoenix6.signals.RGBWColor;
+import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
+import com.ctre.phoenix6.signals.StripTypeValue;
+import com.ctre.phoenix6.signals.VBatOutputModeValue;
 
-import com.ctre.phoenix.led.Animation;
-import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-import com.ctre.phoenix.led.CANdle.VBatOutputMode;
-import com.ctre.phoenix.led.CANdleConfiguration;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SystemLights extends SubsystemBase {
 
     private final CANdle candle = new CANdle(30, "rio");
-    public List<PresetColor> diagnosticColors = new ArrayList<PresetColor>();
-    private Timer diagnosticTimer = new Timer();
-    private int diagnosticIndex = 0;
-    private double diagnosticTimeout = 5;
+    private SolidColor allLEDs = new SolidColor(0, 7);
 
-    public enum PresetColor {
-        BLACK(0, 0, 0),
-        WHITE(255, 255, 255),
-        RED(255, 0, 0),
-        GREEN(0, 255, 0),
-        BLUE(0, 0, 255),
-        PURPLE(157, 0, 255),
-        PINK(255, 141, 161),
-        KELLY_GREEN(76, 187, 23);
-
-        private final int red;
-        private final int green;
-        private final int blue;
-        private final int rgbMin = 0;
-        private final int rgbMax = 255;
-
-        PresetColor(int red, int green, int blue) {
-            this.red = MathUtil.clamp(red, rgbMin, rgbMax);
-            this.green = MathUtil.clamp(green, rgbMin, rgbMax);
-            this.blue = MathUtil.clamp(blue, rgbMin, rgbMax);
-        }
-    }
+    public final static RGBWColor red = new RGBWColor(Color.kRed);
+    public final static RGBWColor white = new RGBWColor(Color.kWhite);
+    public final static RGBWColor green = new RGBWColor(Color.kGreen);
+    public final static RGBWColor blue = new RGBWColor(Color.kBlue);
+    public final static RGBWColor purple = new RGBWColor(Color.kPurple);
+    public final static RGBWColor pink = new RGBWColor(Color.kPink);
+    public final static RGBWColor kellyGreen = new RGBWColor(76, 187, 23);
 
     public SystemLights() {
-        CANdleConfiguration configAll = new CANdleConfiguration();
-        configAll.brightnessScalar = 0.6;
-        configAll.disableWhenLOS = true;
-        configAll.enableOptimizations = true;
-        configAll.statusLedOffWhenActive = true;
-        configAll.stripType = LEDStripType.RGB;
-        configAll.v5Enabled = true;
-        configAll.vBatOutputMode = VBatOutputMode.Off;
-        candle.configAllSettings(configAll);
+        CANdleConfiguration candleConfiguration = new CANdleConfiguration();
+        candleConfiguration.LED.BrightnessScalar = 0.6;
+        candleConfiguration.LED.StripType = StripTypeValue.RGB;
+        candleConfiguration.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
+
+        candleConfiguration.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Disabled;
+        candleConfiguration.CANdleFeatures.VBatOutputMode = VBatOutputModeValue.Off;
+        candleConfiguration.CANdleFeatures.Enable5VRail = Enable5VRailValue.Enabled;
+        candle.getConfigurator().apply(candleConfiguration);
     }
 
-    public Command setAnimation(Animation animation) {
-        return Commands.runOnce(() -> candle.animate(animation), this);
-    }
-
-    public Command cmdSetLEDs(PresetColor color) {
-        return Commands.run(() -> {
-            candle.setLEDs(color.red, color.green, color.blue);
-        }, this);
-    }
-
-    public Command cmdSetLEDs(int r, int g, int b) {
-        return Commands.run(() -> {
-            candle.setLEDs(r, g, b);
-        }, this);
-    }
-
-    public Command clear() {
-        return Commands
-                .runOnce(() -> candle.setLEDs(PresetColor.BLACK.red, PresetColor.BLACK.green, PresetColor.BLACK.blue),
-                        this);
-    }
-
-    public void setLEDs(PresetColor color) {
-        candle.setLEDs(color.red, color.green, color.blue);
-    }
-
-    public void cycleDiagnosticColors() {
-        setLEDs(diagnosticColors.get(diagnosticIndex % diagnosticColors.size()));
-        if (diagnosticColors.size() > 1) { // Avoid divide by 0 and only cycle if there more than just one color
-            if (!diagnosticTimer.isRunning()) {
-                diagnosticTimer.start();
-            }
-
-            if (diagnosticTimer.advanceIfElapsed(diagnosticTimeout / diagnosticColors.size())) {
-                diagnosticIndex++;
-                diagnosticTimer.reset();
-            }
-        }
+    public void setLEDs(RGBWColor color) {
+        candle.setControl(allLEDs.withColor(color));
     }
 
     @Override
