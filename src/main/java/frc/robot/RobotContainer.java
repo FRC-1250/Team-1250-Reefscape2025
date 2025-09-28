@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.Elevator.HomeElevatorBasedOnAmps;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystem.CommandSwerveDrivetrain;
 import frc.robot.subsystem.DeepClimber;
@@ -123,7 +124,7 @@ public class RobotContainer {
 
         // Elevator
         // Allow elevator to free fall against brake mode
-        primaryDriverJoystick.back().onTrue(controlFactory.cmdStopElevatorMotors());
+        primaryDriverJoystick.back().onTrue(controlFactory.cmdHomeElevator());
         primaryDriverJoystick.b().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
         primaryDriverJoystick.rightBumper().onTrue(controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         primaryDriverJoystick.leftBumper().onTrue(controlFactory.cmdSetWristPosition(WristPosition.PROCESSOR));

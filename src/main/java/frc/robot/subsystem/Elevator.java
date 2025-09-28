@@ -25,8 +25,10 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthMonitor;
@@ -164,9 +166,19 @@ public class Elevator extends SubsystemBase {
                 || MathUtil.isNear(position, getRightMotorPosition(), tolerance);
     }
 
+    public void setSpeed(double speed) {
+        leftMotor.set(speed);
+        rightMotor.set(speed);
+    }
+
     public void stop() {
         leftMotor.stopMotor();
         rightMotor.stopMotor();
+    }
+
+    public boolean isBeyondAmpLimit(Current limit) {
+        return leftMotor.getStatorCurrent().getValue().gt(limit)
+        && rightMotor.getStatorCurrent().getValue().gt(limit);
     }
 
     @Override

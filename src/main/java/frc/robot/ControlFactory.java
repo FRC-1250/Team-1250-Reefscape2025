@@ -36,6 +36,7 @@ import frc.robot.commands.Climber.DeepClimbPostClimb;
 import frc.robot.commands.Climber.DeepClimbPreclimb;
 import frc.robot.commands.Climber.SetDeepClimbTorque;
 import frc.robot.commands.Elevator.AddElevatorRotations;
+import frc.robot.commands.Elevator.HomeElevatorBasedOnAmps;
 import frc.robot.commands.Elevator.ResetElevatorPosition;
 import frc.robot.commands.Elevator.SetElevatorPosition;
 import frc.robot.commands.Elevator.StopElevator;
@@ -137,8 +138,8 @@ public class ControlFactory {
      * Elevator
      */
 
-    public Command cmdStopElevatorMotors() {
-        return new StopElevator(elevator);
+    public Command cmdHomeElevator() {
+        return new HomeElevatorBasedOnAmps(elevator).andThen(new ResetElevatorPosition(elevator));
     }
 
     public Command cmdSetElevatorPosition(ElevatorPosition position) {
