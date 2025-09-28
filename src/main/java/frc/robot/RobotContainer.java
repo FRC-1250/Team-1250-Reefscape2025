@@ -193,14 +193,17 @@ public class RobotContainer {
         addPathAuto("CenterBargeDoubleHGJI", "CenterBargeDoubleHGJI");
         addPathAuto("LeftBargeDoubleJILK", "LeftBargeDoubleJILK");
         addPathAuto("RightProcessorEF", "RightProcessorEF");
-        addPathAuto("BargeProveOut", "BargeProveOut");
-        addPathAuto("FloorToBargeProveOut", "FloorToBargeProveOut");
+
         autoChooser.addOption("GetOffLine",
                 Commands.sequence(
                         Commands.runOnce(
                                 () -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection()),
                                 drivetrain),
                         drivetrain.applyRequest(() -> drive.withVelocityX(-1)).withTimeout(2)));
+
+        addPathAuto("FloorToBargeNoDrive", "FloorToBargeNoDrive");
+        addPathAuto("FullAutoNoDrive", "FullAutoNoDrive");
+        addPathAuto("ReefToBargeNoDrive", "ReefToBargeNoDrive");
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 

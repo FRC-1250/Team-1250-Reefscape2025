@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorLowAlgae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeAlgae"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorHome"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorBarge"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReleaseAlgae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ElevatorHome"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
