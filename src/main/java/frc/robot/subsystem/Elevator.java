@@ -27,7 +27,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthMonitor;
@@ -173,22 +172,6 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
 
-    }
-
-    private Command cmdAmpSpikeHome() {
-        return Commands.startEnd(
-                () -> {
-                    leftMotor.set(-0.1);
-                    rightMotor.set(-0.1);
-                }, () -> {
-                    leftMotor.set(0);
-                    rightMotor.set(0);
-                    homeFound = true;
-                    resetMotorPositionToPosition(0);
-                },
-                this)
-                .until(() -> leftMotor.getStatorCurrent().getValueAsDouble() > 10
-                        && rightMotor.getStatorCurrent().getValueAsDouble() > 10);
     }
 
     private Command cmdHandleSensorTransition() {
