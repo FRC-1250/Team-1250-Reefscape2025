@@ -189,6 +189,7 @@ public class RobotContainer {
          * default
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
+        addPathAuto("CenterBargeSingleHG", "CenterBargeSingleHG");
         addPathAuto("CenterBargeDoubleHGEF", "CenterBargeDoubleHGEF");
         addPathAuto("CenterBargeDoubleHGJI", "CenterBargeDoubleHGJI");
         addPathAuto("LeftBargeDoubleJILK", "LeftBargeDoubleJILK");
@@ -199,7 +200,7 @@ public class RobotContainer {
                         Commands.runOnce(
                                 () -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection()),
                                 drivetrain),
-                        drivetrain.applyRequest(() -> drive.withVelocityX(-1)).withTimeout(2)));
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-0.25)).withTimeout(2)));
 
         addPathAuto("FloorToBargeNoDrive", "FloorToBargeNoDrive");
         addPathAuto("FullAutoNoDrive", "FullAutoNoDrive");
