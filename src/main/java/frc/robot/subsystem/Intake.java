@@ -4,6 +4,8 @@
 
 package frc.robot.subsystem;
 
+import static edu.wpi.first.units.Units.Hertz;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -13,6 +15,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthMonitor;
@@ -58,6 +61,9 @@ public class Intake extends SubsystemBase {
         intakeTalonFXConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         intakeTalonFXConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         intakeTalonFX.getConfigurator().apply(intakeTalonFXConfiguration);
+
+        intakeTalonFX.getPosition().setUpdateFrequency(Frequency.ofBaseUnits(200, Hertz));
+        intakeTalonFX.getVelocity().setUpdateFrequency(Frequency.ofBaseUnits(200, Hertz));
 
         HealthMonitor.getInstance()
                 .addComponent(getName(), "Intake", intakeTalonFX);

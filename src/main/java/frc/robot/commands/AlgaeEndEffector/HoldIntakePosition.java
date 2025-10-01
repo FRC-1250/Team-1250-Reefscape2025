@@ -6,22 +6,19 @@ package frc.robot.commands.AlgaeEndEffector;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystem.Intake;
-import frc.robot.subsystem.Intake.IntakeVelocity;
 
-public class SetIntakeVelocity extends InstantCommand {
+public class HoldIntakePosition extends InstantCommand {
+
     private final Intake cmdIntake;
-    private final IntakeVelocity cmdIntakeVelocity;
 
-    public SetIntakeVelocity(Intake Intake, IntakeVelocity intakeVelocity) {
-        addRequirements(Intake);
-        cmdIntake = Intake;
-        cmdIntakeVelocity = intakeVelocity;
+    public HoldIntakePosition(Intake intake) {
+        addRequirements(intake);
+        cmdIntake = intake;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        cmdIntake.setIntakeVelocity(cmdIntakeVelocity);
+        cmdIntake.holdPosition();
     }
-
 }

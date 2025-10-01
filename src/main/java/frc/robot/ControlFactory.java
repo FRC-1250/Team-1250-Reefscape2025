@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.commands.AlgaeEndEffector.AddWristRotations;
+import frc.robot.commands.AlgaeEndEffector.HoldIntakePosition;
 import frc.robot.commands.AlgaeEndEffector.SetIntakeVelocity;
 import frc.robot.commands.AlgaeEndEffector.SetWristPosition;
 import frc.robot.commands.Climber.DeepClimb;
@@ -175,6 +176,10 @@ public class ControlFactory {
         return new SetIntakeVelocity(intake, velocity);
     }
 
+    public Command cmdHoldIntakePosition() {
+        return new HoldIntakePosition(intake);
+    }
+
     public Command cmdHomeIntake() {
         return new ConditionalCommand(
                 cmdHomeIntakeWithAlgae(),
@@ -185,13 +190,15 @@ public class ControlFactory {
     public Command cmdHomeIntakeNoAlgae() {
         return Commands.sequence(
                 cmdSetIntakeVelocity(IntakeVelocity.STOP),
-                cmdSetWristPosition(WristPosition.HOME));
+                cmdSetWristPosition(WristPosition.HOME),
+                cmdHoldIntakePosition());
     }
 
     public Command cmdHomeIntakeWithAlgae() {
         return Commands.sequence(
                 cmdSetIntakeVelocity(IntakeVelocity.STOP),
-                cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT));
+                cmdSetWristPosition(WristPosition.ALGAE_CONTAINMENT),
+                cmdHoldIntakePosition());
     }
 
     public Command cmdIntakeAlgae(IntakeVelocity velocity, WristPosition position) {
