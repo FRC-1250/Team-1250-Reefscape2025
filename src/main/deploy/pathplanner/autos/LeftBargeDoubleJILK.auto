@@ -13,18 +13,6 @@
         {
           "type": "named",
           "data": {
-            "name": "ReleaseCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorHighAlgae"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "IntakeAlgae"
           }
         },

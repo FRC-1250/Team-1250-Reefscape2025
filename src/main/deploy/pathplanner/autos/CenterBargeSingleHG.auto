@@ -7,19 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterStartToHGWithCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ReleaseCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorLowAlgae"
+            "pathName": "CenterStartToHG"
           }
         },
         {

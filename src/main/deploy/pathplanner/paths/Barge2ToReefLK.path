@@ -72,7 +72,7 @@
     },
     {
       "name": "ElevatorLowAlgae",
-      "waypointRelativePos": 0.95,
+      "waypointRelativePos": 0.8966233766233688,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

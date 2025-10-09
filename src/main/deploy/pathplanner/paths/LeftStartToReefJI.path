@@ -47,8 +47,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "ElevatorL1",
-      "waypointRelativePos": 0.9516883116883234,
+      "name": "ElevatorHighAlgae",
+      "waypointRelativePos": 0.9049350649350582,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",

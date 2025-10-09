@@ -72,7 +72,7 @@
     },
     {
       "name": "ElevatorHighAlgae",
-      "waypointRelativePos": 0.9485714285714334,
+      "waypointRelativePos": 0.9018181818181746,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
