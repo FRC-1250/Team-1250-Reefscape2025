@@ -7,18 +7,6 @@
         {
           "type": "named",
           "data": {
-            "name": "ElevatorL1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ReleaseCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "ElevatorLowAlgae"
           }
         },
