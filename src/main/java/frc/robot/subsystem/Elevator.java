@@ -28,14 +28,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.HealthMonitor;
 
 public class Elevator extends SubsystemBase {
     public enum ElevatorPosition {
-        HOME(1),
+        HOME(2),
         SENSOR(0.8),
         L1(6.08),
         LOW_ALGAE(18),
@@ -70,8 +69,8 @@ public class Elevator extends SubsystemBase {
                 .withKD(0.2);
 
         MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(90))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(225))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
                 .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
 
         SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
