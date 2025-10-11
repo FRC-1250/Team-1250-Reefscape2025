@@ -190,9 +190,6 @@ public class RobotContainer {
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("CenterBargeSingleHG", "CenterBargeSingleHG");
-        addPathAuto("CenterBargeDoubleHGEF", "CenterBargeDoubleHGEF");
-        addPathAuto("CenterBargeDoubleHGJI", "CenterBargeDoubleHGJI");
-        addPathAuto("LeftBargeDoubleJILK", "LeftBargeDoubleJILK");
         addPathAuto("RightProcessorEF", "RightProcessorEF");
 
         autoChooser.addOption("GetOffLine",
@@ -200,24 +197,22 @@ public class RobotContainer {
                         Commands.runOnce(
                                 () -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection()),
                                 drivetrain),
-                        drivetrain.applyRequest(() -> drive.withVelocityX(-0.25)).withTimeout(2)));
-
-        addPathAuto("FloorToBargeNoDrive", "FloorToBargeNoDrive");
-        addPathAuto("FullAutoNoDrive", "FullAutoNoDrive");
-        addPathAuto("ReefToBargeNoDrive", "ReefToBargeNoDrive");
+                        drivetrain.applyRequest(() -> drive.withVelocityX(0.5)).withTimeout(2)));
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private void configureNamedCommands() {
-        double releaseTimeoutTime = 0.5;
+        double releaseTimeoutTime = 1;
 
         NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
         NamedCommands.registerCommand("ElevatorHighAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HIGH_ALGAE));
         NamedCommands.registerCommand("ElevatorLowAlgae", controlFactory.cmdSetElevatorPosition(ElevatorPosition.LOW_ALGAE));
         NamedCommands.registerCommand("ElevatorL1", controlFactory.cmdSetElevatorPosition(ElevatorPosition.L1));
-        NamedCommands.registerCommand("ReleaseAlgae", controlFactory.cmdReleaseAlgaeSelector().withTimeout(releaseTimeoutTime)
-                .andThen(controlFactory.cmdHomeIntake()));
+        NamedCommands.registerCommand("ReleaseAlgae", 
+        controlFactory.cmdReleaseAlgaeSelector()
+            .andThen(Commands.waitSeconds(releaseTimeoutTime))
+            .andThen(controlFactory.cmdHomeIntake()));
         NamedCommands.registerCommand("ReleaseCoral", controlFactory.cmdReleaseCoral().withTimeout(releaseTimeoutTime)
                 .andThen(controlFactory.cmdHomeIntake()));
         NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
