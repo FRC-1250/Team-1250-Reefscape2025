@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 7.082471026490066,
-        "y": 5.07
+        "x": 6.07,
+        "y": 4.7
       },
       "prevControl": {
-        "x": 7.332471026490066,
-        "y": 5.07
+        "x": 6.32,
+        "y": 4.7
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,12 +33,12 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.4987012987012943,
+      "maxWaypointRelativePos": 0.49870129870130947,
       "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 1.5,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 270.0,
+        "maxAngularAcceleration": 540.0,
         "nominalVoltage": 12.0,
         "unlimited": false
       }
@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "ElevatorHome",
-      "waypointRelativePos": 0.05090909090908885,
+      "waypointRelativePos": 0.2514285714285769,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -68,7 +68,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
