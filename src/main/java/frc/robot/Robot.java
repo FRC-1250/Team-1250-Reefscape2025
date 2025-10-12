@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         m_robotContainer.determineMaxSpeed();
-        m_robotContainer.controlFactory.addLimelightVisionMeasurements();
+        //m_robotContainer.controlFactory.addLimelightVisionMeasurements();
 
         if (m_gcTimer.advanceIfElapsed(15)) {
             System.gc();
