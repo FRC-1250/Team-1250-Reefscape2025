@@ -114,7 +114,7 @@ public class Wrist extends SubsystemBase {
     }
 
     public boolean isWristNearPosition(double rotations) {
-        return MathUtil.isNear(rotations, getWristPosition(), 0.01);
+        return MathUtil.isNear(rotations, getWristPosition(), 0.05);
     }
 
     @Override
