@@ -13,6 +13,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,6 +44,10 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.Velocity);
+
+    private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
             .withDriveRequestType(DriveRequestType.Velocity);
 
@@ -190,19 +195,21 @@ public class RobotContainer {
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("CenterBargeSingleHG", "CenterBargeSingleHG");
+        addPathAuto("LeftBargeSingleJI", "LeftBargeSingleJI");
         addPathAuto("RightProcessorEF", "RightProcessorEF");
 
         autoChooser.addOption("GetOffLine",
                 Commands.sequence(
-                        Commands.runOnce(
-                                () -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection()),
-                                drivetrain),
-                        drivetrain.applyRequest(() -> drive.withVelocityX(0.5)).withTimeout(2)));
+                        Commands.waitUntil(() -> drivetrain.isM_hasAppliedOperatorPerspective()),
+                        Commands.runOnce(() -> drivetrain.resetRotation(drivetrain.getOperatorForwardDirection().plus(Rotation2d.k180deg)), drivetrain),
+                        drivetrain.applyRequest(() -> robotCentricDrive.withVelocityX(0.5)).withTimeout(2)));
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private void configureNamedCommands() {
         double releaseTimeoutTime = 1;
+        double intakeTimeoutTime = 2.5;
 
         NamedCommands.registerCommand("ElevatorBarge", controlFactory.cmdSetElevatorPosition(ElevatorPosition.BARGE));
         NamedCommands.registerCommand("ElevatorHome", controlFactory.cmdSetElevatorPosition(ElevatorPosition.HOME));
@@ -215,6 +222,8 @@ public class RobotContainer {
             .andThen(controlFactory.cmdHomeIntake()));
         NamedCommands.registerCommand("ReleaseCoral", controlFactory.cmdReleaseCoral().withTimeout(releaseTimeoutTime)
                 .andThen(controlFactory.cmdHomeIntake()));
-        NamedCommands.registerCommand("IntakeAlgae", controlFactory.cmdIntakeAlgaeSelector());
+        NamedCommands.registerCommand("IntakeAlgae", 
+            controlFactory.cmdIntakeAlgaeSelector().withTimeout(intakeTimeoutTime)
+            .andThen(controlFactory.cmdHomeIntakeWithAlgae()));
     }
 }

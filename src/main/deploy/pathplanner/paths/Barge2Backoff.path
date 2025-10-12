@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 7.075206953642384,
+        "x": 6.75,
         "y": 6.17
       },
       "prevControl": {
-        "x": 7.325206953642384,
+        "x": 7.0,
         "y": 6.17
       },
       "nextControl": null,
@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "ElevatorHome",
-      "waypointRelativePos": 0.05090909090908885,
+      "waypointRelativePos": 0.09766233766233595,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -59,8 +59,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 6.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -76,5 +76,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
