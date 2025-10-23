@@ -62,15 +62,15 @@ public class Elevator extends SubsystemBase {
                 .withKG(0.3)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
                 .withKS(0.2)
-                .withKV(0.3)
+                .withKV(0.16)
                 .withKA(0.01)
-                .withKP(1)
+                .withKP(1.8)
                 .withKI(0)
                 .withKD(0.2);
 
         MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(75))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(150))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(90))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(225))
                 .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(750));
 
         SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
