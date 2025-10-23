@@ -1,5 +1,8 @@
 package frc.robot.util;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -39,6 +42,18 @@ public class TunableTalonFX {
     private final Alert tuningModeAlert;
 
     private SlotConfigs slotConfigs;
+
+    public TunableTalonFX(String subsystemName, String tuningGroupName, Slot0Configs slot0Configs, TalonFX... talons) {
+        this(subsystemName,tuningGroupName, SlotConfigs.from(slot0Configs), talons);
+    }
+
+    public TunableTalonFX(String subsystemName, String tuningGroupName, Slot1Configs slot1Configs, TalonFX... talons) {
+        this(subsystemName,tuningGroupName, SlotConfigs.from(slot1Configs), talons);
+    }
+
+    public TunableTalonFX(String subsystemName, String tuningGroupName, Slot2Configs slot2Configs, TalonFX... talons) {
+        this(subsystemName,tuningGroupName, SlotConfigs.from(slot2Configs), talons);
+    }
 
     public TunableTalonFX(String subsystemName, String tuningGroupName, SlotConfigs slotConfigs, TalonFX... talons) {
         tuningModeAlert = new Alert(String.format("[%s] %s PID tuning mode active.", subsystemName, tuningGroupName),
