@@ -127,8 +127,8 @@ public class ControlFactory {
 
     public Command cmdDeepClimbSelector() {
         return new SelectCommand<>(Map.ofEntries(
-                Map.entry(2, new DeepClimbPostClimb(deepClimber, Amps.of(40))),
-                Map.entry(3, new DeepClimbPreclimb(deepClimber, Amps.of(80)))),
+                Map.entry(2, new DeepClimbPostClimb(deepClimber, Amps.of(20))),
+                Map.entry(3, new DeepClimbPreclimb(deepClimber, Amps.of(20)))),
                 () -> DeepClimbSelector());
     }
 

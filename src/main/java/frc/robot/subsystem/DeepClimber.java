@@ -20,7 +20,7 @@ import frc.robot.util.HealthMonitor;
 public class DeepClimber extends SubsystemBase {
 
     public enum DeepClimberPhase {
-        CLIMB(285),CLIMB1(271.357), CLIMB2(677.135);
+        CLIMB(285),CLIMB1(271.357), CLIMB2(730);
 
         public final double rotations;
 
