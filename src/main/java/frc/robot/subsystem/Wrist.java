@@ -44,7 +44,7 @@ public class Wrist extends SubsystemBase {
     private TalonFX wristTalonFX = new TalonFX(22);
     private CANcoder wristAbsoluteEncoder = new CANcoder(24);
     private PositionVoltage wristPositionControl = new PositionVoltage(0).withSlot(0);
-    private final double encoderOffset = 0.48295703125;
+    private final double encoderOffset = 0.499267578125;
 
     public Wrist() {
         CANcoderConfiguration wristAbsoluteEncoderConfiguration = new CANcoderConfiguration();
