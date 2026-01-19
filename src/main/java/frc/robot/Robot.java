@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
@@ -67,7 +68,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         m_robotContainer.determineMaxSpeed();
         SmartDashboard.putNumber("Match time", DriverStation.getMatchTime());
-        //m_robotContainer.controlFactory.addLimelightVisionMeasurements();
+        m_robotContainer.controlFactory.addLimelightVisionMeasurements();
 
         if (m_gcTimer.advanceIfElapsed(15)) {
             System.gc();

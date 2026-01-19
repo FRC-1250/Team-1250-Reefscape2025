@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -234,9 +235,8 @@ public class ControlFactory {
 
     public Command cmdReleaseCoral() {
         return Commands.sequence(
-            cmdSetWristPosition(WristPosition.L1),
-            cmdSetIntakeVelocity(IntakeVelocity.YEET)
-        );
+                cmdSetWristPosition(WristPosition.L1),
+                cmdSetIntakeVelocity(IntakeVelocity.YEET));
     }
 
     public Command cmdReleaseAlgaeSelector() {
@@ -369,8 +369,34 @@ public class ControlFactory {
         }
     }
 
+    private double tagAmbiguous = 0;
+    private double tagTooSmall = 0;
+    private double resultOutOfBounds = 0;
+    private double resultTeleported = 0;
+    private double framesProcessed = 0;
+    private double frameRejectionRate = 0;
+    private double xTrust, yTrust = 10.0;
+    private boolean forceMt1 = false;
+
+    private double maxRadiansPerSecond = 2;
+    private double minAllowedViewableTagPercent = 0.15;
+    private double maxTeleportDistance = 5;
+    private double maxAllowedTagAmbiguity = 0.6;
+    private int maxFramesBeforeTeleport = 10;
+    private int teleportFrameCounter = 0;
+    private double fieldBuffer = Units.feetToMeters(1);
+    private double fieldLength = Units.feetToMeters(52);
+    private double fieldWidth = Units.feetToMeters(27);
+
+    /*
+     * Use MegaTag v1 to determine our starting position prior to
+     * switching to MegaTag v2 in the rest of the match. Assuming we can see an
+     * AprilTag at the start of the match, this helps reduce the impact of the
+     * robot "teleporting" at the beginning of a match from (0,0) to wherever it
+     * actually is on the field.
+     */
     public void addLimelightVisionMeasurementsV2() {
-        if (DriverStation.isDisabled()) {
+        if (DriverStation.isDisabled() || forceMt1) {
             PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag1();
 
             if (megaTag == null | megaTag.tagCount == 0)
@@ -381,53 +407,81 @@ public class ControlFactory {
 
             swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
             swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
+            forceMt1 = false;
         } else {
             SwerveDriveState driveState = swerveDrivetrain.getState();
             limelight.setRobotOrientation(driveState.Pose.getRotation().getDegrees());
             PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
-            double xTrust, yTrust = 10.0;
+            framesProcessed++;
 
-            if (Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond) > 2.0)
+            if (Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond) > maxRadiansPerSecond)
                 return;
 
             if (megaTag == null | megaTag.tagCount == 0)
                 return;
 
-            if (areAnyTagsAmbiguous(megaTag.rawFiducials))
+            if (areAnyTagsAmbiguous(megaTag.rawFiducials)) {
+                tagAmbiguous++;
                 return;
-
-            if (areAnyTagsFar(megaTag.rawFiducials))
-                return;
-
-            if (isEstimateOutOfBounds(megaTag.pose))
-                return;
-
-            // Increase the trust value to reduce trust in vision measurements
-            if (megaTag.tagCount > 1) {
-                xTrust = 0.5;
-                yTrust = 0.5;
-            } else {
-                xTrust = 0.8;
-                yTrust = 0.8;
             }
+
+            if (isTagTooSmall(megaTag.rawFiducials)) {
+                tagTooSmall++;
+                return;
+            }
+
+            if (isEstimateOutOfBounds(megaTag.pose)) {
+                resultOutOfBounds++;
+                return;
+            }
+
+            if (hasTeleported(megaTag.pose, driveState.Pose, maxTeleportDistance)) {
+                resultTeleported++;
+                return;
+            }
+
+            xTrust = yTrust = calculateTrust(megaTag);
 
             swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(xTrust, yTrust, 9999999));
             swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
+            frameRejectionRate = (tagAmbiguous + tagTooSmall + resultOutOfBounds + resultTeleported)
+                    / framesProcessed;
+            SmartDashboard.putNumber("Rejection rate", frameRejectionRate);
         }
     }
 
+    private double calculateTrust(PoseEstimate estimate) {
+        double averageDistance = 0;
+        for (RawFiducial tag : estimate.rawFiducials) {
+            averageDistance += tag.distToRobot;
+        }
+        averageDistance /= estimate.tagCount;
+
+        double trust = 0.1 + (0.2 * averageDistance);
+
+        if (estimate.tagCount > 1) {
+            return trust * 0.5;
+        }
+
+        return trust;
+    }
+
+    public void forceMt1() {
+        forceMt1 = true;
+    }
+
     private boolean areAnyTagsAmbiguous(RawFiducial[] tags) {
-        for (RawFiducial rawFiducial : tags) {
-            if (rawFiducial.ambiguity > 0.8) {
+        for (RawFiducial tag : tags) {
+            if (tag.ambiguity > maxAllowedTagAmbiguity) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean areAnyTagsFar(RawFiducial[] tags) {
-        for (RawFiducial rawFiducial : tags) {
-            if (rawFiducial.distToRobot > 3) {
+    private boolean isTagTooSmall(RawFiducial[] tags) {
+        for (RawFiducial tag : tags) {
+            if (tag.ta < minAllowedViewableTagPercent) {
                 return true;
             }
         }
@@ -435,14 +489,32 @@ public class ControlFactory {
     }
 
     private boolean isEstimateOutOfBounds(Pose2d pose) {
-        return pose.getX() > Units.feetToMeters(52) || pose.getY() > Units.feetToMeters(27);
+        if (pose.getX() < -fieldBuffer || pose.getX() > fieldLength + fieldBuffer) {
+            return true;
+        }
+        if (pose.getY() < -fieldBuffer || pose.getY() > fieldWidth + fieldBuffer) {
+            return true;
+        }
+        return false;
     }
 
-    // TODO: Removed from filter. Figure out what to do if you die on the field.
     private boolean hasTeleported(Pose2d visionPose, Pose2d currentPose, double teleportThreshold) {
-        return currentPose.minus(visionPose).getTranslation().getNorm() > teleportThreshold;
-    }
+        double distance = currentPose.getTranslation().getDistance(visionPose.getTranslation());
 
+        if (distance > teleportThreshold) {
+            teleportFrameCounter++;
+            // If we see the same "wrong" position for X frames,
+            // it's probably real just let it jump.
+            if (teleportFrameCounter > maxFramesBeforeTeleport) {
+                teleportFrameCounter = 0;
+                swerveDrivetrain.resetPose(visionPose);
+                return false;
+            }
+            return true;
+        }
+        teleportFrameCounter = 0;
+        return false;
+    }
     /*
      * Limelight
      */
