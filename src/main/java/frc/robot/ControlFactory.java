@@ -422,22 +422,27 @@ public class ControlFactory {
 
             if (areAnyTagsAmbiguous(megaTag.rawFiducials)) {
                 tagAmbiguous++;
+                SmartDashboard.putNumber("Ambiguious Tag", tagAmbiguous);
                 return;
             }
 
             if (isTagTooSmall(megaTag.rawFiducials)) {
                 tagTooSmall++;
+                SmartDashboard.putNumber("Too Small", tagTooSmall);
                 return;
             }
 
             if (isEstimateOutOfBounds(megaTag.pose)) {
                 resultOutOfBounds++;
+                SmartDashboard.putNumber("Went Out of Bounds", resultOutOfBounds);
                 return;
             }
 
             if (hasTeleported(megaTag.pose, driveState.Pose, maxTeleportDistance)) {
-                resultTeleported++;
+                resultTeleported++; 
+                SmartDashboard.putNumber("Teleported", resultTeleported);
                 return;
+
             }
 
             xTrust = yTrust = calculateTrust(megaTag);

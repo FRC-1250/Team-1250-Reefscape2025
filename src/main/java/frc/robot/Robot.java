@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         m_robotContainer.determineMaxSpeed();
         SmartDashboard.putNumber("Match time", DriverStation.getMatchTime());
-        m_robotContainer.controlFactory.addLimelightVisionMeasurements();
+        m_robotContainer.controlFactory.addLimelightVisionMeasurementsV2();
 
         if (m_gcTimer.advanceIfElapsed(15)) {
             System.gc();

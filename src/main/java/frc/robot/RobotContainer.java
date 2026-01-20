@@ -195,6 +195,7 @@ public class RobotContainer {
          */
         autoChooser.setDefaultOption("Do nothing", new WaitCommand(15));
         addPathAuto("CenterBargeSingleHG", "CenterBargeSingleHG");
+        addPathAuto("Limelight test", "Limelight test");
         addPathAuto("LeftBargeSingleJI", "LeftBargeSingleJI");
         addPathAuto("RightProcessorEF", "RightProcessorEF");
 

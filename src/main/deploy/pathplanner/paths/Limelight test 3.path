@@ -3,33 +3,47 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.379551282051282,
-        "y": 6.326474358974359
+        "x": 5.933096590909091,
+        "y": 5.416036931818183
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.968910256410256,
-        "y": 6.336794871794872
+        "x": 7.522455565268065,
+        "y": 5.426357444638696
       },
       "isLocked": false,
       "linkedName": "Limelight test 2"
     },
     {
       "anchor": {
-        "x": 6.896666666666665,
-        "y": 3.8598717948717947
+        "x": 7.195961538461538,
+        "y": 3.9114743589743592
       },
       "prevControl": {
-        "x": 5.038974358974358,
-        "y": 3.890833333333333
+        "x": 5.338269230769232,
+        "y": 3.9424358974358977
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Limelight test start"
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 0.1,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -42,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -175.6012946450045
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 1.3019526725789339
+    "rotation": 1.301952672578934
   },
   "useDefaultConstraints": true
 }
