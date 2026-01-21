@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.util.HealthMonitor;
 
 public class Robot extends TimedRobot {
@@ -28,9 +29,15 @@ public class Robot extends TimedRobot {
 
     private final Timer m_gcTimer;
     private final HealthMonitor hm;
+    private final Command visionCommand;
 
     public Robot() {
         m_robotContainer = new RobotContainer();
+
+        visionCommand = Commands.sequence(
+                Commands.waitSeconds(1),
+                Commands.run(() -> m_robotContainer.controlFactory.addLimelightVisionMeasurementsV2()));
+        ;
 
         hm = HealthMonitor.getInstance();
         hm.start();
@@ -68,7 +75,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         m_robotContainer.determineMaxSpeed();
         SmartDashboard.putNumber("Match time", DriverStation.getMatchTime());
-        m_robotContainer.controlFactory.addLimelightVisionMeasurementsV2();
+        // m_robotContainer.controlFactory.addLimelightVisionMeasurementsV2();
 
         if (m_gcTimer.advanceIfElapsed(15)) {
             System.gc();
@@ -98,6 +105,10 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        if (!visionCommand.isScheduled()) {
+            visionCommand.schedule();
+        }
     }
 
     @Override
@@ -113,6 +124,9 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+        if (!visionCommand.isScheduled()) {
+            visionCommand.schedule();
+        }
     }
 
     @Override
@@ -126,6 +140,10 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
+
+        if (!visionCommand.isScheduled()) {
+            visionCommand.schedule();
+        }
     }
 
     @Override
