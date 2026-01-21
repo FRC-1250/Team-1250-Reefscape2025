@@ -376,15 +376,14 @@ public class ControlFactory {
     private double framesProcessed = 0;
     private double frameRejectionRate = 0;
     private double xTrust, yTrust = 10.0;
-    private boolean forceMt1 = false;
 
     private double maxRadiansPerSecond = 2;
-    private double minAllowedViewableTagPercent = 0.15;
-    private double maxTeleportDistance = 5;
+    private double minAllowedViewableTagDecimal = 0.05; // 0 to 100 so 0.05 is 5%
+    private double maxTeleportDistance = 4.5;
     private double maxAllowedTagAmbiguity = 0.6;
     private int maxFramesBeforeTeleport = 10;
     private int teleportFrameCounter = 0;
-    private double fieldBuffer = Units.feetToMeters(1);
+    private double fieldBuffer = Units.feetToMeters(0);
     private double fieldLength = Units.feetToMeters(52);
     private double fieldWidth = Units.feetToMeters(27);
 
@@ -396,63 +395,50 @@ public class ControlFactory {
      * actually is on the field.
      */
     public void addLimelightVisionMeasurementsV2() {
-        if (DriverStation.isDisabled() || forceMt1) {
-            PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag1();
+        SwerveDriveState driveState = swerveDrivetrain.getState();
+        limelight.setRobotOrientation(driveState.Pose.getRotation().getDegrees());
+        PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
+        framesProcessed++;
 
-            if (megaTag == null | megaTag.tagCount == 0)
-                return;
+        if (Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond) > maxRadiansPerSecond)
+            return;
 
-            if (megaTag.tagCount < 1)
-                return;
+        if (megaTag == null | megaTag.tagCount == 0)
+            return;
 
-            swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
-            swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
-            forceMt1 = false;
-        } else {
-            SwerveDriveState driveState = swerveDrivetrain.getState();
-            limelight.setRobotOrientation(driveState.Pose.getRotation().getDegrees());
-            PoseEstimate megaTag = limelight.getBotPoseEstimate_wpiBlue_MegaTag2();
-            framesProcessed++;
-
-            if (Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond) > maxRadiansPerSecond)
-                return;
-
-            if (megaTag == null | megaTag.tagCount == 0)
-                return;
-
-            if (areAnyTagsAmbiguous(megaTag.rawFiducials)) {
-                tagAmbiguous++;
-                SmartDashboard.putNumber("Ambiguious Tag", tagAmbiguous);
-                return;
-            }
-
-            if (isTagTooSmall(megaTag.rawFiducials)) {
-                tagTooSmall++;
-                SmartDashboard.putNumber("Too Small", tagTooSmall);
-                return;
-            }
-
-            if (isEstimateOutOfBounds(megaTag.pose)) {
-                resultOutOfBounds++;
-                SmartDashboard.putNumber("Went Out of Bounds", resultOutOfBounds);
-                return;
-            }
-
-            if (hasTeleported(megaTag.pose, driveState.Pose, maxTeleportDistance)) {
-                resultTeleported++; 
-                SmartDashboard.putNumber("Teleported", resultTeleported);
-                return;
-
-            }
-
-            xTrust = yTrust = calculateTrust(megaTag);
-
-            swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(xTrust, yTrust, 9999999));
-            swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
-            frameRejectionRate = (tagAmbiguous + tagTooSmall + resultOutOfBounds + resultTeleported)
-                    / framesProcessed;
-            SmartDashboard.putNumber("Rejection rate", frameRejectionRate);
+        if (areAnyTagsAmbiguous(megaTag.rawFiducials)) {
+            tagAmbiguous++;
+            SmartDashboard.putNumber("Ambiguious Tag", tagAmbiguous);
+            return;
         }
+
+        if (isTagTooSmall(megaTag.rawFiducials)) {
+            tagTooSmall++;
+            SmartDashboard.putNumber("Too Small", tagTooSmall);
+            return;
+        }
+
+        if (isEstimateOutOfBounds(megaTag.pose)) {
+            resultOutOfBounds++;
+            SmartDashboard.putNumber("Went Out of Bounds", resultOutOfBounds);
+            return;
+        }
+
+        if (hasTeleported(megaTag.pose, driveState.Pose, maxTeleportDistance)) {
+            resultTeleported++;
+            SmartDashboard.putNumber("Teleported", resultTeleported);
+            return;
+
+        }
+
+        xTrust = yTrust = calculateTrust(megaTag);
+
+        swerveDrivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(xTrust, yTrust, 9999999));
+        swerveDrivetrain.addVisionMeasurement(megaTag.pose, Utils.fpgaToCurrentTime(megaTag.timestampSeconds));
+        frameRejectionRate = (tagAmbiguous + tagTooSmall + resultOutOfBounds + resultTeleported)
+                / framesProcessed;
+        SmartDashboard.putNumber("Rejection rate", frameRejectionRate);
+
     }
 
     private double calculateTrust(PoseEstimate estimate) {
@@ -471,10 +457,6 @@ public class ControlFactory {
         return trust;
     }
 
-    public void forceMt1() {
-        forceMt1 = true;
-    }
-
     private boolean areAnyTagsAmbiguous(RawFiducial[] tags) {
         for (RawFiducial tag : tags) {
             if (tag.ambiguity > maxAllowedTagAmbiguity) {
@@ -486,7 +468,8 @@ public class ControlFactory {
 
     private boolean isTagTooSmall(RawFiducial[] tags) {
         for (RawFiducial tag : tags) {
-            if (tag.ta < minAllowedViewableTagPercent) {
+            if (tag.ta * 100 < minAllowedViewableTagDecimal) {
+                SmartDashboard.putNumber("ta", tag.ta * 100);
                 return true;
             }
         }
