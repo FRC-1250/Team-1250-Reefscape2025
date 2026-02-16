@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -403,7 +404,10 @@ public class ControlFactory {
         if (Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond) > maxRadiansPerSecond)
             return;
 
-        if (megaTag == null | megaTag.tagCount == 0)
+        if (megaTag == null)
+            return;
+
+        if (megaTag.tagCount == 0)
             return;
 
         if (areAnyTagsAmbiguous(megaTag.rawFiducials)) {
